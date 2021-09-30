@@ -65,20 +65,13 @@ if (!empty($confirmexamdate)) {
     echo $OUTPUT->confirm($message, $formcontinue, $formcancel);
     echo $OUTPUT->box_end();
 
-} else if (!empty($confirmexamdateyes)) {
-    echo $OUTPUT->header();
-    echo $OUTPUT->box_start('generalbox');
-
-
-    block_eledia_adminexamdates\util::examconfirm($confirmexamdateyes);
-    echo $OUTPUT->box_end();
-    redirect(new moodle_url($PAGE->url));
-} else if (!empty($cancelexamdateyes)) {
-    $DB->delete_records('eledia_adminexamdates', ['id' => $cancelexamdateyes]);
-    redirect(new moodle_url($PAGE->url));
-
-
 } else {
+    if (!empty($confirmexamdateyes)) {
+        block_eledia_adminexamdates\util::examconfirm($confirmexamdateyes);
+    }
+    if (!empty($cancelexamdateyes)) {
+        $DB->delete_records('eledia_adminexamdates', ['id' => $cancelexamdateyes]);
+    }
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
     $url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1]);

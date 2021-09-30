@@ -76,11 +76,11 @@ class util
     public static function getfreetimeslots($examdateid, $formdata)
     {
         global $DB, $USER;
-        /*      $sql = "SELECT a.id, a.examduration, ag.grouptime, ad.examroom, ad.groupid
+        /*      $sql = "SELECT a.id, a.examduration, ag.timepartialdate, ad.examroom, ad.partid
                     FROM {eledia_adminexamdates} a
-                    JOIN {eledia_adminexamdates_groups} ag ON ag.examdateid = a.id
-                    JOIN {eledia_adminexamdates_dates} ad ON ad.groupid = ag.id
-                   WHERE ag.grouptime > ? AND ag.grouptime < ?";
+                    JOIN {eledia_adminexamdates_parts} ag ON ag.examdateid = a.id
+                    JOIN {eledia_adminexamdates_dates} ad ON ad.partid = ag.id
+                   WHERE ag.timepartialdate > ? AND ag.timepartialdate < ?";
 
               $params = [strtotime('07:00:00', $formdata->examtimestart),
                   strtotime('19:00:00', $formdata->examtimestart)];
@@ -101,14 +101,14 @@ class util
         $numberofgroups = ceil($formdata->numberstudents / $roomcapacitysum);
         for ($i = 1; $i <= $numberofgroups; $i++) {
             $numberstudents = (($i * $roomcapacitysum) > $formdata->numberstudents) ? $formdata->numberstudents % $roomcapacitysum : $roomcapacitysum;
-            $grouptime = $formdata->examtimestart + (($i - 1) * $formdata->examduration * 60);
-            $groupid = $DB->insert_record('eledia_adminexamdates_groups',
+            $timepartialdate = $formdata->examtimestart + (($i - 1) * $formdata->examduration * 60);
+            $partid = $DB->insert_record('eledia_adminexamdates_parts',
                 (object)['examdateid' => $examdateid,
-                    'grouptime' => $grouptime,
-                    'groupnumberstudents' => $numberstudents,
-                    'groupname' => $formdata->examname . '_' . date('Hi', $grouptime)
+                    'timepartialdate' => $timepartialdate,
+                    'partnumberstudents' => $numberstudents,
+                    'groupname' => $formdata->examname . '_' . date('Hi', $timepartialdate)
                 ]);
-            if (!empty($groupid)) {
+            if (!empty($partid)) {
                 $sumroomcapacity = 0;
                 foreach ($roomcapacities as $roomid => $roomcapacity) {
 
@@ -116,7 +116,7 @@ class util
                     $isrestnumberstudents = $sumroomcapacity >= $numberstudents;
                     // $roomnumberstudents = $isrestnumberstudents ? $numberstudents - $sumroomcapacity : $roomcapacity;
                     $datesid = $DB->insert_record('eledia_adminexamdates_dates',
-                        (object)['groupid' => $groupid,
+                        (object)['partid' => $partid,
                             'examroom' => $roomid,
                         ]);
                     if ($isrestnumberstudents) {
@@ -165,7 +165,7 @@ class util
         $conditions = $hasconfirmexamdatescap ? ['confirmed' => 0] : ['confirmed' => 0, 'userid' => $USER->id];
         $adminexamdates = $DB->get_records('eledia_adminexamdates', $conditions);
         foreach ($adminexamdates as $adminexamdate) {
-            $adminexamgroups = $DB->get_records('eledia_adminexamdates_groups', ['examdateid' => $adminexamdate->id]);
+            $adminexamgroups = $DB->get_records('eledia_adminexamdates_parts', ['examdateid' => $adminexamdate->id]);
             $text .= \html_writer::start_tag('div', array('class' => 'card'));
             $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
             $text .= \html_writer::tag('h5', $adminexamdate->examname, array('class' => 'card-title'));
@@ -182,9 +182,9 @@ class util
             $text .= \html_writer::tag('dd', $adminexamdate->contactperson);
             $index = 1;
             foreach ($adminexamgroups as $adminexamgroup) {
-                $text .= \html_writer::tag('dt', $index . '. Gruppe: ' . $adminexamgroup->groupname . ' (' . $adminexamgroup->groupnumberstudents . ' TN): ');
-                $text .= \html_writer::tag('dd', date('d.m.Y H.i', $adminexamgroup->grouptime)
-                    . ' - ' . date('H.i', $adminexamgroup->grouptime + ($adminexamdate->examduration * 60)));;
+                $text .= \html_writer::tag('dt', $index . '. Teiltermin');
+                $text .= \html_writer::tag('dd', date('d.m.Y H.i', $adminexamgroup->timepartialdate)
+                    . ' - ' . date('H.i', $adminexamgroup->timepartialdate + ($adminexamdate->examduration * 60)));;
                 $index++;
             }
             $text .= \html_writer::end_tag('dl');
@@ -209,7 +209,7 @@ class util
     }
 
     /**
-     * Confirm exam - copy course for exam
+     * Confirm exam - Duplicate a sample course for the exam in the e-exam system
      *
      * @return array
      */
@@ -218,104 +218,83 @@ class util
     {
         global $DB, $USER;
 
-
-
         $config = get_config('block_eledia_adminexamdates');
-        if (!empty($config->apitoken) && !empty($config->apidomain) && !empty($config->examcoursetemplateidnumber)) {
 
+        // Get the template's course ID using the course idnumber.
+        if (!empty($config->examcoursetemplateidnumber)) {
             $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
-            $examgroups = $DB->get_records('eledia_adminexamdates_groups', ['examdateid' => $examdateid]);
+            $examgroups = $DB->get_records('eledia_adminexamdates_parts', ['examdateid' => $examdateid]);
 
-            $curl = new \curl();
             $param = [
-                'moodlewsrestformat' => 'json',
-                'wstoken' => $config->apitoken,
                 'wsfunction' => 'core_course_get_courses_by_field',
                 'field' => 'idnumber',
                 'value' => $config->examcoursetemplateidnumber
             ];
+            $results = self::get_data_from_api('', $param);
 
-            $response = $curl->post($config->apidomain . '/webservice/rest/server.php', $param);
-            $results = json_decode($response);
-            if (isset($results->message) || isset($results->errorcode)) {
-                $message = get_string('error') . ': ';
-                $message .= isset($results->errorcode) ? $results->errorcode . ' - ' : '';
-                $message .= isset($results->message) ? $results->message : '';
-                \core\notification::add($message, \core\output\notification::NOTIFY_ERROR);
-                return;
-            } else if (!empty($results->courses[0]->id)) {
-                 $subcategories=self::get_sub_categories($examdate->department);
-            //
+            // If the template course exists, get the sub-categories by the department categoryid.
+            if (!empty($results->courses[0]->id)) {
+                $templatecourseid=$results->courses[0]->id;
+                $subcategories = self::get_sub_categories('id', $examdate->department);
 
-                for ($append = mt_rand(1, 9), $i = 1; $i < 8; $i++) {
-                    $append .= mt_rand(0, 9);
+                // Generate the string of the semester category.
+                $year = substr($examdate->semester, 0, 4);
+                if (substr($examdate->semester, -1) == 1) {
+                    $semesterstr = get_string('summersemester', 'block_eledia_adminexamdates')
+                        . ' ' . $year;
+                } else {
+                    $semesterstr = get_string('wintersemester', 'block_eledia_adminexamdates')
+                        . ' ' . $year . '/' . ($year + 1);
                 }
-                $curl = new \curl();
+
+                // Create the semester category if it is not in the sub-category list.
+                if (empty($subcategories) || !($semestercategoryid = array_search($semesterstr, $subcategories))) {
+                    $param = ['wsfunction' => 'core_course_create_categories'];
+                    $categories = '&categories[0][name]=' . urlencode($semesterstr)
+                        . '&categories[0][parent]=' . $examdate->department;
+                    $results = self::get_data_from_api($categories, $param);
+                    $semestercategoryid = $results[0]->id;
+                }
+
+                // Duplicate the sample course for the exam.
                 $param = [
-                    'moodlewsrestformat' => 'json',
-                    'wstoken' => $config->apitoken,
                     'wsfunction' => 'core_course_duplicate_course',
-                    'courseid' => $results->courses[0]->id,
+                    'courseid' => $templatecourseid,
                     'fullname' => $examdate->examname,
-                    'shortname' => $examdate->examname . $append,
-                    'categoryid' => $examdate->department,
+                    'shortname' => $examdate->examname,
+                    'categoryid' => $semestercategoryid,
                     'visible' => 0
                 ];
-                $response = $curl->post($config->apidomain . '/webservice/rest/server.php', $param);
-                $results = json_decode($response);
+                $results = self::get_data_from_api('', $param);
 
-                if (isset($results->message) || isset($results->errorcode)) {
-                    $message = get_string('error') . ': ';
-                    $message .= isset($results->errorcode) ? $results->errorcode . ' - ' : '';
-                    $message .= isset($results->message) ? $results->message : '';
-                    \core\notification::add($message, \core\output\notification::NOTIFY_ERROR);
-                    return;
-                } else if (isset($results->id)) {
-
+                // Get the duplicated course section data and look for the date replacement string in the names and replace.
+                if (isset($results->id)) {
                     $courseid = $results->id;
-                    $curl = new \curl();
                     $param = [
-                        'wstoken' => $config->apitoken,
                         'wsfunction' => 'core_course_get_contents',
                         'courseid' => $courseid
                     ];
                     $options = '&options[0][name]=excludemodules&options[0][value]=1';
-                    $response = $curl->post($config->apidomain . '/webservice/rest/server.php?moodlewsrestformat=json' . $options, $param);
-                    $results = json_decode($response);
-
-                    if (isset($results->message) || isset($results->errorcode)) {
-                        $message = get_string('error') . ': ';
-                        $message .= isset($results->errorcode) ? $results->errorcode . ' - ' : '';
-                        $message .= isset($results->message) ? $results->message : '';
-                        \core\notification::add($message, \core\output\notification::NOTIFY_ERROR);
-                        return;
-                    } else if (!empty($results)) {
-
+                    $results = self::get_data_from_api($options, $param);
+                    if (!empty($results)) {
+                        $stringtoreplace = 'TT.MM.JJJJ';
                         foreach ($results as $sectiondata) {
-                            if ($sectiondata->name == 'Klausur am TT.MM.JJJJ') {
+                            if (strpos($sectiondata->name, $stringtoreplace)) {
                                 $param = [
-                                    'wstoken' => $config->apitoken,
                                     'wsfunction' => 'core_update_inplace_editable',
                                     'component' => 'format_topics',
                                     'itemtype' => 'sectionname',
                                     'itemid' => $sectiondata->id,
-                                    'value' => 'Klausur am ' . date('d.m.Y', $examdate->examtimestart)
+                                    'value' => str_replace($stringtoreplace,
+                                        date('d.m.Y', $examdate->examtimestart),
+                                        $sectiondata->name)
                                 ];
-                                $curl = new \curl();
-
-                                $response = $curl->post($config->apidomain . '/webservice/rest/server.php?moodlewsrestformat=json', $param);
-                                $results = json_decode($response);
-
-                                if (isset($results->message) || isset($results->errorcode)) {
-                                    $message = get_string('error') . ': ';
-                                    $message .= isset($results->errorcode) ? $results->errorcode . ' - ' : '';
-                                    $message .= isset($results->message) ? $results->message : '';
-                                    \core\notification::add($message, \core\output\notification::NOTIFY_ERROR);
-                                    return;
-                                }
+                                self::get_data_from_api('', $param);
                                 break;
                             }
                         }
+
+                        // Generate the course groups for each exam groups.
                         $groupparam = '';
                         foreach ($examgroups as $index => $examgroup) {
                             $groupparam .= "&groups[$index][courseid]=$courseid";
@@ -323,25 +302,13 @@ class util
                             $groupparam .= "&groups[$index][description]=";
                             $groupparam .= "&groups[$index][descriptionformat]=1";
                         }
-                        $curl = new \curl();
-                        $param = [
-                            'wstoken' => $config->apitoken,
-                            'wsfunction' => 'core_group_create_groups',
-                        ];
+                        $param = ['wsfunction' => 'core_group_create_groups'];
+                        $results = self::get_data_from_api($groupparam, $param);
 
-                        $response = $curl->post($config->apidomain . '/webservice/rest/server.php?moodlewsrestformat=json' . $groupparam, $param);
-                        $results = json_decode($response);
-
-                        if (isset($results->message) || isset($results->errorcode)) {
-                            $message = get_string('error') . ': ';
-                            $message .= isset($results->errorcode) ? $results->errorcode . ' - ' : '';
-                            $message .= isset($results->message) ? $results->message : '';
-                            \core\notification::add($message, \core\output\notification::NOTIFY_ERROR);
-                            return;
-                        } else if (!empty($results)) {
-
+                        // Generate the calendar events for each exam events.
+                        if (!empty($results)) {
                             foreach ($examgroups as $examgroup) {
-                                $examevents = $DB->get_records('eledia_adminexamdates_dates', ['groupid' => $examgroup->id]);
+                                $examevents = $DB->get_records('eledia_adminexamdates_dates', ['partid' => $examgroup->id]);
                                 foreach ($examevents as $examevent) {
                                     $roomeventscourse = $DB->get_record('course', array('idnumber' => $examevent->examroom), 'id', IGNORE_MULTIPLE);
 
@@ -370,12 +337,12 @@ class util
                                             'description' => $text,
                                             'format' => 1,
                                             'courseid' => $roomeventscourse->id,
-                                            'groupid' => 0,
+                                            'partid' => 0,
                                             'userid' => $USER->id,
                                             'modulename' => 0,
                                             'instance' => 0,
                                             'eventtype' => 'course',
-                                            'timestart' => $examgroup->grouptime,
+                                            'timestart' => $examgroup->timepartialdate,
                                             'timeduration' => $examdate->examduration * 60,
                                             'visible' => 1
                                         ];
@@ -389,6 +356,7 @@ class util
                                     }
                                 }
                             }
+                            // Set the 'confirmed' state to this exam date.
                             $DB->update_record('eledia_adminexamdates', (object)['id' => $examdateid, 'confirmed' => 1]);
                         }
                     }
@@ -398,56 +366,56 @@ class util
     }
 
     /**
-     * Get sub category list from API
+     * Get data from API
      *
      * @return array
      */
     public
-    static function get_sub_categories($categoryidnumber)
+    static function get_data_from_api($urlparam, $param)
     {
-
         $config = get_config('block_eledia_adminexamdates');
         if (!empty($config->apitoken) && !empty($config->apidomain)) {
             $curl = new \curl();
-            $param = [
-                'moodlewsrestformat' => 'json',
-                'wstoken' => $config->apitoken,
-                'wsfunction' => 'core_course_get_categories',
-                'addsubcategories' => 0,
-            ];
-            $criteria = '?criteria[0][key]=idnumber&criteria[0][value]=' . $categoryidnumber;
-            $response = $curl->post($config->apidomain . '/webservice/rest/server.php' . $criteria, $param);
-
+            $param['wstoken'] = $config->apitoken;
+            $response = $curl->post($config->apidomain . '/webservice/rest/server.php?moodlewsrestformat=json' . $urlparam, $param);
             $results = json_decode($response);
-
             if (isset($results->message) || isset($results->errorcode)) {
                 $message = get_string('error') . ': ';
                 $message .= isset($results->errorcode) ? $results->errorcode . ' - ' : '';
                 $message .= isset($results->message) ? $results->message : '';
                 \core\notification::add($message, \core\output\notification::NOTIFY_ERROR);
-                return;
-            } else if (!empty($results)) {
-                $parentcategoryid = $results[0]->id;
-                $param['addsubcategories'] = 1;
-                $response = $curl->post($config->apidomain . '/webservice/rest/server.php' . $criteria, $param);
-                $results = json_decode($response);
+                return false;
+            }
+            return $results;
+        }
+    }
 
-                if (isset($results->message) || isset($results->errorcode)) {
-                    $message = get_string('error') . ': ';
-                    $message .= isset($results->errorcode) ? $results->errorcode . ' - ' : '';
-                    $message .= isset($results->message) ? $results->message : '';
-                    \core\notification::add($message, \core\output\notification::NOTIFY_ERROR);
-                    return;
-                } else if (!empty($results)) {
-                    $subcategories = [];
-                    foreach ($results as $result) {
-                        if ($result->parent == $parentcategoryid) {
-                            $subcategories[$result->id] = $result->name;
-                        }
+    /**
+     * Get sub category list from API
+     *
+     * @return array
+     */
+    public
+    static function get_sub_categories($idtype, $categoryidvalue)
+    {
+        $param = [
+            'wsfunction' => 'core_course_get_categories',
+            'addsubcategories' => 0,
+        ];
+        $criteria = '&criteria[0][key]=' . $idtype . '&criteria[0][value]=' . $categoryidvalue;
+        $results = self::get_data_from_api($criteria, $param);
+        if (!empty($results[0]->id)) {
+            $parentcategoryid = $results[0]->id;
+            $param['addsubcategories'] = 1;
+            $results = self::get_data_from_api($criteria, $param);
+            if (!empty($results)) {
+                $subcategories = [];
+                foreach ($results as $result) {
+                    if ($result->parent == $parentcategoryid) {
+                        $subcategories[$result->id] = $result->name;
                     }
-
-                    return $subcategories;
                 }
+                return $subcategories;
             }
         }
     }

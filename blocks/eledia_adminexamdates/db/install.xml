@@ -25,22 +25,26 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="eledia_adminexamdates_groups" COMMENT="Table saves the exam groups.">
+    <TABLE NAME="eledia_adminexamdates_parts" COMMENT="Table saves the exam parts(groups).">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="examdateid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="grouptime" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="groupnumberstudents" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timepartialdate" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="examiner1" TYPE="char" LENGTH="300" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="examiner2" TYPE="char" LENGTH="300" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="examsupervision1" TYPE="char" LENGTH="300" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="examsupervision2" TYPE="char" LENGTH="300" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="partnumberstudents" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="groupname" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="eledia_adminexamdates_dates" COMMENT="Table saves the dates for exam groups.">
+    <TABLE NAME="eledia_adminexamdates_dates" COMMENT="Table saves the rooms an calendarevents for exam parts.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="partid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="examroom" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="calendareventid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>

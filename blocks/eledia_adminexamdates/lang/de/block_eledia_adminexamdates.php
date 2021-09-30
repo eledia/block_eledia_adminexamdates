@@ -81,4 +81,3 @@ $string['config_examcoursetemplateidnumber'] = 'Diese Kurs-ID sollte in der Klau
 
 
 
-

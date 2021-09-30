@@ -45,8 +45,8 @@ if ($ADMIN->fulltree) {
     $departmentchoices = unserialize(get_config('block_eledia_adminexamdates', 'departmentchoices'));
     $envcategoryidnumber = get_config('block_eledia_adminexamdates', 'envcategoryidnumber');
     if ((get_config('block_eledia_adminexamdates', 'reloaddepartments')
-        || empty($departmentchoices) && !empty($envcategoryidnumber))) {
-        $subcategories = block_eledia_adminexamdates\util::get_sub_categories($envcategoryidnumber);
+         && !empty($envcategoryidnumber))) {
+        $subcategories = block_eledia_adminexamdates\util::get_sub_categories('idnumber',$envcategoryidnumber);
         if (!empty($subcategories)) {
             $departmentchoices = $subcategories;
             set_config('reloaddepartments', 0, 'block_eledia_adminexamdates');

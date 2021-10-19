@@ -22,7 +22,7 @@ if ($ADMIN->fulltree) {
         get_string('configure_description', 'block_eledia_adminexamdates'));
 
     $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/apidomain', get_string('setting_apidomain', 'block_eledia_adminexamdates'),
-        '', 'https://e-exam.uni-kassel.de', PARAM_URL, 60);
+        '', '', PARAM_URL, 60);
 
     $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/apitoken', get_string('setting_apitoken',
         'block_eledia_adminexamdates'), get_string('config_apitoken',
@@ -35,11 +35,11 @@ if ($ADMIN->fulltree) {
 
     $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/envcategoryidnumber',
         get_string('setting_envcategoryidnumber', 'block_eledia_adminexamdates'),
-        get_string('config_envcategoryidnumber', 'block_eledia_adminexamdates'), 'PRÜFUNGSUMGEBUNG', PARAM_RAW);
+        get_string('config_envcategoryidnumber', 'block_eledia_adminexamdates'), 'EXAMENV', PARAM_RAW);
 
     $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/examcoursetemplateidnumber',
         get_string('setting_examcoursetemplateidnumber', 'block_eledia_adminexamdates'),
-        get_string('config_examcoursetemplateidnumber', 'block_eledia_adminexamdates'), 'KLAUSURKURSVORLAGE', PARAM_RAW);
+        get_string('config_examcoursetemplateidnumber', 'block_eledia_adminexamdates'), 'EXAMTEMPLATE', PARAM_RAW);
 
 
     $departmentchoices = unserialize(get_config('block_eledia_adminexamdates', 'departmentchoices'));
@@ -54,14 +54,30 @@ if ($ADMIN->fulltree) {
         }
     }
 
-    $configs[] = new admin_setting_configmultiselect('departments',
+    $configs[] = new admin_setting_configmultiselect('block_eledia_adminexamdates/departments',
         new lang_string('departments', 'block_eledia_adminexamdates'),
         new lang_string('config_departments', 'block_eledia_adminexamdates'),
         array(), $departmentchoices);
 
-    $configs[] = new admin_setting_configcheckbox('reloaddepartments',
+    $configs[] = new admin_setting_configcheckbox('block_eledia_adminexamdates/reloaddepartments',
         new lang_string('reloaddepartments', 'block_eledia_adminexamdates'),
         new lang_string('configreloaddepartments', 'block_eledia_adminexamdates'), 0);
+
+    $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/startexam',
+        new lang_string('setting_startexam', 'block_eledia_adminexamdates'),
+        '', 7, PARAM_INT);
+
+    $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/endexam',
+        new lang_string('setting_endexam', 'block_eledia_adminexamdates'),
+        '', 19, PARAM_INT);
+
+    $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/breakbetweenblockdates',
+        new lang_string('setting_breakbetweenblockdates', 'block_eledia_adminexamdates'),
+        '', 85, PARAM_INT);
+
+    $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/distancebetweenblockdates',
+        new lang_string('setting_distancebetweenblockdates', 'block_eledia_adminexamdates'),
+        '', 100, PARAM_INT);
 
     foreach ($configs as $config) {
         $config->plugin = 'block_eledia_adminexamdates';

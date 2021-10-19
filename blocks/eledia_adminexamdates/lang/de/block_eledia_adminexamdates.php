@@ -46,7 +46,7 @@ $string['confirmexamdate'] = 'Bestätigen';
 $string['confirmexamdatemsg'] = 'Wollen Sie die den Prüfungstermin bestätigen für: \'{$a->name}\'?';
 $string['cancelexamdatemsg'] = 'Wollen Sie die den Prüfungstermin stornieren für: \'{$a->name}\'?';
 $string['configure_description'] = 'Hier können Sie die Prüfungstermin-Verwaltung konfigurieren.';
-$string['number_students'] ='Anzahl der Teilnehmer';
+$string['number_students'] ='Anzahl der Teilnehmenden';
 $string['department'] ='Fachbereich';
 $string['examiner'] ='Dozent/ Prüfer';
 $string['contactperson'] ='Ansprechpartner';
@@ -71,10 +71,46 @@ $string['setting_envcategoryidnumber'] = 'Kursbereichs-ID der Prüfungsumgebung'
 $string['config_envcategoryidnumber'] = 'Die Fachbereiche liegen als Unterkategorien in der "Prüfungsumgebung" des Prüfungssystems. Diese Kurskategorie-ID sollte in der Kategorie "Prüfungsumgebung" gesetzt sein.';
 $string['setting_examcoursetemplateidnumber'] = 'Kurs-ID der Klausur-Kursvorlage';
 $string['config_examcoursetemplateidnumber'] = 'Diese Kurs-ID sollte in der Klausur-Kursvorlage des Prüfungssystems gesetzt sein.';
-
-
-
-
+$string['calendar_btn'] = 'Prüfungstermin-Kalender';
+$string['setting_startexam'] = 'Frühester E-Klausur Beginn (nur volle Stunden)';
+$string['setting_endexam'] = 'Spätestens E-Klausur Ende (nur volle Stunden)';
+$string['setting_breakbetweenblockdates'] = 'Pause zwischen zwei Blockterminen (in Minuten)';
+$string['setting_distancebetweenblockdates'] = 'Abstand zwischen Blöcken (in Minuten)';
+$string['editsingleexamdate'] = 'Einzeltermine';
+$string['singleexamdate_header'] = 'Einzeltermine Planen';
+$string['examdateslist_btn'] = 'Prüfungstermin-Liste';
+$string['tablehead_month'] = 'Monat';
+$string['tablehead_date'] = 'Datum';
+$string['tablehead_examname'] = 'Bezeichnung Klausur';
+$string['tablehead_examiner'] = 'Prüfer/Dozent';
+$string['tablehead_examroom'] = 'Prüfungsraum';
+$string['tablehead_supervisor1'] = 'Betreuer 1';
+$string['tablehead_supervisor2'] = 'Betreuer 2';
+$string['tablehead_candidates'] = 'Prüflinge';
+$string['tablehead_status'] = 'Status';
+$string['tablehead_blockid'] = 'Einzeltermin ID';
+$string['dt_lenghtmenu'] = 'Anzeigen von _MENU_ Prüfungsterminen pro Seite';
+$string['dt_zerorecords'] = 'Nichts gefunden - Entschuldigung';
+$string['dt_info'] = 'Zeige Seite _PAGE_ von _PAGES_';
+$string['dt_infoempty'] = 'Keine Datensätze verfügbar';
+$string['dt_infofiltered'] = '(gefiltert aus _MAX_ Gesamtdatensätzen)';
+$string['dt_emptytable'] = 'Keine Daten in der Tabelle vorhanden';
+$string['dt_infopostfix'] = '';
+$string['dt_thousands'] = '.';
+$string['dt_loadingrecords'] = 'Laden...';
+$string['dt_processing'] = 'Verarbeitung...';
+$string['dt_search'] = 'Suche:';
+$string['dt_first'] = 'Erster';
+$string['dt_last'] = 'Letzter';
+$string['dt_next'] = 'Weiter';
+$string['dt_previous'] = 'Zurück';
+$string['dt_sortascending'] = ': aktivieren, um die Spalte aufsteigend zu sortieren';
+$string['dt_sortdescending'] = ': aktivieren um die Spalte absteigend zu sortieren';
+$string['block_timestart'] = 'Prüfungsbeginn (Blocktermin)';
+$string['block_duration'] = 'Klausur-Schreibzeit (Minuten)';
+$string['room_number_students'] = 'Anzahl der Teilnehmenden (Raum)';
+$string['room_supervisor'] = 'Betreuer (Raum)';
+$string['room_supervision'] = 'Klausuraufsicht (Raum)';
 
 
 

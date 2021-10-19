@@ -70,16 +70,21 @@ if (!empty($confirmexamdate)) {
         block_eledia_adminexamdates\util::examconfirm($confirmexamdateyes);
     }
     if (!empty($cancelexamdateyes)) {
-        $DB->delete_records('eledia_adminexamdates', ['id' => $cancelexamdateyes]);
+        block_eledia_adminexamdates\util::examcancel($confirmexamdateyes);
     }
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
+
     $url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1]);
     $newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
-
+    $urlcalendar = new moodle_url('/blocks/eledia_adminexamdates/calendar.php');
+    $urllist = new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php');
 
     echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'), 'post');
     echo block_eledia_adminexamdates\util::getexamdateitems();
+
     echo $OUTPUT->container_end();
 }
 

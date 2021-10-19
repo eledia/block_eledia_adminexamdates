@@ -7,7 +7,7 @@
     <TABLE NAME="eledia_adminexamdates" COMMENT="Table saves the exam appointment requests and the status when they have been confirmed.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="examroom" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="examrooms" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="semester" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="examtimestart" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="examduration" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -19,34 +19,35 @@
         <FIELD NAME="annotationtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Timestamp of that being created."/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="confirmed" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="eledia_adminexamdates_parts" COMMENT="Table saves the exam parts(groups).">
+    <TABLE NAME="eledia_adminexamdates_blocks" COMMENT="Table saves the blocks - single exam events.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="examdateid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="timepartialdate" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="examiner1" TYPE="char" LENGTH="300" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="examiner2" TYPE="char" LENGTH="300" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="examsupervision1" TYPE="char" LENGTH="300" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="examsupervision2" TYPE="char" LENGTH="300" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="partnumberstudents" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="groupname" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="examdateid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="blocktimestart" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="blockduration" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="eledia_adminexamdates_dates" COMMENT="Table saves the rooms an calendarevents for exam parts.">
+    <TABLE NAME="eledia_adminexamdates_rooms" COMMENT="Table saves the exam rooms for each block - single exam event.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="partid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="blockid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="roomnumberstudents" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="roomsupervisor1" TYPE="char" LENGTH="300" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="roomsupervisor2" TYPE="char" LENGTH="300" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="roomsupervision1" TYPE="char" LENGTH="300" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="roomsupervision2" TYPE="char" LENGTH="300" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="roomannotationtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="examroom" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="calendareventid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

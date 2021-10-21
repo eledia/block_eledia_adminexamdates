@@ -258,10 +258,12 @@ class singleexamdate_form extends \moodleform
          $mform->addElement('hidden', 'examdateid');
          $mform->setType('examdateid', PARAM_INT);*/
 
-        $mform->addElement('hidden', 'savesingleexamdate');
-        $mform->setType('savesingleexamdate', PARAM_INT);
+        $mform->addElement('hidden', 'save');
+        $mform->setType('save', PARAM_INT);
         $mform->addElement('hidden', 'blockid');
         $mform->setType('blockid', PARAM_INT);
+        $mform->addElement('hidden', 'examdateid');
+        $mform->setType('examdateid', PARAM_INT);
 
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton', get_string('submit'));

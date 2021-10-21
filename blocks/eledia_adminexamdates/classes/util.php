@@ -79,13 +79,13 @@ class util
         global $DB;
 
         $dataobject = new \stdClass();
-        $singleexamdateid = $formdata->savesingleexamdate;
+        $examdateid = $formdata->examdateid;
         $dataobject->blocktimestart = $formdata->blocktimestart;
         $dataobject->blockduration = $formdata->blockduration;
 
         if (empty($formdata->blockid)) {
 
-            $singleexamdateid = $DB->insert_record('eledia_adminexamdates_blocks', $dataobject);
+            $examdateid = $DB->insert_record('eledia_adminexamdates_blocks', $dataobject);
         } else {
 
             $roomsdata = $DB->get_records('eledia_adminexamdates_rooms', ['blockid' => $formdata->blockid]);
@@ -106,7 +106,7 @@ class util
                         $DB->update_record('eledia_adminexamdates_rooms', $roomdataobject);
                     } else {
                         $roomdataobject->blockid = $formdata->blockid;
-                        $roomdataobject->examroom=$roomid;
+                        $roomdataobject->examroom = $roomid;
                         $DB->insert_record('eledia_adminexamdates_rooms', $roomdataobject);
                     }
                 }
@@ -120,7 +120,7 @@ class util
             $DB->update_record('eledia_adminexamdates_blocks', $dataobject);
 
         }
-        return $singleexamdateid;
+        return $examdateid;
     }
 
     /**
@@ -214,19 +214,19 @@ class util
      *
      * @param stdClass $formdata of form.
      */
-    public static function editsingleexamdate($examdateid)
+    public static function editsingleexamdate($blockid, $examdateid)
     {
         global $DB;
-        $dataobject = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
-        $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
-        $exampart = array_shift($examparts);
+        // $dataobject = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
+        $exampart = $DB->get_record('eledia_adminexamdates_blocks', ['id' => $blockid]);
+        //$exampart = array_shift($examparts);
         //print_R($examparts);
         $formdata = new stdClass();
-        $formdata->savesingleexamdate = $examdateid;
+        $formdata->examdateid = $examdateid;
         $formdata->blocktimestart = $exampart->blocktimestart;
         $formdata->blockduration = $exampart->blockduration;
         $formdata->blockid = $exampart->id;
-
+        $formdata->save = true;
 
         //  foreach ($examparts as $index => $exampart) {
         $rooms = $DB->get_records('eledia_adminexamdates_rooms', ['blockid' => $exampart->id]);
@@ -237,11 +237,11 @@ class util
             foreach ($rooms as $room) {
                 $formdata->blockexamroomscheck[$room->examroom] = true;
 
-                $formdata->roomnumberstudents[$room->examroom] =$room->roomnumberstudents ;
-                 $formdata->roomsupervisor1[$room->examroom]=$room->roomsupervisor1;
-                 $formdata->roomsupervisor2[$room->examroom]=$room->roomsupervisor2 ;
-                 $formdata->roomsupervision1[$room->examroom]=$room->roomsupervision1;
-                 $formdata->roomsupervision2[$room->examroom]=$room->roomsupervision2 ;
+                $formdata->roomnumberstudents[$room->examroom] = $room->roomnumberstudents;
+                $formdata->roomsupervisor1[$room->examroom] = $room->roomsupervisor1;
+                $formdata->roomsupervisor2[$room->examroom] = $room->roomsupervisor2;
+                $formdata->roomsupervision1[$room->examroom] = $room->roomsupervision1;
+                $formdata->roomsupervision2[$room->examroom] = $room->roomsupervision2;
             }
         }
 
@@ -279,7 +279,7 @@ class util
      * get exam date overview.
      *
      */
-    public static function getexamdateoverview($examdateid)
+    public static function getexamdateoverview($blockid, $examdateid)
     {
         $text = '';
         global $DB, $PAGE, $OUTPUT, $USER;
@@ -309,10 +309,10 @@ class util
             $text .= \html_writer::tag('dt', $index . '. Teiltermin');
 
             $url = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['blockid' => $examblock->id]);
-            $editbutton = $OUTPUT->single_button($url, get_string('editexamdate', 'block_eledia_adminexamdates'), 'post');
+            $editbutton = ($blockid != $examblock->id) ? $OUTPUT->single_button($url, get_string('editexamdate', 'block_eledia_adminexamdates'), 'post') : '';
 
             $text .= \html_writer::tag('dd', date('d.m.Y H.i', $examblock->blocktimestart)
-                . ' - ' . date('H.i', $examblock->blocktimestart + ($examdate->examduration * 60)).'  '.$editbutton);
+                . ' - ' . date('H.i', $examblock->blocktimestart + ($examdate->examduration * 60)) . '  ' . $editbutton);
             $index++;
         }
         $text .= \html_writer::end_tag('dl');
@@ -320,15 +320,8 @@ class util
 
         $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $examdate->id]);
 
-        $text .= $OUTPUT->single_button($url, get_string('editexamdate', 'block_eledia_adminexamdates'), 'post');
+        $text .= $OUTPUT->single_button($url, 'Klausurtermin '.get_string('editexamdate', 'block_eledia_adminexamdates'), 'post');
 
-        $url = new \moodle_url($PAGE->url, ['cancelexamdate' => $examdate->id]);
-
-        $text .= $OUTPUT->single_button($url, get_string('cancelexamdate', 'block_eledia_adminexamdates'), 'post');
-        if ($hasconfirmexamdatescap) {
-            $url = new \moodle_url($PAGE->url, ['confirmexamdate' => $examdate->id]);
-            $text .= $OUTPUT->single_button($url, get_string('confirmexamdate', 'block_eledia_adminexamdates'), 'post');
-        }
         $text .= \html_writer::end_tag('div');
         $text .= \html_writer::end_tag('div');
         return $text;
@@ -384,7 +377,7 @@ class util
                 $url = new \moodle_url($PAGE->url, ['confirmexamdate' => $adminexamdate->id]);
                 $text .= $OUTPUT->single_button($url, get_string('confirmexamdate', 'block_eledia_adminexamdates'), 'post');
 
-                $url = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['editsingleexamdate' => $adminexamdate->id]);
+                $url = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $adminexamdate->id]);
                 $text .= $OUTPUT->single_button($url, get_string('editsingleexamdate', 'block_eledia_adminexamdates'), 'post');
             }
             $text .= \html_writer::end_tag('div');

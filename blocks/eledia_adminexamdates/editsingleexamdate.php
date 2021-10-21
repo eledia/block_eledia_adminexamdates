@@ -36,8 +36,10 @@ if (!has_capability('block/eledia_adminexamdates:view', $context)) {
     print_error(' only users with rights to view admin exam dates allowed');
 }
 
-$editsingleexamdate = optional_param('editsingleexamdate', 0,PARAM_INT);
-$savesingleexamdate = optional_param('editsingleexamdate', 0,PARAM_INT);
+$save = optional_param('save', 0,PARAM_INT);
+$examdateid = optional_param('examdateid', 0,PARAM_INT);
+$blockid = optional_param('blockid', 0,PARAM_INT);
+
 $myurl = new \moodle_url($FULLME);
 
 $PAGE->set_url($myurl);
@@ -45,21 +47,26 @@ $PAGE->set_context($context);
 $PAGE->set_title(get_string('editsingleexamdate', 'block_eledia_adminexamdates'));
 $PAGE->set_pagelayout('course');
 
-$blocks=array_values($DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $editsingleexamdate]));
-$mform = new \block_eledia_adminexamdates\forms\singleexamdate_form(null,array('editsingleexamdate' => $editsingleexamdate));
+if(!empty($blockid)){
+    $examdateid=$DB->get_record('eledia_adminexamdates_blocks', ['id' => $blockid])->examdateid;
+} else if(!empty($examdateid)){
+    $blockid=$DB->get_record('eledia_adminexamdates_blocks', ['examdateid' => $examdateid],'id',IGNORE_MULTIPLE)->id;
+}
+
+$mform = new \block_eledia_adminexamdates\forms\singleexamdate_form(null,array('blockid' => $blockid,'examdateid' => $examdateid));
 
 // Execute the form.
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdatesschedule.php'));
-} else if ($editsingleexamdate ) {
-    $data=block_eledia_adminexamdates\util::editsingleexamdate($editsingleexamdate);
+} else if (empty($save)) {
+    $data=block_eledia_adminexamdates\util::editsingleexamdate($blockid,$examdateid);
     $mform->set_data($data);
 
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
     echo \html_writer::start_tag('div', array('class' => 'row'));
     echo \html_writer::start_tag('div', array('class' => 'col-md-4'));
-    echo block_eledia_adminexamdates\util::getexamdateoverview($editsingleexamdate);
+    echo block_eledia_adminexamdates\util::getexamdateoverview($blockid,$examdateid);
     echo \html_writer::end_tag('div');
     echo \html_writer::start_tag('div', array('class' => 'col-md-8'));
     echo  \html_writer::start_tag('div', array('class' => 'card'));

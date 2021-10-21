@@ -50,8 +50,8 @@ $mform = new \block_eledia_adminexamdates\forms\examdate_form();
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdatesschedule.php'));
 } else if ($newexamdate || $editexamdate) {
-    if(!empty($editexamdate)){
-        $data=block_eledia_adminexamdates\util::editexamdate($editexamdate);
+    if (!empty($editexamdate)) {
+        $data = block_eledia_adminexamdates\util::editexamdate($editexamdate);
         $mform->set_data($data);
     }
     echo $OUTPUT->header();
@@ -59,10 +59,13 @@ if ($mform->is_cancelled()) {
     $mform->display();
     echo $OUTPUT->container_end();
     echo $OUTPUT->footer();
-}else {
+} else {
     if (!empty($formdata = $mform->get_data())) {
-        $examdateid=block_eledia_adminexamdates\util::saveexamdate($formdata);
-        block_eledia_adminexamdates\util::getfreetimeslots($examdateid,$formdata);
+        $needfreetimeslots = empty($formdata->examdateid) ? true : false;
+        $examdateid = block_eledia_adminexamdates\util::saveexamdate($formdata);
+        if ($needfreetimeslots) {
+            block_eledia_adminexamdates\util::getfreetimeslots($examdateid, $formdata);
+        }
     }
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdatesschedule.php'));
 

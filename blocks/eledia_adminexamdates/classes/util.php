@@ -54,6 +54,7 @@ class util
         $dataobject->numberstudents = $formdata->numberstudents;
         $dataobject->examiner = $formdata->examiner;
         $dataobject->contactperson = $formdata->contactperson;
+        $dataobject->responsibleperson = $formdata->responsibleperson;
         $dataobject->annotationtext = $formdata->annotationtext;
         if (empty($formdata->examdateid)) {
             $dataobject->userid = $USER->id;
@@ -203,6 +204,7 @@ class util
         $formdata->numberstudents = $dataobject->numberstudents;
         $formdata->examiner = $dataobject->examiner;
         $formdata->contactperson = $dataobject->contactperson;
+        $formdata->responsibleperson = $dataobject->responsibleperson;
         $formdata->annotationtext = $dataobject->annotationtext;
         return $formdata;
     }
@@ -299,7 +301,9 @@ class util
         $text .= \html_writer::tag('dd', $examdate->examiner);
         $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates') . ': ');
         $text .= \html_writer::tag('dd', $examdate->contactperson);
-        
+        $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates') . ': ');
+        $text .= \html_writer::tag('dd', $examdate->responsibleperson);
+
         $index = 1;
         foreach ($examblocks as $examblock) {
             $text .= \html_writer::tag('dt', $index . '. Teiltermin');
@@ -357,6 +361,8 @@ class util
             $text .= \html_writer::tag('dd', $adminexamdate->examiner);
             $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates') . ': ');
             $text .= \html_writer::tag('dd', $adminexamdate->contactperson);
+            $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates') . ': ');
+            $text .= \html_writer::tag('dd', $adminexamdate->responsibleperson);
             $index = 1;
             foreach ($adminexamblocks as $adminexamblock) {
                 $text .= \html_writer::tag('dt', $index . '. Teiltermin');

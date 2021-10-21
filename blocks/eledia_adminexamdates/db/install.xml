@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/eledia_adminexamdates/db" VERSION="20210925" COMMENT="XMLDB file for Moodle blocks/eledia_adminexamdates"
+<XMLDB PATH="blocks/eledia_adminexamdates/db" VERSION="20211021" COMMENT="XMLDB file for Moodle blocks/eledia_adminexamdates"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -16,6 +16,7 @@
         <FIELD NAME="numberstudents" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="examiner" TYPE="char" LENGTH="300" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="contactperson" TYPE="char" LENGTH="300" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="responsibleperson" TYPE="char" LENGTH="300" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="annotationtext" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Timestamp of that being created."/>

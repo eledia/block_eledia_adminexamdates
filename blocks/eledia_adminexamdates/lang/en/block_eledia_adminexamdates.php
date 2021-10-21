@@ -50,6 +50,7 @@ $string['number_students'] ='Number of students';
 $string['department'] ='Department';
 $string['examiner'] ='Examiner';
 $string['contactperson'] ='Contact person';
+$string['responsibleperson'] ='SCL responsible person';
 $string['examrooms_default'] = 'PR1|Prüfungsraum 1|100
 PR2|Prüfungsraum 2|100
 AB|Administrationsbüro|0

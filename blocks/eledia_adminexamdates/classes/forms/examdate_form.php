@@ -127,14 +127,12 @@ class examdate_form extends \moodleform
         $mform->setType('contactperson', PARAM_TEXT);
         $mform->addRule('contactperson', null, 'required');
 
+        $mform->addElement('text', 'responsibleperson', get_string('responsibleperson', 'block_eledia_adminexamdates'), array('size' => 50));
+        $mform->setType('responsibleperson', PARAM_TEXT);
+        $mform->addRule('responsibleperson', null, 'required');
+
         $mform->addElement('textarea', 'annotationtext', get_string('annotationtext', 'block_eledia_adminexamdates'), array('rows' => 10, 'cols' => 80));
         $mform->setType('annotationtext', PARAM_RAW);
-
-
-        $string['department'] = 'Department';
-        $string['examiner'] = 'Examiner';
-        $string['contactperson'] = 'Contact person';
-
 
         $mform->addElement('hidden', 'examdateid');
         $mform->setType('examdateid', PARAM_INT);

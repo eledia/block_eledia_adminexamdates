@@ -411,7 +411,7 @@ class util
             $roomoptions[$roomitems[0]] = $roomitems[1] . $roomcapacity;
         };
         $dates = $DB->get_recordset_sql($sql);
-        $tableheaditems = ['month', 'date', 'examname', 'examiner', 'examroom', 'supervisor1', 'supervisor2', 'candidates', 'status', 'blockid'];
+        $tableheaditems = ['month', 'date', 'examname', 'examiner', 'examroom', 'supervisor1', 'supervisor2', 'candidates', 'status', 'blockid','examid','links'];
         $text = \html_writer::start_tag('table', array('id' => 'examdatestable', 'class' => 'table table-striped table-bordered table-hover table-sm', 'style' => 'width:100%'));
         $text .= \html_writer::start_tag('thead', array('class' => 'thead-light'));
         $text .= \html_writer::start_tag('tr');
@@ -440,6 +440,8 @@ class util
             $text .= \html_writer::tag('td', $date->roomnumberstudents);
             $text .= \html_writer::tag('td', ($date->confirmed) ? 'Bestätigt' : 'Beantragt');
             $text .= \html_writer::tag('td', $date->blockid);
+            $text .= \html_writer::tag('td', $date->id);
+            $text .= \html_writer::tag('td', '');
             $text .= \html_writer::end_tag('tr');
         }
 

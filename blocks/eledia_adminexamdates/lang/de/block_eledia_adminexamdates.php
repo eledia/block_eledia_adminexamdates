@@ -90,6 +90,8 @@ $string['tablehead_supervisor2'] = 'Betreuer 2';
 $string['tablehead_candidates'] = 'Prüflinge';
 $string['tablehead_status'] = 'Status';
 $string['tablehead_blockid'] = 'Einzeltermin ID';
+$string['tablehead_examid'] = 'Klausur ID';
+$string['tablehead_links'] = '';
 $string['dt_lenghtmenu'] = 'Anzeigen von _MENU_ Prüfungsterminen pro Seite';
 $string['dt_zerorecords'] = 'Nichts gefunden - Entschuldigung';
 $string['dt_info'] = 'Zeige Seite _PAGE_ von _PAGES_';
@@ -112,7 +114,7 @@ $string['block_duration'] = 'Klausur-Schreibzeit (Minuten)';
 $string['room_number_students'] = 'Anzahl der Teilnehmenden (Raum)';
 $string['room_supervisor'] = 'Betreuer (Raum)';
 $string['room_supervision'] = 'Klausuraufsicht (Raum)';
-
+$string['checklistlink'] = '/mod/checklist/tabtermin.php?id=60&examid=';
 
 
 

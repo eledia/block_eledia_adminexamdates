@@ -57,7 +57,7 @@ $mform = new \block_eledia_adminexamdates\forms\singleexamdate_form(null,array('
 
 // Execute the form.
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/blocks/eledia_adminexamdates/examdatesschedule.php'));
+    redirect(new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php'));
 } else if (empty($save)) {
     $data=block_eledia_adminexamdates\util::editsingleexamdate($blockid,$examdateid);
     $mform->set_data($data);
@@ -86,6 +86,6 @@ if ($mform->is_cancelled()) {
 
         $examdateid=block_eledia_adminexamdates\util::savesingleexamdate($formdata);
     }
-    redirect(new moodle_url('/blocks/eledia_adminexamdates/examdatesschedule.php'));
+    redirect(new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php'));
 
 }

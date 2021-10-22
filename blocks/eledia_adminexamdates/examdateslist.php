@@ -84,7 +84,7 @@ if (!empty($confirmexamdate)) {
     echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'), 'post');
 //    echo block_eledia_adminexamdates\util::getexamdateitems();
     $urleditsingleexamdate = new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['blockid' => '']);
-    echo $OUTPUT->box($OUTPUT->single_button($urleditsingleexamdate, '', 'post'),'d-none','examdate');
+    echo $OUTPUT->box($OUTPUT->single_button($urleditsingleexamdate, '', 'post'),'d-none','editsingleexamdate');
 
   //  echo '<link rel="stylesheet" type="text/css" href="datatables/datatables.min.css"/>';
     echo '<style>
@@ -93,7 +93,7 @@ if (!empty($confirmexamdate)) {
     echo '<script type="text/javascript" src="datatables/datatables.min.js"></script>';
 
     echo block_eledia_adminexamdates\util::getexamdatetable();
-
+    $checklistlink = get_string('checklistlink','block_eledia_adminexamdates');
     echo '<script type="text/javascript">';
     echo '$(document).ready(function() {
      var groupColumn = 0;
@@ -106,7 +106,14 @@ if (!empty($confirmexamdate)) {
             {"targets": [ 4 ], "searchable": false},
             {"targets": [ 7 ], "searchable": false},
             {"targets": [ 8 ], "searchable": false},
-            {"targets": [ 9 ], "searchable": false, "visible": false}
+            {"targets": [ 9 ], "searchable": false, "visible": false},
+            {"targets": [ 10 ], "searchable": false, "visible": false},
+            {
+            "targets": -1,
+            "data": null,
+            "searchable": false,
+            "defaultContent": "<button>Checkliste</button>"
+        }
         ],
         "stateSave": true,
         "order": [[ groupColumn, "asc" ],[1,"asc"]],
@@ -119,7 +126,7 @@ if (!empty($confirmexamdate)) {
             api.column(groupColumn, {page:"current"} ).data().each( function ( group, i ) {
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
-                        \'<tr class="group table-primary font-weight-bold"><td colspan="8">\'+group+\'</td></tr>\'
+                        \'<tr class="group table-primary font-weight-bold"><td colspan="9">\'+group+\'</td></tr>\'
                     );
  
                     last = group;
@@ -156,6 +163,12 @@ if (!empty($confirmexamdate)) {
         var editsingleexamdateform = $("#editsingleexamdate");
         editsingleexamdateform.find("input[name=\'blockid\']").val(data[9]);
         editsingleexamdateform.find("form").submit();
+    } );
+    
+    $("#examdatestable tbody").on( "click", "button", function (event) {
+        event.stopPropagation();
+        var data = table.row( $(this).parents("tr") ).data();
+        window.location.href = "'.$checklistlink.'"+data[10];
     } );
  
 } );

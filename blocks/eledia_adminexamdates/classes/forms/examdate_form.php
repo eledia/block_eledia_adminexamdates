@@ -50,14 +50,14 @@ class examdate_form extends \moodleform
         };
         $settings = array('multiple' => 'multiple');
         if ($hasconfirmexamdatescap) {
-            $mform->addElement('select', 'examroom',
+            $mform->addElement('select', 'examrooms',
                 get_string('select_examroom', 'block_eledia_adminexamdates'), $options, $settings);
-            $mform->addRule('examroom', null, 'required');
+            $mform->addRule('examrooms', null, 'required');
         } else {
-            $mform->addElement('hidden', 'examroom');
+            $mform->addElement('hidden', 'examrooms');
         }
-        $mform->setType('examroom', PARAM_RAW);
-        $mform->setDefault('examroom', 'PR1');
+        $mform->setType('examrooms', PARAM_RAW);
+        $mform->setDefault('examrooms', 'PR1');
 
         $years = [];
         $years[] = date('Y', strtotime('-1 year'));
@@ -126,6 +126,10 @@ class examdate_form extends \moodleform
         $mform->addElement('text', 'contactperson', get_string('contactperson', 'block_eledia_adminexamdates'), array('size' => 50));
         $mform->setType('contactperson', PARAM_TEXT);
         $mform->addRule('contactperson', null, 'required');
+
+        $mform->addElement('text', 'contactpersonemail', get_string('contactpersonemail', 'block_eledia_adminexamdates'), array('size' => 50));
+        $mform->setType('contactpersonemail', PARAM_EMAIL);
+        $mform->addRule('contactpersonemail', null, 'required');
 
         $mform->addElement('text', 'responsibleperson', get_string('responsibleperson', 'block_eledia_adminexamdates'), array('size' => 50));
         $mform->setType('responsibleperson', PARAM_TEXT);

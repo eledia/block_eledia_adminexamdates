@@ -55,7 +55,17 @@ class singleexamdate_form extends \moodleform
        // $blocks =& $this->_customdata['blocks'];
       // print_R( $blocks);exit;
        // $blocksnumber=count($blocks);
-
+       // $mform->toHtml('<ul class="nav nav-pills" role="tablist">');
+       // foreach ($options as $key => $val) {
+       //
+       //     $mform->toHtml('<li class="nav-item">');
+       //     $mform->toHtml('<button class="nav-link" data-toggle="pill" href="#room' . $key . '">' . $val . '</button>');
+       //     $mform->toHtml('</li>');
+       // }
+       //
+       // $mform->toHtml('</ul>');
+       // $mform->toHtml('<div class="tab-content">');
+       // $mform->toHtml('<div id="room' . $key . '" class="container tab-pane"><br>');
       //  for($i = 0; $i < $blocksnumber; $i++) {
         //foreach ($blocks as $block) {
             //  $mform->toHtml('<div id="termin' . $index . '" class="container tab-pane ' . $activecssclass . '"><br>');
@@ -183,19 +193,12 @@ class singleexamdate_form extends \moodleform
             }
      //   }
             $mform->addGroup($checkboxes, '','',['<br>'], false);
-//
-//        $mform->toHtml('<ul class="nav nav-pills" role="tablist">');
-//            foreach ($options as $key => $val) {
-//
-//                $mform->toHtml('<li class="nav-item">');
-//                $mform->toHtml('<a class="nav-link" data-toggle="pill" href="#room' . $key . '">' . $val . '</a>');
-//                $mform->toHtml('</li>');
-//            }
-//
-//        $mform->toHtml('</ul>');
-//        $mform->toHtml('<div class="tab-content">');
+
+
+
+
         foreach ($options as $key => $val) {
-          // $mform->toHtml('<div id="room' . $key . '" class="container tab-pane"><br>');
+          //$mform->toHtml('<div id="room' . $key . '" class="container tab-pane"><br>');
             $mform->addElement('header', "roomheader[{$key}]", $val);
             $mform->setExpanded("roomheader[{$key}]",true,true);
 
@@ -257,7 +260,7 @@ class singleexamdate_form extends \moodleform
 
          $mform->addElement('hidden', 'examdateid');
          $mform->setType('examdateid', PARAM_INT);*/
-
+       // $mform->toHtml('</div></div>');
         $mform->addElement('hidden', 'save');
         $mform->setType('save', PARAM_INT);
         $mform->addElement('hidden', 'blockid');

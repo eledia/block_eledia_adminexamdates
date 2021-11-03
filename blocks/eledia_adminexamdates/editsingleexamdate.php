@@ -39,6 +39,7 @@ if (!has_capability('block/eledia_adminexamdates:view', $context)) {
 $save = optional_param('save', 0,PARAM_INT);
 $examdateid = optional_param('examdateid', 0,PARAM_INT);
 $blockid = optional_param('blockid', 0,PARAM_INT);
+$newblock = optional_param('newblock', 0,PARAM_INT);
 
 $myurl = new \moodle_url($FULLME);
 
@@ -59,14 +60,14 @@ $mform = new \block_eledia_adminexamdates\forms\singleexamdate_form(null,array('
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php'));
 } else if (empty($save)) {
-    $data=block_eledia_adminexamdates\util::editsingleexamdate($blockid,$examdateid);
+    $data=block_eledia_adminexamdates\util::editsingleexamdate($blockid,$examdateid,$newblock);
     $mform->set_data($data);
 
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
     echo \html_writer::start_tag('div', array('class' => 'row'));
     echo \html_writer::start_tag('div', array('class' => 'col-md-4'));
-    echo block_eledia_adminexamdates\util::getexamdateoverview($blockid,$examdateid);
+    echo block_eledia_adminexamdates\util::getexamdateoverview($blockid,$examdateid,$newblock);
     echo \html_writer::end_tag('div');
     echo \html_writer::start_tag('div', array('class' => 'col-md-8'));
     echo  \html_writer::start_tag('div', array('class' => 'card'));

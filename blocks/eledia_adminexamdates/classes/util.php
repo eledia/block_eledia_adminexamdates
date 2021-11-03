@@ -45,7 +45,7 @@ class util
         global $DB, $USER;
 
         $dataobject = new \stdClass();
-        $dataobject->examroom = serialize($formdata->examroom);
+        $dataobject->examrooms = implode(',',$formdata->examrooms);
         $dataobject->examtimestart = $formdata->examtimestart;
         $dataobject->examduration = $formdata->examduration;
         $dataobject->department = $formdata->department;
@@ -54,6 +54,7 @@ class util
         $dataobject->numberstudents = $formdata->numberstudents;
         $dataobject->examiner = $formdata->examiner;
         $dataobject->contactperson = $formdata->contactperson;
+        $dataobject->contactpersonemail = $formdata->contactpersonemail;
         $dataobject->responsibleperson = $formdata->responsibleperson;
         $dataobject->annotationtext = $formdata->annotationtext;
         if (empty($formdata->examdateid)) {
@@ -191,10 +192,10 @@ class util
      */
     public static function editexamdate($examdateid)
     {
-        global $DB, $USER;
+        global $DB;
         $dataobject = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
         $formdata = new stdClass();
-        $formdata->examroom = unserialize($dataobject->examroom);
+        $formdata->examrooms = $dataobject->examrooms;
         $formdata->examtimestart = $dataobject->examtimestart;
         $formdata->examduration = $dataobject->examduration;
         $formdata->department = $dataobject->department;
@@ -204,6 +205,7 @@ class util
         $formdata->numberstudents = $dataobject->numberstudents;
         $formdata->examiner = $dataobject->examiner;
         $formdata->contactperson = $dataobject->contactperson;
+        $formdata->contactpersonemail = $dataobject->contactpersonemail;
         $formdata->responsibleperson = $dataobject->responsibleperson;
         $formdata->annotationtext = $dataobject->annotationtext;
         return $formdata;
@@ -214,11 +216,15 @@ class util
      *
      * @param stdClass $formdata of form.
      */
-    public static function editsingleexamdate($blockid, $examdateid)
+    public static function editsingleexamdate($blockid, $examdateid,$newblock)
     {
         global $DB;
         // $dataobject = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
         $exampart = $DB->get_record('eledia_adminexamdates_blocks', ['id' => $blockid]);
+
+        $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid]);
+        $examblocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdate->id]);
+
         //$exampart = array_shift($examparts);
         //print_R($examparts);
         $formdata = new stdClass();
@@ -279,7 +285,7 @@ class util
      * get exam date overview.
      *
      */
-    public static function getexamdateoverview($blockid, $examdateid)
+    public static function getexamdateoverview($blockid, $examdateid, $newblock)
     {
         $text = '';
         global $DB, $PAGE, $OUTPUT, $USER;

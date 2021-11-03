@@ -53,6 +53,10 @@ if ($mform->is_cancelled()) {
     if (!empty($editexamdate)) {
         $data = block_eledia_adminexamdates\util::editexamdate($editexamdate);
         $mform->set_data($data);
+    } else {
+        $data = new stdClass();
+        $data->contactpersonemail = $USER->email;
+        $mform->set_data($data);
     }
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();

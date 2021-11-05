@@ -46,7 +46,7 @@ $PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
 $PAGE->set_pagelayout('course');
 
 if (!empty($confirmexamdate)) {
-    $examdatename=$DB->get_record('eledia_adminexamdates',['id'=>$confirmexamdate],'examname');
+    $examdatename = $DB->get_record('eledia_adminexamdates', ['id' => $confirmexamdate], 'examname');
     $message = get_string('confirmexamdatemsg', 'block_eledia_adminexamdates', ['name' => $examdatename->examname]);
     $formcontinue = new single_button(new moodle_url($PAGE->url, ['confirmexamdateyes' => $confirmexamdate]), get_string('yes'), 'post');
     $formcancel = new single_button(new moodle_url($PAGE->url), get_string('no'));
@@ -56,7 +56,7 @@ if (!empty($confirmexamdate)) {
     echo $OUTPUT->box_end();
 
 } else if (!empty($cancelexamdate)) {
-    $examdatename=$DB->get_record('eledia_adminexamdates',['id'=>$cancelexamdate],'examname');
+    $examdatename = $DB->get_record('eledia_adminexamdates', ['id' => $cancelexamdate], 'examname');
     $message = get_string('cancelexamdatemsg', 'block_eledia_adminexamdates', ['name' => $examdatename->examname]);
     $formcontinue = new single_button(new moodle_url($PAGE->url, ['cancelexamdateyes' => $cancelexamdate]), get_string('yes'), 'post');
     $formcancel = new single_button(new moodle_url($PAGE->url), get_string('no'));
@@ -78,22 +78,35 @@ if (!empty($confirmexamdate)) {
     $url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1]);
     $newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
     $urlcalendar = new moodle_url('/blocks/eledia_adminexamdates/calendar.php');
+    $unconfirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
 
-
-    echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
+    echo \html_writer::start_tag('div',array('class' => 'container-fluid px-4'));
+    echo \html_writer::start_tag('div',array('class' => 'row'));
+    echo \html_writer::start_tag('div',array('class' => 'col-md-12'));
     echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'), 'post');
-//    echo block_eledia_adminexamdates\util::getexamdateitems();
-    $urleditsingleexamdate = new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['blockid' => '']);
-    echo $OUTPUT->box($OUTPUT->single_button($urleditsingleexamdate, '', 'post'),'d-none','editsingleexamdate');
+    echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
+    echo \html_writer::tag('button', get_string('examdateslist_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
+    echo \html_writer::end_tag('div');
+    echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::start_tag('div',array('class' => 'row'));
+    echo \html_writer::start_tag('div',array('class' => 'col-md-12'));
+    echo \html_writer::tag('h1', get_string('examdateslist_btn', 'block_eledia_adminexamdates'));
 
-  //  echo '<link rel="stylesheet" type="text/css" href="datatables/datatables.min.css"/>';
+
+    $urleditsingleexamdate = new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['blockid' => '']);
+    echo $OUTPUT->box($OUTPUT->single_button($urleditsingleexamdate, '', 'post'), 'd-none', 'editsingleexamdate');
+
+    //  echo '<link rel="stylesheet" type="text/css" href="datatables/datatables.min.css"/>';
     echo '<style>
 
 </style>';
     echo '<script type="text/javascript" src="datatables/datatables.min.js"></script>';
 
     echo block_eledia_adminexamdates\util::getexamdatetable();
-    $checklistlink = get_string('checklistlink','block_eledia_adminexamdates');
+    $checklistlink = get_string('checklistlink', 'block_eledia_adminexamdates');
     echo '<script type="text/javascript">';
     echo '$(document).ready(function() {
      var groupColumn = 0;
@@ -134,26 +147,26 @@ if (!empty($confirmexamdate)) {
             } );
         },
         "language": {
-            "lengthMenu": "'.get_string('dt_lenghtmenu','block_eledia_adminexamdates').'",
-            "zeroRecords": "'.get_string('dt_zerorecords','block_eledia_adminexamdates').'",
-            "info": "'.get_string('dt_info','block_eledia_adminexamdates').'",
-            "infoEmpty": "'.get_string('dt_infoempty','block_eledia_adminexamdates').'",
-            "infoFiltered": "'.get_string('dt_infofiltered','block_eledia_adminexamdates').'",
-                        "emptyTable": "'.get_string('dt_emptytable','block_eledia_adminexamdates').'",
-            "infoPostFix": "'.get_string('dt_infopostfix','block_eledia_adminexamdates').'",
-            "thousands": "'.get_string('dt_thousands','block_eledia_adminexamdates').'",
-            "loadingRecords": "'.get_string('dt_loadingrecords','block_eledia_adminexamdates').'",
-            "processing": "'.get_string('dt_processing','block_eledia_adminexamdates').'",
-                        "search": "'.get_string('dt_search','block_eledia_adminexamdates').'",
+            "lengthMenu": "' . get_string('dt_lenghtmenu', 'block_eledia_adminexamdates') . '",
+            "zeroRecords": "' . get_string('dt_zerorecords', 'block_eledia_adminexamdates') . '",
+            "info": "' . get_string('dt_info', 'block_eledia_adminexamdates') . '",
+            "infoEmpty": "' . get_string('dt_infoempty', 'block_eledia_adminexamdates') . '",
+            "infoFiltered": "' . get_string('dt_infofiltered', 'block_eledia_adminexamdates') . '",
+                        "emptyTable": "' . get_string('dt_emptytable', 'block_eledia_adminexamdates') . '",
+            "infoPostFix": "' . get_string('dt_infopostfix', 'block_eledia_adminexamdates') . '",
+            "thousands": "' . get_string('dt_thousands', 'block_eledia_adminexamdates') . '",
+            "loadingRecords": "' . get_string('dt_loadingrecords', 'block_eledia_adminexamdates') . '",
+            "processing": "' . get_string('dt_processing', 'block_eledia_adminexamdates') . '",
+                        "search": "' . get_string('dt_search', 'block_eledia_adminexamdates') . '",
                         "paginate": {
-            "first": "'.get_string('dt_first','block_eledia_adminexamdates').'",
-            "last": "'.get_string('dt_last','block_eledia_adminexamdates').'",
-            "next": "'.get_string('dt_next','block_eledia_adminexamdates').'",
-            "previous": "'.get_string('dt_previous','block_eledia_adminexamdates').'",
+            "first": "' . get_string('dt_first', 'block_eledia_adminexamdates') . '",
+            "last": "' . get_string('dt_last', 'block_eledia_adminexamdates') . '",
+            "next": "' . get_string('dt_next', 'block_eledia_adminexamdates') . '",
+            "previous": "' . get_string('dt_previous', 'block_eledia_adminexamdates') . '",
                         },
                          "aria": {
-                         "sortAscending": "'.get_string('dt_sortascending','block_eledia_adminexamdates').'",
-            "sortDescending": "'.get_string('dt_sortdescending','block_eledia_adminexamdates').'",
+                         "sortAscending": "' . get_string('dt_sortascending', 'block_eledia_adminexamdates') . '",
+            "sortDescending": "' . get_string('dt_sortdescending', 'block_eledia_adminexamdates') . '",
             }
         }
     } );
@@ -168,11 +181,14 @@ if (!empty($confirmexamdate)) {
     $("#examdatestable tbody").on( "click", "button", function (event) {
         event.stopPropagation();
         var data = table.row( $(this).parents("tr") ).data();
-        window.location.href = "'.$checklistlink.'"+data[10];
+        window.location.href = "' . $checklistlink . '"+data[10];
     } );
  
 } );
     </script>';
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
     echo $OUTPUT->container_end();
 }
 

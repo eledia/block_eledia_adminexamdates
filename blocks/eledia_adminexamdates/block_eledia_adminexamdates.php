@@ -70,9 +70,9 @@ class block_eledia_adminexamdates extends block_base
         } else {
             $text = '';
 
-            $strexamdatesschedulebutton = get_string('examdatesschedule', 'block_eledia_adminexamdates');
-            $examdatesscheduleurl = new \moodle_url('/blocks/eledia_adminexamdates/examdatesschedule.php');
-            $text .= html_writer::link($examdatesscheduleurl, $strexamdatesschedulebutton, array('class' => 'btn btn-primary w-100 mb-2'));
+            $strexamdatesunconfirmedbutton = get_string('examdatesunconfirmed', 'block_eledia_adminexamdates');
+            $examdatesunconfirmedurl = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
+            $text .= html_writer::link($examdatesunconfirmedurl, $strexamdatesunconfirmedbutton, array('class' => 'btn btn-primary w-100 mb-2'));
         }
         $this->content->text = $text;
 

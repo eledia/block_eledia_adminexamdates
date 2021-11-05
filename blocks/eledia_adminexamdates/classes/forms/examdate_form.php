@@ -148,5 +148,12 @@ class examdate_form extends \moodleform
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');
     }
+
+//    public function validation($data, $files) {
+//
+//        $errors = parent::validation($data, $files);
+//        $errors['examtimestart'] = 'ERRRoR';
+//        return $errors;
+//    }
 }
 

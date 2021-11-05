@@ -30,7 +30,7 @@ $string['privacy:metadata'] = 'Das eLeDia E-Klausur Termin-Verwaltung Block Plug
 $string['examdaterequest'] = 'Prüfungstermin-Anfrage';
 $string['time'] = 'Termin';
 $string['newexamdate'] = 'Neuer Termin';
-$string['examdatesschedule'] = 'Prüfungsterminplanung';
+$string['examdatesunconfirmed'] = 'Prüfungsterminplanung';
 $string['examdate_header'] = 'Prüfungsterminplanung';
 $string['examroom'] = 'Prüfungsraum';
 $string['select_examroom'] = 'Prüfungsraum wählen';
@@ -74,12 +74,14 @@ $string['config_envcategoryidnumber'] = 'Die Fachbereiche liegen als Unterkatego
 $string['setting_examcoursetemplateidnumber'] = 'Kurs-ID der Klausur-Kursvorlage';
 $string['config_examcoursetemplateidnumber'] = 'Diese Kurs-ID sollte in der Klausur-Kursvorlage des Prüfungssystems gesetzt sein.';
 $string['calendar_btn'] = 'Prüfungstermin-Kalender';
+$string['unconfirmed_btn'] = 'Unbestätigte Prüfungstermine';
 $string['setting_startexam'] = 'Frühester E-Klausur Beginn (nur volle Stunden)';
 $string['setting_endexam'] = 'Spätestens E-Klausur Ende (nur volle Stunden)';
 $string['setting_breakbetweenblockdates'] = 'Pause zwischen zwei Blockterminen (in Minuten)';
 $string['setting_distancebetweenblockdates'] = 'Abstand zwischen Blöcken (in Minuten)';
 $string['editsingleexamdate'] = 'Einzeltermine';
-$string['singleexamdate_header'] = 'Einzeltermine Planen';
+$string['singleexamdate_header'] = 'Einzeltermin Planen';
+$string['newsingleexamdate'] = 'Neuer Einzeltermin';
 $string['examdateslist_btn'] = 'Prüfungstermin-Liste';
 $string['tablehead_month'] = 'Monat';
 $string['tablehead_date'] = 'Datum';
@@ -116,6 +118,19 @@ $string['room_number_students'] = 'Anzahl der Teilnehmenden (Raum)';
 $string['room_supervisor'] = 'Betreuer (Raum)';
 $string['room_supervision'] = 'Klausuraufsicht (Raum)';
 $string['checklistlink'] = '/mod/checklist/tabtermin.php?id=60&examid=';
+$string['partialdate'] = 'Teiltermin';
+$string['examdateedit'] = 'Prüfungstermin bearbeiten';
+$string['status_confirmed'] = 'Bestätigt';
+$string['status_unconfirmed'] = 'Beantragt';
+$string['newpartialdate'] = 'Neuer Teiltermin';
+$string['setting_emailexamteam'] = 'E-Mail des Prüfungsteams';
+$string['change_request_btn'] = 'Änderungsanfrage';
+$string['changerequest_header'] = 'Änderungsanfrage an das Prüfungsteam';
+$string['changerequesttext'] = 'Eingabe der Änderungsanfrage';
+$string['changerequest_header'] = 'Änderungsanfrage an das Prüfungsteam';
+$string['send_email'] ='Sende E-Mail';
+
+
 
 
 

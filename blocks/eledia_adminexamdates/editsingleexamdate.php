@@ -36,10 +36,10 @@ if (!has_capability('block/eledia_adminexamdates:view', $context)) {
     print_error(' only users with rights to view admin exam dates allowed');
 }
 
-$save = optional_param('save', 0,PARAM_INT);
-$examdateid = optional_param('examdateid', 0,PARAM_INT);
-$blockid = optional_param('blockid', 0,PARAM_INT);
-$newblock = optional_param('newblock', 0,PARAM_INT);
+$save = optional_param('save', 0, PARAM_INT);
+$examdateid = optional_param('examdateid', 0, PARAM_INT);
+$blockid = optional_param('blockid', 0, PARAM_INT);
+$newblock = optional_param('newblock', 0, PARAM_INT);
 
 $myurl = new \moodle_url($FULLME);
 
@@ -48,44 +48,94 @@ $PAGE->set_context($context);
 $PAGE->set_title(get_string('editsingleexamdate', 'block_eledia_adminexamdates'));
 $PAGE->set_pagelayout('course');
 
-if(!empty($blockid)){
-    $examdateid=$DB->get_record('eledia_adminexamdates_blocks', ['id' => $blockid])->examdateid;
-} else if(!empty($examdateid)){
-    $blockid=$DB->get_record('eledia_adminexamdates_blocks', ['examdateid' => $examdateid],'id',IGNORE_MULTIPLE)->id;
+if (!empty($blockid)) {
+    $examdateid = $DB->get_record('eledia_adminexamdates_blocks', ['id' => $blockid])->examdateid;
+} else if (!empty($examdateid)) {
+    $blockid = $DB->get_record('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'id', IGNORE_MULTIPLE)->id;
 }
 
-$mform = new \block_eledia_adminexamdates\forms\singleexamdate_form(null,array('blockid' => $blockid,'examdateid' => $examdateid));
+$mform = new \block_eledia_adminexamdates\forms\singleexamdate_form(null, array('blockid' => $blockid, 'examdateid' => $examdateid));
 
 // Execute the form.
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php'));
 } else if (empty($save)) {
-    $data=block_eledia_adminexamdates\util::editsingleexamdate($blockid,$examdateid,$newblock);
+    $data = block_eledia_adminexamdates\util::editsingleexamdate($blockid, $examdateid, $newblock);
     $mform->set_data($data);
-
+//    echo " <script>
+//    $(document).ready(function(){
+//        $('.form-check-input').change(function() {
+//        if($(this).is(\":checked\")) {
+//            confirm($(this));
+//        };
+//        });
+//    });
+//    </script>
+//    ";
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
+    $url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1]);
+    $newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
+    $urlcalendar = new moodle_url('/blocks/eledia_adminexamdates/calendar.php');
+    $urllist = new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php');
+    $unconfirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
+
+    echo \html_writer::start_tag('div', array('class' => 'container-fluid px-4'));
+    echo \html_writer::start_tag('div', array('class' => 'row'));
+    echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
+    echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::start_tag('div', array('class' => 'row'));
+    echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
+    echo \html_writer::tag('h1', get_string('singleexamdate_header', 'block_eledia_adminexamdates'));
     echo \html_writer::start_tag('div', array('class' => 'row'));
     echo \html_writer::start_tag('div', array('class' => 'col-md-4'));
-    echo block_eledia_adminexamdates\util::getexamdateoverview($blockid,$examdateid,$newblock);
+    echo block_eledia_adminexamdates\util::getexamdateoverview($blockid, $examdateid, $newblock);
     echo \html_writer::end_tag('div');
     echo \html_writer::start_tag('div', array('class' => 'col-md-8'));
-    echo  \html_writer::start_tag('div', array('class' => 'card'));
-    echo  \html_writer::start_tag('div', array('class' => 'card-body'));
-    echo  \html_writer::tag('h5', '', array('class' => 'card-title'));
-    echo  \html_writer::start_tag('p', array('class' => 'card-text'));
+    echo \html_writer::start_tag('div', array('class' => 'card'));
+    echo \html_writer::start_tag('div', array('class' => 'card-body'));
+    echo \html_writer::tag('h5', '', array('class' => 'card-title'));
+    echo \html_writer::start_tag('p', array('class' => 'card-text'));
+    $examblocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
+    $index = 1;
+    $buttons = '';
+    foreach ($examblocks as $examblock) {
+        $url = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['blockid' => $examblock->id]);
+        $date = $index . '. ' . get_string('partialdate', 'block_eledia_adminexamdates');
+        if ($blockid != $examblock->id) {
+            $buttons .= $OUTPUT->single_button($url, $date, 'post');
+        } else {
+            $buttons .= \html_writer::start_tag('div', array('class' => 'singlebutton'));
+            $buttons .= \html_writer::tag('button', $date, array('disabled' => true, 'class' => 'btn '));
+            $buttons .= \html_writer::end_tag('div');
+        }
+        $index++;
+    }
+    $newpartialdateurl = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php',
+        ['examdateid' => $examdateid,'newblock'=>1]);
+    $buttons .= $OUTPUT->single_button($newpartialdateurl, get_string('newpartialdate', 'block_eledia_adminexamdates'), 'post');
+    echo $buttons;
     $mform->display();
     echo \html_writer::end_tag('p');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+
     echo $OUTPUT->container_end();
     echo $OUTPUT->footer();
-}else {
+} else {
     if (!empty($formdata = $mform->get_data())) {
 
-        $examdateid=block_eledia_adminexamdates\util::savesingleexamdate($formdata);
+        $examdateid = block_eledia_adminexamdates\util::savesingleexamdate($formdata);
     }
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php'));
 

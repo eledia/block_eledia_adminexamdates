@@ -40,7 +40,7 @@ class singleexamdate_form extends \moodleform
 
         $mform =& $this->_form;
 
-        $mform->addElement('header', '', get_string('singleexamdate_header', 'block_eledia_adminexamdates'));
+       // $mform->addElement('header', '', get_string('singleexamdate_header', 'block_eledia_adminexamdates'));
 
 
         $options = [];

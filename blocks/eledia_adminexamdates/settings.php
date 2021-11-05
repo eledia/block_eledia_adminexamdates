@@ -79,6 +79,10 @@ if ($ADMIN->fulltree) {
         new lang_string('setting_distancebetweenblockdates', 'block_eledia_adminexamdates'),
         '', 100, PARAM_INT);
 
+    $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/emailexamteam',
+        new lang_string('setting_emailexamteam', 'block_eledia_adminexamdates'),
+        '', '', PARAM_EMAIL);
+
     foreach ($configs as $config) {
         $config->plugin = 'block_eledia_adminexamdates';
         $settings->add($config);

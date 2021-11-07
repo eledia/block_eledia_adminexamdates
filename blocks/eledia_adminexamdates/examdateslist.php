@@ -32,6 +32,9 @@ require_login();
 if (!has_capability('block/eledia_adminexamdates:view', $context)) {
     print_error(' only users with rights to view admin exam dates allowed');
 }
+if (!has_capability('block/eledia_adminexamdates:confirmexamdates', $context)) {
+    print_error(' only users with rights to confirm admin exam dates allowed');
+}
 
 $confirmexamdate = optional_param('confirmexamdate', 0, PARAM_INT);
 $cancelexamdate = optional_param('cancelexamdate', 0, PARAM_INT);
@@ -93,8 +96,9 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::end_tag('div');
     echo \html_writer::start_tag('div',array('class' => 'row'));
     echo \html_writer::start_tag('div',array('class' => 'col-md-12'));
+    echo \html_writer::start_tag('p');
     echo \html_writer::tag('h1', get_string('examdateslist_btn', 'block_eledia_adminexamdates'));
-
+    echo \html_writer::end_tag('p');
 
     $urleditsingleexamdate = new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['blockid' => '']);
     echo $OUTPUT->box($OUTPUT->single_button($urleditsingleexamdate, '', 'post'), 'd-none', 'editsingleexamdate');
@@ -145,6 +149,24 @@ if (!empty($confirmexamdate)) {
                     last = group;
                 }
             } );
+        },
+        "rowGroup": {
+            "startRender": null,
+            "endRender": function ( rows, group ) {
+                var candidates = rows
+                    .data()
+                    .pluck(7)
+                    .reduce( function (a, b) { 
+                        var sum = (parseInt(a)) ? parseInt(a) : 0;
+                        sum += (parseInt(b)) ? parseInt(b) : 0;
+                        return sum;
+                    }, 0);
+                
+                return $("<tr/>")
+                    .append( \'<td colspan="6">Summe \'+group+\'</td><td>\'+candidates+\'</td><td colspan="2"></td>\' );
+                    
+            },
+            "dataSrc": 0
         },
         "language": {
             "lengthMenu": "' . get_string('dt_lenghtmenu', 'block_eledia_adminexamdates') . '",

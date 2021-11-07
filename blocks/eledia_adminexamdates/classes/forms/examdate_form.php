@@ -39,13 +39,16 @@ class examdate_form extends \moodleform
 
         $mform =& $this->_form;
 
-        $mform->addElement('header', '', get_string('examdate_header', 'block_eledia_adminexamdates'));
+        //$mform->addElement('header', '', get_string('examdate_header', 'block_eledia_adminexamdates'));
         $options = [];
         $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
-
+        $defaultrooms = [];
         foreach ($rooms as $room) {
             $roomitems = explode('|', $room);
             $roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
+            if (!empty($roomcapacity)) {
+                array_push($defaultrooms, $roomitems[0]);
+            }
             $options[$roomitems[0]] = $roomitems[1] . $roomcapacity;
         };
         $settings = array('multiple' => 'multiple');
@@ -57,7 +60,7 @@ class examdate_form extends \moodleform
             $mform->addElement('hidden', 'examrooms');
         }
         $mform->setType('examrooms', PARAM_RAW);
-        $mform->setDefault('examrooms', 'PR1');
+        $mform->setDefault('examrooms', implode(',',$defaultrooms));
 
         $years = [];
         $years[] = date('Y', strtotime('-1 year'));
@@ -91,12 +94,12 @@ class examdate_form extends \moodleform
         $mform->setType('semester', PARAM_INT);
         $mform->setDefault('semester', $defaultsemester);
 
-        $options=[];
-        $departmentchoices=unserialize(get_config('block_eledia_adminexamdates', 'departmentchoices'));
-        $departments=explode(',',get_config('block_eledia_adminexamdates', 'departments'));
-        foreach($departments as $department){
-            if(isset($departmentchoices[$department])){
-                $options[$department]=$departmentchoices[$department];
+        $options = [];
+        $departmentchoices = unserialize(get_config('block_eledia_adminexamdates', 'departmentchoices'));
+        $departments = explode(',', get_config('block_eledia_adminexamdates', 'departments'));
+        foreach ($departments as $department) {
+            if (isset($departmentchoices[$department])) {
+                $options[$department] = $departmentchoices[$department];
             }
         }
 
@@ -138,8 +141,8 @@ class examdate_form extends \moodleform
         $mform->addElement('textarea', 'annotationtext', get_string('annotationtext', 'block_eledia_adminexamdates'), array('rows' => 10, 'cols' => 80));
         $mform->setType('annotationtext', PARAM_RAW);
 
-        $mform->addElement('hidden', 'examdateid');
-        $mform->setType('examdateid', PARAM_INT);
+        $mform->addElement('hidden', 'editexamdate');
+        $mform->setType('editexamdate', PARAM_INT);
 
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton', get_string('submit'));
@@ -149,11 +152,12 @@ class examdate_form extends \moodleform
         $mform->closeHeaderBefore('buttonar');
     }
 
-//    public function validation($data, $files) {
-//
-//        $errors = parent::validation($data, $files);
-//        $errors['examtimestart'] = 'ERRRoR';
-//        return $errors;
-//    }
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+        if ($error= \block_eledia_adminexamdates\util::hasfreetimeslots($data)){
+            $errors['examtimestart'] =$error;
+        }
+        return $errors;
+    }
 }
 

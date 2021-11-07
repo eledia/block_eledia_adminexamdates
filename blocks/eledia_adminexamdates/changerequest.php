@@ -56,8 +56,31 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
     $blockid = $DB->get_record('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'id', IGNORE_MULTIPLE)->id;
+    echo \html_writer::start_tag('div', array('class' => 'container-fluid px-4'));
+    echo \html_writer::start_tag('div', array('class' => 'row'));
+    echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
+    echo \html_writer::start_tag('p');
+    echo \html_writer::tag('h1', get_string('changerequest_header', 'block_eledia_adminexamdates'));
+    echo \html_writer::end_tag('p');
+    echo \html_writer::start_tag('div', array('class' => 'row'));
+    echo \html_writer::start_tag('div', array('class' => 'col-md-4'));
+
     echo block_eledia_adminexamdates\util::getexamdateoverview($blockid, $examdateid, false);
+
+    echo \html_writer::end_tag('div');
+    echo \html_writer::start_tag('div', array('class' => 'col-md-8'));
+    echo \html_writer::start_tag('div', array('class' => 'card'));
+    echo \html_writer::start_tag('div', array('class' => 'card-body'));
+    echo \html_writer::tag('h5', '', array('class' => 'card-title'));
+    echo \html_writer::start_tag('p', array('class' => 'card-text'));
     $mform->display();
+    echo \html_writer::end_tag('p');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
     echo $OUTPUT->container_end();
     echo $OUTPUT->footer();
 }

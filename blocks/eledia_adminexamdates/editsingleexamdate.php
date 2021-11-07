@@ -32,8 +32,9 @@ require_login();
 if (!has_capability('block/eledia_adminexamdates:view', $context)) {
     print_error(' only users with rights to view admin exam dates allowed');
 }
-if (!has_capability('block/eledia_adminexamdates:view', $context)) {
-    print_error(' only users with rights to view admin exam dates allowed');
+
+if (!has_capability('block/eledia_adminexamdates:confirmexamdates', $context)) {
+    print_error(' only users with rights to confirm admin exam dates allowed');
 }
 
 $save = optional_param('save', 0, PARAM_INT);
@@ -91,7 +92,9 @@ if ($mform->is_cancelled()) {
     echo \html_writer::end_tag('div');
     echo \html_writer::start_tag('div', array('class' => 'row'));
     echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
+    echo \html_writer::start_tag('p');
     echo \html_writer::tag('h1', get_string('singleexamdate_header', 'block_eledia_adminexamdates'));
+    echo \html_writer::end_tag('p');
     echo \html_writer::start_tag('div', array('class' => 'row'));
     echo \html_writer::start_tag('div', array('class' => 'col-md-4'));
     echo block_eledia_adminexamdates\util::getexamdateoverview($blockid, $examdateid, $newblock);
@@ -129,7 +132,7 @@ if ($mform->is_cancelled()) {
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
-
+    $PAGE->requires->js_call_amd('block_eledia_adminexamdates/editsingleexamdate', 'init');
     echo $OUTPUT->container_end();
     echo $OUTPUT->footer();
 } else {

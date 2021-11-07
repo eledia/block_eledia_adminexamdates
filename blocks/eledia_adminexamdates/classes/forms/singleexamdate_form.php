@@ -192,10 +192,7 @@ class singleexamdate_form extends \moodleform
                     $mform->createElement('advcheckbox', "blockexamroomscheck[{$key}]", '', $val);
             }
      //   }
-            $mform->addGroup($checkboxes, '','',['<br>'], false);
-
-
-
+            $mform->addGroup($checkboxes, '',get_string('examdaterooms', 'block_eledia_adminexamdates'),['<br>'], false);
 
         foreach ($options as $key => $val) {
           //$mform->toHtml('<div id="room' . $key . '" class="container tab-pane"><br>');
@@ -203,27 +200,29 @@ class singleexamdate_form extends \moodleform
             $mform->setExpanded("roomheader[{$key}]",true,true);
 
            // $mform->hideIf("roomheader[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
+
+           // $mform->hideIf("roomheader[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
                 // $mform->addElement('checkbox', "blockexamroomscheck{$i}{$key}",'', $val);
                 $mform->addElement('text', "roomnumberstudents[{$key}]", get_string('room_number_students', 'block_eledia_adminexamdates'), array('size' => 4));
                 $mform->setType("roomnumberstudents[{$key}]", PARAM_INT);
-                $mform->hideIf("roomnumberstudents[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
+                //$mform->hideIf("roomnumberstudents[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
 
 
                 $mform->addElement('text', "roomsupervisor1[{$key}]", get_string('room_supervisor', 'block_eledia_adminexamdates') . ' 1', array('size' => 30));
                 $mform->setType("roomsupervisor1[{$key}]", PARAM_RAW);
-                $mform->hideIf("roomsupervisor1[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
+               // $mform->hideIf("roomsupervisor1[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
 
                 $mform->addElement('text', "roomsupervisor2[{$key}]", get_string('room_supervisor', 'block_eledia_adminexamdates') . ' 2', array('size' => 30));
                 $mform->setType("roomsupervisor2[{$key}]", PARAM_RAW);
-                $mform->hideIf("roomsupervisor2[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
+                //$mform->hideIf("roomsupervisor2[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
 
                 $mform->addElement('text', "roomsupervision1[{$key}]", get_string('room_supervision', 'block_eledia_adminexamdates') . ' 1', array('size' => 30));
                 $mform->setType("roomsupervision1[{$key}]", PARAM_RAW);
-                $mform->hideIf("roomsupervision1[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
+                //$mform->hideIf("roomsupervision1[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
 
                 $mform->addElement('text', "roomsupervision2[{$key}]", get_string('room_supervision', 'block_eledia_adminexamdates') . ' 2', array('size' => 30));
                 $mform->setType("roomsupervision2[{$key}]", PARAM_RAW);
-                $mform->hideIf("roomsupervision2[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
+                //$mform->hideIf("roomsupervision2[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
 
           //7  $mform->toHtml('</div>');
             }

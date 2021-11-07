@@ -43,7 +43,7 @@ echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bo
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fontawesome.css">
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fa-solid.css">';
 
-$sql = "SELECT ad.id, a.id AS examdateid, a.examname, a.examduration, ag.blocktimestart, ad.examroom, ad.blockid, a.numberstudents, a.examiner, a.contactperson
+$sql = "SELECT ad.id, a.id AS examdateid, a.examname, a.examduration, ag.blocktimestart, ad.examroom, ad.blockid, a.numberstudents, a.examiner, a.contactperson, a.userid
                     FROM {eledia_adminexamdates} a
                     LEFT JOIN {eledia_adminexamdates_blocks} ag ON ag.examdateid = a.id
                     LEFT JOIN {eledia_adminexamdates_rooms} ad ON ad.blockid = ag.id";
@@ -69,7 +69,7 @@ echo " <script>
          */
          var events= [
         ";
-
+$hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
 foreach ($dates as $date) {
     $endtime = $date->blocktimestart + ($date->examduration * 60);
     $roomname = $roomnames[$date->examroom];
@@ -88,13 +88,16 @@ foreach ($dates as $date) {
             'href' => ($url)->out()]);
     }
     $buttonhtml .= \html_writer::end_tag('div');
+    $myexamdate = ($date->userid == $USER->id) ? true : false;
+    $title = ($hasconfirmexamdatescap || $myexamdate) ? $date->examname : 'Belegt';
+    $content = ($hasconfirmexamdatescap || $myexamdate) ? "<dl><dt>Anzahl der Teilnehmer: </dt><dd>$date->numberstudents</dd><dt>Dozent/ Prüfer: </dt><dd>$date->examiner</dd><dt>Ansprechpartner: </dt><dd>$date->contactperson</dd></dl><div>$buttonhtml</div>" : 'Dieser Raum ist bereits belegt.';
     echo "     
       
         {
             start: $date->blocktimestart,
           end: $endtime,
-          title: '$date->examname',
-          content: '<dl><dt>Anzahl der Teilnehmer: </dt><dd>$date->numberstudents</dd><dt>Dozent/ Prüfer: </dt><dd>$date->examiner</dd><dt>Ansprechpartner: </dt><dd>$date->contactperson</dd></dl><div>$buttonhtml</div>',
+          title: '$title',
+          content: '$content' ,
           category:'$roomname'
         },
         
@@ -104,7 +107,7 @@ foreach ($dates as $date) {
 echo "       ];
 
 
-      /**
+       /**
        * Init the calendar
        */
       var calendar = $('#calendar').Calendar({
@@ -120,12 +123,13 @@ echo "       ];
           }
         },
         colors: {
-            
+
             random: false
             },
         events: events
-    
+
       }).init();
+
 
       /**
        * Listening for events
@@ -164,11 +168,28 @@ echo "       ];
           console.log(elem);
           console.log(evt);
       });
+          var test=0;
       $('#calendar').on('Calendar.event-click', function(event, instance, elem, evt){
+      test=1; 
+      
           console.log('event : Calendar.event-click');
           console.log(instance);
           console.log(elem);
           console.log(evt);
+      });
+  
+      $('#calendar').on('click', '.calendar-events-day',function(event){     
+           
+      console.log(event);
+     
+      var examtimestart = parseInt(this.getAttribute('data-time')) + (8*60*60) + (Math.trunc((event.offsetY+15)/50)*60*30);
+       
+       var editexamdateform = $(\"#editexamdate\");
+        editexamdateform.find(\"input[name=\'examtimestart\']\").val(examtimestart);
+        if(!test){
+        editexamdateform.find(\"form\").submit();
+        }
+      test=0;
       });
     });
   </script>";
@@ -186,24 +207,30 @@ $newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_el
 $urllist = new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php');
 $unconfirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
 
-echo \html_writer::start_tag('div',array('class' => 'container-fluid px-4'));
-echo \html_writer::start_tag('div',array('class' => 'row'));
-echo \html_writer::start_tag('div',array('class' => 'col-xs-12'));
-echo \html_writer::start_tag('div',array('class' => 'singlebutton'));
+echo \html_writer::start_tag('div', array('class' => 'container-fluid px-4'));
+echo \html_writer::start_tag('div', array('class' => 'row'));
+echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
+echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
 echo \html_writer::tag('button', get_string('calendar_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
 echo \html_writer::end_tag('div');
-echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'), 'post');
+if ($hasconfirmexamdatescap) {
+    echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'), 'post');
+};
 echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_eledia_adminexamdates'), 'post');
 echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
 echo \html_writer::end_tag('div');
 echo \html_writer::end_tag('div');
-echo \html_writer::start_tag('div',array('class' => 'row'));
-echo \html_writer::start_tag('div',array('class' => 'col-xs-12'));
+echo \html_writer::start_tag('div', array('class' => 'row'));
+echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
 echo \html_writer::tag('h1', get_string('calendar_btn', 'block_eledia_adminexamdates'));
-echo \html_writer::tag('div','',array('id' => 'calendar'));
+echo \html_writer::tag('p' ,'&nbsp;');
+echo \html_writer::tag('div', '', array('id' => 'calendar'));
 echo \html_writer::end_tag('div');
 echo \html_writer::end_tag('div');
 echo \html_writer::end_tag('div');
+
+$urleditexamdate = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1, 'examtimestart' => '']);
+echo $OUTPUT->box($OUTPUT->single_button($urleditexamdate, '', 'post'), 'd-none', 'editexamdate');
 
 echo $OUTPUT->container_end();
 

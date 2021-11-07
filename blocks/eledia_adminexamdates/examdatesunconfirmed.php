@@ -79,12 +79,15 @@ if (!empty($confirmexamdate)) {
     $newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
     $urlcalendar = new moodle_url('/blocks/eledia_adminexamdates/calendar.php');
     $urllist = new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php');
+    $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
 
     echo \html_writer::start_tag('div',array('class' => 'container-fluid px-4'));
     echo \html_writer::start_tag('div',array('class' => 'row'));
     echo \html_writer::start_tag('div',array('class' => 'col-xs-12'));
     echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'), 'post');
-    echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'), 'post');
+    if($hasconfirmexamdatescap) {
+        echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'), 'post');
+    }
     echo \html_writer::start_tag('div',array('class' => 'singlebutton'));
     echo \html_writer::tag('button', get_string('unconfirmed_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
     echo \html_writer::end_tag('div');
@@ -93,7 +96,9 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::end_tag('div');
     echo \html_writer::start_tag('div',array('class' => 'row'));
     echo \html_writer::start_tag('div',array('class' => 'col-xs-12'));
+    echo \html_writer::start_tag('p');
     echo \html_writer::tag('h1', get_string('unconfirmed_btn', 'block_eledia_adminexamdates'));
+    echo \html_writer::end_tag('p');
     echo block_eledia_adminexamdates\util::getexamdateitems();
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');

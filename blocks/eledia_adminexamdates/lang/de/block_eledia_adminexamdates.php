@@ -29,7 +29,8 @@ $string['pluginname'] = 'eLeDia E-Klausur Termin-Verwaltung';
 $string['privacy:metadata'] = 'Das eLeDia E-Klausur Termin-Verwaltung Block Plugin speichert keine persönlichen Daten.';
 $string['examdaterequest'] = 'Prüfungstermin-Anfrage';
 $string['time'] = 'Termin';
-$string['newexamdate'] = 'Neuer Termin';
+$string['newexamdate'] = 'Neuer Prüfungstermin';
+$string['editexamdate_header'] = 'Prüfungstermin bearbeiten';
 $string['examdatesunconfirmed'] = 'Prüfungsterminplanung';
 $string['examdate_header'] = 'Prüfungsterminplanung';
 $string['examroom'] = 'Prüfungsraum';
@@ -129,6 +130,8 @@ $string['changerequest_header'] = 'Änderungsanfrage an das Prüfungsteam';
 $string['changerequesttext'] = 'Eingabe der Änderungsanfrage';
 $string['changerequest_header'] = 'Änderungsanfrage an das Prüfungsteam';
 $string['send_email'] ='Sende E-Mail';
+$string['examdaterooms'] ='Prüfungsräume';
+
 
 
 

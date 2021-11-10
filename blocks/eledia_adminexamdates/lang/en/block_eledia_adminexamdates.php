@@ -130,3 +130,9 @@ $string['changerequest_header'] = 'Change request to the e-exam team';
 $string['changerequesttext'] = 'Enter the change request';
 $string['send_email'] ='Send email';
 $string['examdaterooms'] ='Exam rooms';
+$string['eledia_adminexamdates:addinstance'] = 'Add a new eLeDia e-exam dates administration block';
+$string['eledia_adminexamdates:myaddinstance'] = 'Add a new eLeDia e-exam dates administration block to Dashboard';
+$string['eledia_adminexamdates:view'] = 'View the eLeDia e-exam dates administration block';
+$string['eledia_adminexamdates:confirmexamdates'] = 'Confirm the e-exam dates in the eLeDia e-exam dates administration block';
+
+

@@ -45,7 +45,7 @@ class util
         global $DB, $USER;
 
         $dataobject = new \stdClass();
-        $dataobject->examrooms = implode(',',$formdata->examrooms);
+        $dataobject->examrooms = is_array($formdata->examrooms) ? implode(',',$formdata->examrooms) : $formdata->examrooms;
         $dataobject->examtimestart = $formdata->examtimestart;
         $dataobject->examduration = $formdata->examduration;
         $dataobject->department = $formdata->department;
@@ -144,7 +144,7 @@ class util
         $params = [$beginofday,$endofday];
 
         $datesoftheday = $DB->get_records_sql($sql, $params);
-
+        $examrooms= !is_array($formdata->examrooms) ? explode(',',$formdata->examrooms) : $formdata->examrooms;
         $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
         $roomcapacities = [];
         $roomcapacitysum = 0;
@@ -152,7 +152,7 @@ class util
             $roomitems = explode('|', $room);
             if (!empty($roomitems[2])) {
                 $roomcapacities[$roomitems[0]] = $roomitems[2];
-                if(in_array($roomitems[0],$formdata->examrooms)) {
+                if(in_array($roomitems[0],$examrooms)) {
                     $roomcapacitysum += $roomitems[2];
                 }
             }
@@ -176,7 +176,7 @@ class util
 
                 $sumroomcapacity = 0;
                 foreach ($roomcapacities as $roomid => $roomcapacity) {
-                    if(in_array($roomid,$formdata->examrooms)){
+                    if(in_array($roomid,$examrooms)){
                         $sumroomcapacity += $roomcapacity;
                         $isrestnumberstudents = $sumroomcapacity >= $numberstudents;
                         // $roomnumberstudents = $isrestnumberstudents ? $numberstudents - $sumroomcapacity : $roomcapacity;
@@ -220,7 +220,7 @@ class util
                   strtotime('19:00:00', $formdata->examtimestart)];
 
               $datesoftheday = $DB->get_records_sql($sql, $params);*/
-
+        $examrooms= !is_array($formdata->examrooms) ? explode(',',$formdata->examrooms) : $formdata->examrooms;
         $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
         $roomcapacities = [];
         $roomcapacitysum = 0;
@@ -228,7 +228,7 @@ class util
             $roomitems = explode('|', $room);
             if (!empty($roomitems[2])) {
                 $roomcapacities[$roomitems[0]] = $roomitems[2];
-                if(in_array($roomitems[0],$formdata->examrooms)) {
+                if(in_array($roomitems[0],$examrooms)) {
                     $roomcapacitysum += $roomitems[2];
                 }
             }
@@ -248,7 +248,7 @@ class util
             if (!empty($blockid)) {
                 $sumroomcapacity = 0;
                 foreach ($roomcapacities as $roomid => $roomcapacity) {
-                    if(in_array($roomid,$formdata->examrooms)){
+                    if(in_array($roomid,$examrooms)){
                         $sumroomcapacity += $roomcapacity;
                         $isrestnumberstudents = $sumroomcapacity >= $numberstudents;
                         // $roomnumberstudents = $isrestnumberstudents ? $numberstudents - $sumroomcapacity : $roomcapacity;

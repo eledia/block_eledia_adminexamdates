@@ -111,6 +111,9 @@ echo "       ];
        * Init the calendar
        */
       var calendar = $('#calendar').Calendar({
+              colors: {
+            random: false
+            },
         locale: 'de',
         weekday: {
         dayline: {
@@ -122,10 +125,6 @@ echo "       ];
             toHour:19,
           }
         },
-        colors: {
-
-            random: false
-            },
         events: events
 
       }).init();

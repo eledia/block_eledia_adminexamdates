@@ -131,7 +131,10 @@ $string['changerequesttext'] = 'Eingabe der Änderungsanfrage';
 $string['changerequest_header'] = 'Änderungsanfrage an das Prüfungsteam';
 $string['send_email'] ='Sende E-Mail';
 $string['examdaterooms'] ='Prüfungsräume';
-
+$string['eledia_adminexamdates:addinstance'] = 'Neuen eLeDia E-Klausur Termin-Verwaltungs-Block hinzufügen';
+$string['eledia_adminexamdates:myaddinstance'] = 'Neuen eLeDia E-Klausur Termin-Verwaltungs-Block zum Dashboard hinzufügen';
+$string['eledia_adminexamdates:view'] = 'Anzeigen des eLeDia E-Klausur Termin-Verwaltungs-Block';
+$string['eledia_adminexamdates:confirmexamdates'] = 'Bestätigen der E-Klausur Termine im eLeDia E-Klausur Termin-Verwaltungs-Block';
 
 
 

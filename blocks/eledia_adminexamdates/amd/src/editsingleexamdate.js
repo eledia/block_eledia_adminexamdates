@@ -35,4 +35,15 @@ export const init = () => {
             el.classList.remove('collapsed');
         });
     });
+
+    var elements = document.getElementsByClassName("delsingleexamdate");
+    var delbtn = document.getElementById("delsingleexamdatebtn");
+    var submitFunction = function() {
+        var attribute = this.getAttribute("data-examblockid");
+        alert(attribute);
+    };
+
+    Array.from(elements).forEach(function(element) {
+        element.addEventListener('click', submitFunction);
+    });
 };

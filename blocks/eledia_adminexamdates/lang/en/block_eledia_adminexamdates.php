@@ -134,5 +134,5 @@ $string['eledia_adminexamdates:addinstance'] = 'Add a new eLeDia e-exam dates ad
 $string['eledia_adminexamdates:myaddinstance'] = 'Add a new eLeDia e-exam dates administration block to Dashboard';
 $string['eledia_adminexamdates:view'] = 'View the eLeDia e-exam dates administration block';
 $string['eledia_adminexamdates:confirmexamdates'] = 'Confirm the e-exam dates in the eLeDia e-exam dates administration block';
-
+$string['delete'] ='Delete';
 

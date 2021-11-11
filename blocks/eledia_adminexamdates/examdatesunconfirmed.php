@@ -70,7 +70,7 @@ if (!empty($confirmexamdate)) {
         block_eledia_adminexamdates\util::examconfirm($confirmexamdateyes);
     }
     if (!empty($cancelexamdateyes)) {
-        block_eledia_adminexamdates\util::examcancel($confirmexamdateyes);
+        block_eledia_adminexamdates\util::examcancel($cancelexamdateyes);
     }
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();

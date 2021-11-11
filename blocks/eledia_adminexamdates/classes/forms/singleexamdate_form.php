@@ -275,13 +275,10 @@ class singleexamdate_form extends \moodleform
         $mform->closeHeaderBefore('buttonar');
 
     }
-    public function validation($data, $files)
-    {
-        global $DB;
-
+    public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
-
+        return $errors;
     }
 }
 

@@ -32,29 +32,48 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/calendar/lib.php');
 
-class util {
+class util
+{
 
     /**
      * Save exam date request.
      *
      * @param stdClass $formdata of form.
      */
-    public static function saveexamdate($formdata) {
+    public static function saveexamdate($formdata)
+    {
         global $DB, $USER;
-
+        $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
         $dataobject = new \stdClass();
-        $dataobject->examrooms = is_array($formdata->examrooms) ? implode(',', $formdata->examrooms) : $formdata->examrooms;
+        $dataobject->examrooms = is_array($formdata->examrooms)
+            ? implode(',', $formdata->examrooms) : $formdata->examrooms;
         $dataobject->examtimestart = $formdata->examtimestart;
         $dataobject->examduration = $formdata->examduration;
         $dataobject->department = $formdata->department;
         $dataobject->examname = $formdata->examname;
         $dataobject->semester = $formdata->semester;
         $dataobject->numberstudents = $formdata->numberstudents;
-        $dataobject->examiner = $formdata->examiner;
+        $dataobject->examiner = implode(',', $formdata->examiner);
         $dataobject->contactperson = $formdata->contactperson;
-        $dataobject->contactpersonemail = $formdata->contactpersonemail;
+//        if (!ctype_digit(strval($formdata->contactperson))) {
+//            $dataobject->contactperson = $formdata->contactperson;
+//            $dataobject->contactpersonid = null;
+//        } else {
+//            $contactperson = $DB->get_record('user',
+//                array('id' => $formdata->contactperson), '*', MUST_EXIST);
+//            $dataobject->contactpersonid = $formdata->contactperson;
+//            $dataobject->contactperson = fullname($contactperson);
+//        }
+//        if (!ctype_digit(strval($formdata->contactpersonemail))) {
+//            $dataobject->contactpersonemail = $formdata->contactpersonemail;
+//        } else {
+//            $contactperson = $DB->get_record('user',
+//                array('id' => $formdata->contactpersonemail), '*', MUST_EXIST);
+//            $dataobject->contactpersonemail = $contactperson->email;
+//        }
         $dataobject->responsibleperson = $formdata->responsibleperson;
         $dataobject->annotationtext = $formdata->annotationtext;
+
         if (empty($formdata->editexamdate)) {
             $dataobject->userid = $USER->id;
             $dataobject->timecreated = time();
@@ -63,6 +82,10 @@ class util {
             $examdateid = $formdata->editexamdate;
             $dataobject->id = $formdata->editexamdate;
             $DB->update_record('eledia_adminexamdates', $dataobject);
+        }
+
+        if ($hasconfirmexamdatescap && (!isset($dataobject->confirmed) || !$dataobject->confirmed)) {
+            self::examconfirm($examdateid);
         }
         return $examdateid;
 
@@ -73,11 +96,11 @@ class util {
      *
      * @param stdClass $formdata of form.
      */
-    public static function savesingleexamdate($formdata) {
+    public static function savesingleexamdate($formdata)
+    {
         global $DB;
 
         $dataobject = new \stdClass();
-        $examdateid = $formdata->examdateid;
         $dataobject->blocktimestart = $formdata->blocktimestart;
         $dataobject->blockduration = $formdata->blockduration;
 
@@ -85,31 +108,44 @@ class util {
 
         if (empty($formdata->blockid)) {
             $dataobject->examdateid = $formdata->examdateid;
-            $examdateid = $formdata->examdateid;
             $blockid = $DB->insert_record('eledia_adminexamdates_blocks', $dataobject);
             foreach ($checkedrooms as $roomid => $checkedroom) {
                 $roomdataobject = new \stdClass();
-                $roomdataobject->roomnumberstudents = $formdata->roomnumberstudents[$roomid];
-                $roomdataobject->roomsupervisor1 = $formdata->roomsupervisor1[$roomid];
-                $roomdataobject->roomsupervisor2 = $formdata->roomsupervisor2[$roomid];
-                $roomdataobject->roomsupervision1 = $formdata->roomsupervision1[$roomid];
-                $roomdataobject->roomsupervision2 = $formdata->roomsupervision2[$roomid];
-                $roomdataobject->blockid = $blockid;
-                $roomdataobject->examroom = $roomid;
-                $DB->insert_record('eledia_adminexamdates_rooms', $roomdataobject);
+                if (!isset($formdata->roomannotationtext[$roomid])) {
+                    $roomdataobject->roomnumberstudents = (!empty($formdata->roomnumberstudents[$roomid]))
+                        ? $formdata->roomnumberstudents[$roomid] : null;
+                    $roomdataobject->roomsupervisor1 = serialize(array_filter($formdata->roomsupervisor1[$roomid]));
+                    $roomdataobject->roomsupervisor2 = serialize(array_filter($formdata->roomsupervisor2[$roomid]));
+                    $roomdataobject->roomsupervision1 = serialize(array_filter($formdata->roomsupervision1[$roomid]));
+                    $roomdataobject->roomsupervision2 = serialize(array_filter($formdata->roomsupervision2[$roomid]));
+                } else {
+                    $roomdataobject->roomannotationtext = (!empty($formdata->roomannotationtext[$roomid]))
+                        ? $formdata->roomannotationtext[$roomid] : null;
+                }
+                if ($checkedroom) {
+                    $roomdataobject->blockid = $blockid;
+                    $roomdataobject->examroom = $roomid;
+                    $DB->insert_record('eledia_adminexamdates_rooms', $roomdataobject);
+                }
             }
         } else {
-
+            $blockid = $formdata->blockid;
             $roomsdata = $DB->get_records('eledia_adminexamdates_rooms', ['blockid' => $formdata->blockid]);
             $idrooms = array_column($roomsdata, 'id', 'examroom');
             $deleterooms = $idrooms;
             foreach ($checkedrooms as $roomid => $checkedroom) {
                 $roomdataobject = new \stdClass();
-                $roomdataobject->roomnumberstudents = $formdata->roomnumberstudents[$roomid];
-                $roomdataobject->roomsupervisor1 = $formdata->roomsupervisor1[$roomid];
-                $roomdataobject->roomsupervisor2 = $formdata->roomsupervisor2[$roomid];
-                $roomdataobject->roomsupervision1 = $formdata->roomsupervision1[$roomid];
-                $roomdataobject->roomsupervision2 = $formdata->roomsupervision2[$roomid];
+                if (!isset($formdata->roomannotationtext[$roomid])) {
+                    $roomdataobject->roomnumberstudents = (!empty($formdata->roomnumberstudents[$roomid]))
+                        ? $formdata->roomnumberstudents[$roomid] : null;
+                    $roomdataobject->roomsupervisor1 = serialize(array_filter($formdata->roomsupervisor1[$roomid]));
+                    $roomdataobject->roomsupervisor2 = serialize(array_filter($formdata->roomsupervisor2[$roomid]));
+                    $roomdataobject->roomsupervision1 = serialize(array_filter($formdata->roomsupervision1[$roomid]));
+                    $roomdataobject->roomsupervision2 = serialize(array_filter($formdata->roomsupervision2[$roomid]));
+                } else {
+                    $roomdataobject->roomannotationtext = (!empty($formdata->roomannotationtext[$roomid]))
+                        ? $formdata->roomannotationtext[$roomid] : null;
+                }
                 if ($checkedroom) {
                     unset($deleterooms[$roomid]);
                     if (isset($idrooms[$roomid])) {
@@ -130,7 +166,22 @@ class util {
             $DB->update_record('eledia_adminexamdates_blocks', $dataobject);
 
         }
-        return $examdateid;
+        $examtimestart = $DB->get_record('eledia_adminexamdates', ['id' => $formdata->examdateid])->examtimestart;
+        $blocktimestart = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $formdata->examdateid], 'blocktimestart');
+        $blocktimestart = reset($blocktimestart)->blocktimestart;
+
+        if ($examtimestart != $blocktimestart) {
+            $dataobject = new \stdClass();
+            $dataobject->id = $formdata->examdateid;
+            $dataobject->examtimestart = $blocktimestart;
+            $DB->update_record('eledia_adminexamdates', $dataobject);
+        }
+
+        $confirmed = $DB->get_record('eledia_adminexamdates', ['id' => $formdata->examdateid])->confirmed;
+        if (!$confirmed) {
+            self::examconfirm($formdata->examdateid);
+        }
+        return $blockid;
     }
 
     /**
@@ -138,8 +189,9 @@ class util {
      *
      * @param stdClass $formdata of form.
      */
-    public static function hasfreetimeslots($formdata) {
-        $formdata = (object) $formdata;
+    public static function hasfreetimeslots($formdata)
+    {
+        $formdata = (object)$formdata;
         global $DB;
         $sql = "SELECT ad.id, a.id AS examdateid, a.examduration, ag.blocktimestart, ad.examroom, ad.blockid
                     FROM {eledia_adminexamdates} a
@@ -172,16 +224,16 @@ class util {
         $numberofblocks = ceil($formdata->numberstudents / $roomcapacitysum);
         for ($i = 1; $i <= $numberofblocks; $i++) {
             $numberstudents = (($i * $roomcapacitysum) > $formdata->numberstudents) ? $formdata->numberstudents % $roomcapacitysum :
-                    $roomcapacitysum;
+                $roomcapacitysum;
             $blocktimestart = $formdata->examtimestart + (($i - 1) * $formdata->examduration * 60)
-                    + (($i - 1) * $breakbetweenblockdates * 60);
+                + (($i - 1) * $breakbetweenblockdates * 60);
 
-            $blockdates[$i - 1] = (object) [
-                    'blocktimestart' => $blocktimestart,
-                    'blockduration' => $formdata->examduration,
-                    'timestart' => $blocktimestart - ($distancebetweenblockdates * 60),
-                    'timeend' => $blocktimestart + $formdata->examduration + ($distancebetweenblockdates * 60),
-                    'rooms' => [],
+            $blockdates[$i - 1] = (object)[
+                'blocktimestart' => $blocktimestart,
+                'blockduration' => $formdata->examduration,
+                'timestart' => $blocktimestart - ($distancebetweenblockdates * 60),
+                'timeend' => $blocktimestart + $formdata->examduration + ($distancebetweenblockdates * 60),
+                'rooms' => [],
             ];
 
             $sumroomcapacity = 0;
@@ -201,11 +253,13 @@ class util {
 
         foreach ($blockdates as $blockdate) {
             foreach ($datesoftheday as $date) {
-                if (in_array($date->examroom, $blockdate->rooms)) {
+                if ((empty($formdata->editexamdate) || (!empty($formdata->editexamdate) && ($formdata->editexamdate
+                                != $date->examdateid)))
+                    && in_array($date->examroom, $blockdate->rooms)) {
                     if (!((($blockdate->timestart <= $date->blocktimestart) && ($blockdate->timeend <= $date->blocktimestart)) ||
-                            (($blockdate->timestart >= $date->blocktimestart + ($date->examduration * 60)) &&
-                                    ($blockdate->timeend >= $date->blocktimestart + ($date->examduration * 60))))) {
-                        return $error = 'Termin ist bereits belegt. Suchen Sie bitte nach einem anderen Termin!';
+                        (($blockdate->timestart >= $date->blocktimestart + ($date->examduration * 60)) &&
+                            ($blockdate->timeend >= $date->blocktimestart + ($date->examduration * 60))))) {
+                        return get_string('error_examdate_already_taken', 'block_eledia_adminexamdates');
                     }
                 }
             }
@@ -218,7 +272,8 @@ class util {
      *
      * @param stdClass $formdata of form.
      */
-    public static function getfreetimeslots($examdateid, $formdata) {
+    public static function getfreetimeslots($examdateid, $formdata)
+    {
         global $DB, $USER;
         /*      $sql = "SELECT a.id, a.examduration, ag.blocktimestart, ad.examroom, ad.blockid
                     FROM {eledia_adminexamdates} a
@@ -248,14 +303,14 @@ class util {
         $numberofblocks = ceil($formdata->numberstudents / $roomcapacitysum);
         for ($i = 1; $i <= $numberofblocks; $i++) {
             $numberstudents = (($i * $roomcapacitysum) > $formdata->numberstudents) ? $formdata->numberstudents % $roomcapacitysum :
-                    $roomcapacitysum;
+                $roomcapacitysum;
             $blocktimestart = $formdata->examtimestart + (($i - 1) * $formdata->examduration * 60)
-                    + (($i - 1) * $breakbetweenblockdates * 60);
+                + (($i - 1) * $breakbetweenblockdates * 60);
             $blockid = $DB->insert_record('eledia_adminexamdates_blocks',
-                    (object) ['examdateid' => $examdateid,
-                            'blocktimestart' => $blocktimestart,
-                            'blockduration' => $formdata->examduration
-                    ]);
+                (object)['examdateid' => $examdateid,
+                    'blocktimestart' => $blocktimestart,
+                    'blockduration' => $formdata->examduration
+                ]);
             if (!empty($blockid)) {
                 $sumroomcapacity = 0;
                 foreach ($roomcapacities as $roomid => $roomcapacity) {
@@ -264,9 +319,9 @@ class util {
                         $isrestnumberstudents = $sumroomcapacity >= $numberstudents;
                         // $roomnumberstudents = $isrestnumberstudents ? $numberstudents - $sumroomcapacity : $roomcapacity;
                         $datesid = $DB->insert_record('eledia_adminexamdates_rooms',
-                                (object) ['blockid' => $blockid,
-                                        'examroom' => $roomid,
-                                ]);
+                            (object)['blockid' => $blockid,
+                                'examroom' => $roomid,
+                            ]);
                         if ($isrestnumberstudents) {
                             break;
                         }
@@ -282,7 +337,8 @@ class util {
      *
      * @param stdClass $formdata of form.
      */
-    public static function editexamdate($examdateid) {
+    public static function editexamdate($examdateid)
+    {
         global $DB;
         $dataobject = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
         $formdata = new stdClass();
@@ -296,7 +352,14 @@ class util {
         $formdata->numberstudents = $dataobject->numberstudents;
         $formdata->examiner = $dataobject->examiner;
         $formdata->contactperson = $dataobject->contactperson;
-        $formdata->contactpersonemail = $dataobject->contactpersonemail;
+//        $formdata->contactperson = !empty($dataobject->contactpersonid) ? $dataobject->contactpersonid : $dataobject->contactperson;
+//        if (!empty($dataobject->contactpersonid)) {
+//            $formdata->contactpersonemail = $dataobject->contactpersonid;
+//        } else {
+//            $formdata->contactpersonemail = "$dataobject->contactpersonemail";
+//        }
+//        $formdata->contactperson = $dataobject->contactpersonid;
+//        $formdata->contactpersonemail = $dataobject->contactpersonemail;
         $formdata->responsibleperson = $dataobject->responsibleperson;
         $formdata->annotationtext = $dataobject->annotationtext;
         return $formdata;
@@ -307,13 +370,14 @@ class util {
      *
      * @param stdClass $formdata of form.
      */
-    public static function editsingleexamdate($blockid, $examdateid, $newblock) {
+    public static function editsingleexamdate($blockid, $examdateid, $newblock)
+    {
         global $DB;
         // $dataobject = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
         $exampart = $DB->get_record('eledia_adminexamdates_blocks', ['id' => $blockid]);
 
         $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid]);
-        $examblocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdate->id]);
+        $examblocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdate->id], 'blocktimestart');
         $lastexamblock = end($examblocks);
         //$exampart = array_shift($examparts);
         //print_R($examparts);
@@ -336,12 +400,14 @@ class util {
         if (!empty($rooms)) {
             foreach ($rooms as $room) {
                 $formdata->blockexamroomscheck[$room->examroom] = true;
-
-                $formdata->roomnumberstudents[$room->examroom] = $room->roomnumberstudents;
-                $formdata->roomsupervisor1[$room->examroom] = $room->roomsupervisor1;
-                $formdata->roomsupervisor2[$room->examroom] = $room->roomsupervisor2;
-                $formdata->roomsupervision1[$room->examroom] = $room->roomsupervision1;
-                $formdata->roomsupervision2[$room->examroom] = $room->roomsupervision2;
+                if (!$newblock) {
+                    $formdata->roomnumberstudents[$room->examroom] = !empty($room->roomnumberstudents) ? $room->roomnumberstudents : '';
+                    $formdata->roomsupervisor1[$room->examroom] = unserialize($room->roomsupervisor1);
+                    $formdata->roomsupervisor2[$room->examroom] = unserialize($room->roomsupervisor2);
+                    $formdata->roomsupervision1[$room->examroom] = unserialize($room->roomsupervision1);
+                    $formdata->roomsupervision2[$room->examroom] = unserialize($room->roomsupervision2);
+                    $formdata->roomannotationtext[$room->examroom] = $room->roomannotationtext;
+                }
             }
         }
 
@@ -379,11 +445,12 @@ class util {
      * get exam date overview.
      *
      */
-    public static function getexamdateoverview($blockid, $examdateid, $newblock) {
+    public static function getexamdateoverview($blockid, $examdateid, $newblock)
+    {
         global $DB, $OUTPUT;
         $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
         $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid]);
-        $examblocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdate->id]);
+        $examblocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdate->id], 'blocktimestart');
         $text = '';
         $text .= \html_writer::start_tag('div', array('class' => 'card'));
         $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
@@ -392,40 +459,50 @@ class util {
         $text .= \html_writer::start_tag('dl');
         $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates') . ': ');
         $text .= \html_writer::tag('dd', date('d.m.Y H.i', $examdate->examtimestart)
-                . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60)));
+            . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60)));
         $text .= \html_writer::tag('dt', get_string('number_students', 'block_eledia_adminexamdates') . ': ');
         $text .= \html_writer::tag('dd', $examdate->numberstudents);
         $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates') . ': ');
-        $text .= \html_writer::tag('dd', $examdate->examiner);
+        $examiners = explode(',', $examdate->examiner);
+        $examinernames = [];
+        foreach ($examiners as $examiner) {
+            if ($user = \core_user::get_user($examiner)) {
+                $examinernames[] = fullname($user);
+            }
+        }
+        $text .= \html_writer::tag('dd', implode(', ', $examinernames));
         $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates') . ': ');
-        $text .= \html_writer::tag('dd', $examdate->contactperson);
+        $contactperson = \core_user::get_user($examdate->contactperson);
+        $text .= \html_writer::tag('dd', fullname($contactperson) . ' | ' . $contactperson->email);
         $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates') . ': ');
-        $text .= \html_writer::tag('dd', $examdate->responsibleperson);
+        $responsibleperson = $examdate->responsibleperson ? fullname(\core_user::get_user($examdate->responsibleperson)) : '';
+        $text .= \html_writer::tag('dd', $responsibleperson);
 
         $urldeletesingleexamdate =
-                new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['delete' => 1, 'blockid' => '']);
+            new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['delete' => 0, 'blockid' => $blockid]);
         $text .= $OUTPUT->box($OUTPUT->single_button($urldeletesingleexamdate, '', 'post'), 'd-none', 'delsingleexamdatebtn');
 
         $index = 1;
         foreach ($examblocks as $examblock) {
-            $trash = \html_writer::tag('i', '',
-                    array('class' => 'icon fa fa-trash fa-fw delsingleexamdate', 'data-examblockid' => $examblock->id,
-                            'title' => get_string('delete', 'block_eledia_adminexamdates'),
-                            'aria-label' => get_string('delete', 'block_eledia_adminexamdates')));
             $acitveblock = (($blockid == $examblock->id) && !($newblock)) ? array('class' => 'font-weight-bold') : array();
             $viewindex = (count($examblocks) > 1) ? $index . '. ' : '';
+            $delstring = get_string('delete', 'block_eledia_adminexamdates') . ' ' . $viewindex . get_string('partialdate', 'block_eledia_adminexamdates');
+            $trash = \html_writer::tag('i', '',
+                array('class' => 'icon fa fa-trash fa-fw delsingleexamdate', 'data-examblockid' => $examblock->id,
+                    'title' => $delstring, 'aria-label' => $delstring));
+            $viewtrash = (count($examblocks) > 1) ? $trash : '';
             $text .= \html_writer::tag('dt', $viewindex . get_string('partialdate', 'block_eledia_adminexamdates'));
             $text .= \html_writer::tag('dd', date('d.m.Y H.i', $examblock->blocktimestart)
-                    . ' - ' . date('H.i', $examblock->blocktimestart + ($examdate->examduration * 60)) . ' ' . $trash,
-                    $acitveblock);
+                . ' - ' . date('H.i', $examblock->blocktimestart + ($examdate->examduration * 60)) . ' ' . $viewtrash,
+                $acitveblock);
             $index++;
         }
         $text .= \html_writer::end_tag('dl');
         $text .= \html_writer::end_tag('p');
 
-        $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $examdate->id]);
+        $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php', ['cancelexamdate' => $examdate->id]);
 
-        $text .= $OUTPUT->single_button($url, 'Klausurtermin ' . get_string('editexamdate', 'block_eledia_adminexamdates'), 'post');
+        $text .= $OUTPUT->single_button($url, get_string('cancelexamdate', 'block_eledia_adminexamdates'), 'post');
 
         $text .= \html_writer::end_tag('div');
         $text .= \html_writer::end_tag('div');
@@ -436,14 +513,20 @@ class util {
      * get exam date request html items.
      *
      */
-    public static function getexamdateitems() {
+    public static function getexamdateitems()
+    {
         $text = '';
         global $DB, $PAGE, $OUTPUT, $USER;
         $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
-        $conditions = $hasconfirmexamdatescap ? ['confirmed' => 0] : ['confirmed' => 0, 'userid' => $USER->id];
-        $adminexamdates = $DB->get_records('eledia_adminexamdates', $conditions);
+        $conditions = $hasconfirmexamdatescap ? 'confirmed = 0' : "userid = $USER->id OR contactperson = $USER->id ";
+        $sql = "SELECT *
+                  FROM {eledia_adminexamdates} 
+                 WHERE $conditions
+                  ORDER BY examtimestart DESC";
+
+        $adminexamdates = $DB->get_records_sql($sql);
         foreach ($adminexamdates as $adminexamdate) {
-            $adminexamblocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $adminexamdate->id]);
+            $adminexamblocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $adminexamdate->id], 'blocktimestart');
             $text .= \html_writer::start_tag('div', array('class' => 'row mt-3'));
             $text .= \html_writer::start_tag('div', array('class' => 'card'));
             $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
@@ -452,33 +535,44 @@ class util {
             $text .= \html_writer::start_tag('dl');
             $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates') . ': ');
             $text .= \html_writer::tag('dd', date('d.m.Y H.i', $adminexamdate->examtimestart)
-                    . ' - ' . date('H.i', $adminexamdate->examtimestart + ($adminexamdate->examduration * 60)));
+                . ' - ' . date('H.i', $adminexamdate->examtimestart + ($adminexamdate->examduration * 60)));
             $text .= \html_writer::tag('dt', get_string('number_students', 'block_eledia_adminexamdates') . ': ');
             $text .= \html_writer::tag('dd', $adminexamdate->numberstudents);
             $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates') . ': ');
-            $text .= \html_writer::tag('dd', $adminexamdate->examiner);
+            $examiners = explode(',', $adminexamdate->examiner);
+            $examinernames = [];
+            foreach ($examiners as $examiner) {
+                if ($user = \core_user::get_user($examiner)) {
+                    $examinernames[] = fullname($user);
+                }
+            }
+            $text .= \html_writer::tag('dd', implode(', ', $examinernames));
             $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates') . ': ');
-            $text .= \html_writer::tag('dd', $adminexamdate->contactperson);
+            $contactperson = \core_user::get_user($adminexamdate->contactperson);
+            $text .= \html_writer::tag('dd', fullname($contactperson) . ' | ' . $contactperson->email);
             $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates') . ': ');
-            $text .= \html_writer::tag('dd', $adminexamdate->responsibleperson);
+            $responsibleperson = $adminexamdate->responsibleperson ? fullname(\core_user::get_user($adminexamdate->responsibleperson)) : '';
+            $text .= \html_writer::tag('dd', $responsibleperson);
             $index = 1;
             foreach ($adminexamblocks as $adminexamblock) {
                 $text .= \html_writer::tag('dt', $index . '. Teiltermin');
                 $text .= \html_writer::tag('dd', date('d.m.Y H.i', $adminexamblock->blocktimestart)
-                        . ' - ' . date('H.i', $adminexamblock->blocktimestart + ($adminexamdate->examduration * 60)));;
+                    . ' - ' . date('H.i', $adminexamblock->blocktimestart + ($adminexamdate->examduration * 60)));
                 $index++;
             }
             $text .= \html_writer::end_tag('dl');
             $text .= \html_writer::end_tag('p');
+            if($hasconfirmexamdatescap || !$adminexamdate->confirmed) {
+                $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $adminexamdate->id]);
 
-            $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $adminexamdate->id]);
-
-            $text .= $OUTPUT->single_button($url, get_string('editexamdate', 'block_eledia_adminexamdates'), 'post');
+                $text .= $OUTPUT->single_button($url, get_string('editexamdate', 'block_eledia_adminexamdates'), 'post');
+            }
             if ($hasconfirmexamdatescap) {
                 $url = new \moodle_url($PAGE->url, ['cancelexamdate' => $adminexamdate->id]);
 
                 $text .= $OUTPUT->single_button($url, get_string('cancelexamdate', 'block_eledia_adminexamdates'), 'post');
-            } else {
+            }
+            if(!$hasconfirmexamdatescap && $adminexamdate->confirmed) {
                 $url = new \moodle_url('/blocks/eledia_adminexamdates/changerequest.php', ['examdateid' => $adminexamdate->id]);
                 $text .= $OUTPUT->single_button($url, get_string('change_request_btn', 'block_eledia_adminexamdates'), 'post');
             }
@@ -487,7 +581,7 @@ class util {
                 $text .= $OUTPUT->single_button($url, get_string('confirmexamdate', 'block_eledia_adminexamdates'), 'post');
 
                 $url = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php',
-                        ['examdateid' => $adminexamdate->id]);
+                    ['examdateid' => $adminexamdate->id]);
                 $text .= $OUTPUT->single_button($url, get_string('editsingleexamdate', 'block_eledia_adminexamdates'), 'post');
             }
             $text .= \html_writer::end_tag('div');
@@ -501,37 +595,48 @@ class util {
      * get exam date table items.
      *
      */
-    public static function getexamdatetable() {
+    public static function getexamdatetable()
+    {
         global $DB;
-        $sql = "SELECT a.*, a.examduration,ar.roomnumberstudents,
+        $roomoptions = [];
+        $roomswithcapacity = [];
+
+        $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
+        foreach ($rooms as $room) {
+            $roomitems = explode('|', $room);
+            if (!empty($roomitems[2])) {
+                array_push($roomswithcapacity, $roomitems[0]);
+            };
+            $roomoptions[$roomitems[0]] = $roomitems[1];
+        };
+
+        list($inexamroomssql, $inexamroomsparams) = $DB->get_in_or_equal($roomswithcapacity, SQL_PARAMS_NAMED);
+
+        $sql = "SELECT a.*, ab.blockduration,ar.roomnumberstudents,
        ab.blocktimestart, ar.examroom, ar.blockid, ar.roomnumberstudents, ar.roomsupervisor1,
         ar.roomsupervisor2
                 FROM {eledia_adminexamdates} a
                 JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
-                JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id";
+                JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
+                WHERE ar.examroom {$inexamroomssql}
+                ORDER BY ab.blocktimestart";
         //     WHERE ag.blocktimestart > ? AND ag.blocktimestart < ?";
 
         //          $params = [strtotime('07:00:00', $formdata->examtimestart),
         //              strtotime('19:00:00', $formdata->examtimestart)];
-        $roomoptions = [];
-        $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
-        foreach ($rooms as $room) {
-            $roomitems = explode('|', $room);
-            $roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
-            $roomoptions[$roomitems[0]] = $roomitems[1] . $roomcapacity;
-        };
-        $dates = $DB->get_recordset_sql($sql);
+
+        $dates = $DB->get_recordset_sql($sql, $inexamroomsparams);
         $tableheaditems =
-                ['month', 'date', 'examname', 'examiner', 'examroom', 'supervisor1', 'supervisor2', 'candidates', 'status',
-                        'blockid', 'examid', 'links'];
+            ['month', 'date', 'examname', 'examiner', 'examroom', 'supervisor1', 'supervisor2', 'candidates', 'status',
+                'blockid', 'examid', 'links'];
         $text = \html_writer::start_tag('table',
-                array('id' => 'examdatestable', 'class' => 'table table-striped table-bordered table-hover table-sm',
-                        'style' => 'width:100%'));
+            array('id' => 'examdatestable', 'class' => 'table table-striped table-bordered table-hover table-sm',
+                'style' => 'width:100%'));
         $text .= \html_writer::start_tag('thead', array('class' => 'thead-light'));
         $text .= \html_writer::start_tag('tr');
         foreach ($tableheaditems as $tableheaditem) {
             $text .= \html_writer::tag('th', get_string('tablehead_' . $tableheaditem, 'block_eledia_adminexamdates'),
-                    array('scope' => 'col'));
+                array('scope' => 'col'));
         }
         $text .= \html_writer::end_tag('tr');
         $text .= \html_writer::end_tag('thead');
@@ -542,22 +647,50 @@ class util {
             $hiddenmonth = \html_writer::tag('span', date('Ym', $date->examtimestart), array('class' => 'd-none'));
             $text .= \html_writer::tag('td', $hiddenmonth . strftime('%B %Y', date($date->examtimestart)));
             $hiddendate = \html_writer::tag('span', date('YmdHi', $date->examtimestart), array('class' => 'd-none'));
-            $text .= \html_writer::tag('td', $hiddendate . date('d.m.Y H.i', $date->examtimestart)
-                    . ' - ' . date('H.i', $date->examtimestart + ($date->examduration * 60)));
+            $text .= \html_writer::tag('td', $hiddendate . date('d.m.Y H.i', $date->blocktimestart)
+                . ' - ' . date('H.i', $date->blocktimestart + ($date->blockduration * 60)));
             $examname = ($date->courseid) ? \html_writer::tag('a', $date->examname,
-                    array('href' => get_config('block_eledia_adminexamdates', 'apidomain')
-                            . '/course/view.php?id=' . $date->courseid, 'target' => '_blank')) : $date->examname;
+                array('href' => get_config('block_eledia_adminexamdates', 'apidomain')
+                    . '/course/view.php?id=' . $date->courseid, 'target' => '_blank')) : $date->examname;
             $text .= \html_writer::tag('td', $examname);
-            $text .= \html_writer::tag('td', $date->examiner);
+            $examiners = explode(',', $date->examiner);
+            $examinernames = [];
+            foreach ($examiners as $examiner) {
+                if ($user = \core_user::get_user($examiner)) {
+                    $examinernames[] = fullname($user);
+                }
+            }
+            $text .= \html_writer::tag('td', implode(', ', $examinernames));
             $text .= \html_writer::tag('td', $roomoptions[$date->examroom]);
-            $text .= \html_writer::tag('td', $date->roomsupervisor1);
-            $text .= \html_writer::tag('td', $date->roomsupervisor2);
-            $text .= \html_writer::tag('td', $date->roomnumberstudents);
+            $roomsupervisors1 = '';
+            if (!empty($date->roomsupervisor1)) {
+                $roomsupervisors1 = (array)unserialize($date->roomsupervisor1);
+                foreach ($roomsupervisors1 as $index => $roomsupervisor1) {
+                    if (intval($roomsupervisor1)) {
+                        $roomsupervisors1[$index] = fullname($DB->get_record('user', array('id' => $roomsupervisor1), '*', MUST_EXIST));
+                    }
+                }
+                $roomsupervisors1 = implode(', ', $roomsupervisors1);
+            }
+            $roomsupervisors2 = '';
+            if (!empty($date->roomsupervisor2)) {
+                $roomsupervisors2 = (array)unserialize($date->roomsupervisor2);
+                foreach ($roomsupervisors2 as $index => $roomsupervisor2) {
+                    if (intval($roomsupervisor2)) {
+                        $roomsupervisors2[$index] = fullname($DB->get_record('user', array('id' => $roomsupervisor2), '*', MUST_EXIST));
+                    }
+                }
+                $roomsupervisors2 = implode(', ', $roomsupervisors2);
+            }
+            $roomnumberstudents = !empty($date->roomnumberstudents) ? $date->roomnumberstudents : '';
+            $text .= \html_writer::tag('td', $roomsupervisors1);
+            $text .= \html_writer::tag('td', $roomsupervisors2);
+            $text .= \html_writer::tag('td', $roomnumberstudents);
             $text .= \html_writer::tag('td', ($date->confirmed) ?
-                    get_string('status_confirmed', 'block_eledia_adminexamdates') :
-                    get_string('status_unconfirmed', 'block_eledia_adminexamdates'),
-                    ($date->confirmed) ? array('class' => 'text-center table-success') :
-                            array('class' => 'text-center table-danger'));
+                get_string('status_confirmed', 'block_eledia_adminexamdates') :
+                get_string('status_unconfirmed', 'block_eledia_adminexamdates'),
+                ($date->confirmed) ? array('class' => 'text-center table-success') :
+                    array('class' => 'text-center table-danger'));
             $text .= \html_writer::tag('td', $date->blockid);
             $text .= \html_writer::tag('td', $date->id);
             $text .= \html_writer::tag('td', '');
@@ -569,7 +702,7 @@ class util {
         $text .= \html_writer::start_tag('tr');
         foreach ($tableheaditems as $tableheaditem) {
             $text .= \html_writer::tag('th', get_string('tablehead_' . $tableheaditem, 'block_eledia_adminexamdates'),
-                    array('scope' => 'col'));
+                array('scope' => 'col'));
         }
         $text .= \html_writer::end_tag('tr');
         $text .= \html_writer::end_tag('tfoot');
@@ -584,7 +717,8 @@ class util {
      * @return array
      */
     public
-    static function examconfirm($examdateid) {
+    static function examconfirm($examdateid)
+    {
         global $DB, $USER;
 
         $config = get_config('block_eledia_adminexamdates');
@@ -592,12 +726,12 @@ class util {
         // Get the template's course ID using the course idnumber.
         if (!empty($config->examcoursetemplateidnumber)) {
             $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
-            $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
+            $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'blocktimestart');
 
             $param = [
-                    'wsfunction' => 'core_course_get_courses_by_field',
-                    'field' => 'idnumber',
-                    'value' => $config->examcoursetemplateidnumber
+                'wsfunction' => 'core_course_get_courses_by_field',
+                'field' => 'idnumber',
+                'value' => $config->examcoursetemplateidnumber
             ];
             $results = self::get_data_from_api('', $param);
 
@@ -610,29 +744,29 @@ class util {
                 $year = substr($examdate->semester, 0, 4);
                 if (substr($examdate->semester, -1) == 1) {
                     $semesterstr = get_string('summersemester', 'block_eledia_adminexamdates')
-                            . ' ' . $year;
+                        . ' ' . $year;
                 } else {
                     $semesterstr = get_string('wintersemester', 'block_eledia_adminexamdates')
-                            . ' ' . $year . '/' . ($year + 1);
+                        . ' ' . $year . '/' . ($year + 1);
                 }
 
                 // Create the semester category if it is not in the sub-category list.
                 if (empty($subcategories) || !($semestercategoryid = array_search($semesterstr, $subcategories))) {
                     $param = ['wsfunction' => 'core_course_create_categories'];
                     $categories = '&categories[0][name]=' . urlencode($semesterstr)
-                            . '&categories[0][parent]=' . $examdate->department;
+                        . '&categories[0][parent]=' . $examdate->department;
                     $results = self::get_data_from_api($categories, $param);
                     $semestercategoryid = $results[0]->id;
                 }
 
                 // Duplicate the sample course for the exam.
                 $param = [
-                        'wsfunction' => 'core_course_duplicate_course',
-                        'courseid' => $templatecourseid,
-                        'fullname' => $examdate->examname,
-                        'shortname' => $examdate->examname,
-                        'categoryid' => $semestercategoryid,
-                        'visible' => 0
+                    'wsfunction' => 'core_course_duplicate_course',
+                    'courseid' => $templatecourseid,
+                    'fullname' => $examdate->examname,
+                    'shortname' => $examdate->examname,
+                    'categoryid' => $semestercategoryid,
+                    'visible' => 0
                 ];
                 $results = self::get_data_from_api('', $param);
 
@@ -640,8 +774,8 @@ class util {
                 if (isset($results->id)) {
                     $courseid = $results->id;
                     $param = [
-                            'wsfunction' => 'core_course_get_contents',
-                            'courseid' => $courseid
+                        'wsfunction' => 'core_course_get_contents',
+                        'courseid' => $courseid
                     ];
                     $options = '&options[0][name]=excludemodules&options[0][value]=1';
                     $results = self::get_data_from_api($options, $param);
@@ -650,13 +784,13 @@ class util {
                         foreach ($results as $sectiondata) {
                             if (strpos($sectiondata->name, $stringtoreplace)) {
                                 $param = [
-                                        'wsfunction' => 'core_update_inplace_editable',
-                                        'component' => 'format_topics',
-                                        'itemtype' => 'sectionname',
-                                        'itemid' => $sectiondata->id,
-                                        'value' => str_replace($stringtoreplace,
-                                                date('d.m.Y', $examdate->examtimestart),
-                                                $sectiondata->name)
+                                    'wsfunction' => 'core_update_inplace_editable',
+                                    'component' => 'format_topics',
+                                    'itemtype' => 'sectionname',
+                                    'itemid' => $sectiondata->id,
+                                    'value' => str_replace($stringtoreplace,
+                                        date('d.m.Y', $examdate->examtimestart),
+                                        $sectiondata->name)
                                 ];
                                 self::get_data_from_api('', $param);
                                 break;
@@ -728,8 +862,8 @@ class util {
 
                                            }*/
                         // Set the 'confirmed' state and course ID to this exam date.
-                        $DB->update_record('eledia_adminexamdates', (object) ['id' => $examdateid,
-                                'confirmed' => 1, 'courseid' => $courseid]);
+                        $DB->update_record('eledia_adminexamdates', (object)['id' => $examdateid,
+                            'confirmed' => 1, 'courseid' => $courseid]);
                     }
                 }
             }
@@ -742,15 +876,73 @@ class util {
      * @return array
      */
     public
-    static function examcancel($examdateid) {
-        global $DB;
+    static function examcancel($examdateid)
+    {
+        global $DB, $USER;
         $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
         $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
-        if (!empty($examparts)) {
+
+        $emailuser = new stdClass();
+        $emailuser->email = \core_user::get_user($examdate->contactperson)->email;
+        $emailuser->id = -99;
+
+        $responsiblepersonemail = $examdate->responsibleperson ? \core_user::get_user($examdate->responsibleperson)->email : false;
+        $emailexamteam = get_config('block_eledia_adminexamdates', 'emailexamteam');
+        $emailexamteam = !empty($emailexamteam) ? $emailexamteam : false;
+
+        $subject = get_string('examcancel_email_subject', 'block_eledia_adminexamdates', ['name' => $examdate->examname]);
+        $date = date('d.m.Y H.i', $examdate->examtimestart)
+            . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60));
+        $messagetext = get_string('examcancel_email_body', 'block_eledia_adminexamdates', ['name' => $examdate->examname, 'date' => $date]);
+
+        if (!empty($examparts) && !empty($examdate)) {
             $DB->delete_records_list('eledia_adminexamdates_rooms', 'blockid', array_keys($examparts));
             $DB->delete_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
         }
         $DB->delete_records('eledia_adminexamdates', ['id' => $examdateid]);
+
+        email_to_user($emailuser, $USER, $subject, $messagetext);
+
+        if ($responsiblepersonemail) {
+            $emailuser->email = $responsiblepersonemail;
+            email_to_user($emailuser, $USER, $subject, $messagetext);
+        }
+
+        if ($emailexamteam) {
+            $emailuser->email = $emailexamteam;
+            email_to_user($emailuser, $USER, $subject, $messagetext);
+        }
+    }
+
+    /**
+     * Delete a single exam date.
+     *
+     * @return array
+     */
+    public
+    static function deletesingleexamdate($blockid, $deleteblockid, $examdateid)
+    {
+        global $DB;
+        $block = $DB->get_record('eledia_adminexamdates_blocks', ['id' => $deleteblockid]);
+        if (!empty($block)) {
+            $newblockid = ($blockid == $deleteblockid) ? true : false;
+            $DB->delete_records('eledia_adminexamdates_rooms', ['blockid' => $deleteblockid]);
+            $DB->delete_records('eledia_adminexamdates_blocks', ['id' => $deleteblockid]);;
+            if ($newblockid) {
+                $blockid = $DB->get_record('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'id', IGNORE_MULTIPLE)->id;
+            }
+            $examtimestart = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid])->examtimestart;
+            $blocktimestart = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'blocktimestart');
+            $blocktimestart = reset($blocktimestart)->blocktimestart;
+
+            if ($examtimestart != $blocktimestart) {
+                $dataobject = new \stdClass();
+                $dataobject->id = $examdateid;
+                $dataobject->examtimestart = $blocktimestart;
+                $DB->update_record('eledia_adminexamdates', $dataobject);
+            }
+        }
+        return $blockid;
     }
 
     /**
@@ -759,7 +951,8 @@ class util {
      * @return array
      */
     public
-    static function sendchengerequestemail($examdateid, $messagetexthtml) {
+    static function sendchangerequestemail($examdateid, $message)
+    {
         global $DB, $USER;
 
         $emailexamteam = get_config('block_eledia_adminexamdates', 'emailexamteam');
@@ -768,12 +961,20 @@ class util {
         $emailuser->email = $emailexamteam;
         $emailuser->id = -99;
 
-        $subject = get_string('changerequest_header', 'block_eledia_adminexamdates');
-        $blockid = $DB->get_record('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'id', IGNORE_MULTIPLE)->id;
-        $examdateoverview = self::getexamdateoverview($blockid, $examdateid, false);
-        $messagetexthtml = $messagetexthtml . $examdateoverview;
-        $messagetext = html_to_text($messagetexthtml);
-        $success = email_to_user($emailuser, $USER, $subject, $messagetext, $messagetexthtml);
+        $blocks = array_values($DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'blocktimestart'));
+        $blockid = $blocks[0]->id;
+        $url = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['blockid' => $blockid]);
+        $url = $url->out();
+        $link = \html_writer::tag('a', get_string('edit'), array('href' => $url));
+        $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid]);
+        $subject = get_string('changerequest_email_subject', 'block_eledia_adminexamdates', ['name' => $examdate->examname]);
+        $date = date('d.m.Y H.i', $examdate->examtimestart)
+            . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60));
+        $messagetext = get_string('changerequest_email_body', 'block_eledia_adminexamdates',
+            ['name' => $examdate->examname, 'date' => $date, 'url' => $url, 'changerequest' => $message]);
+        $htmlmessagetext = get_string('changerequest_email_body', 'block_eledia_adminexamdates',
+            ['name' => $examdate->examname, 'date' => $date, 'url' => $link, 'changerequest' => $message]);
+        $success = email_to_user($emailuser, $USER, $subject, $messagetext, $htmlmessagetext);
     }
 
     /**
@@ -782,7 +983,8 @@ class util {
      * @return array
      */
     public
-    static function get_data_from_api($urlparam, $param) {
+    static function get_data_from_api($urlparam, $param)
+    {
         $config = get_config('block_eledia_adminexamdates');
         if (!empty($config->apitoken) && !empty($config->apidomain)) {
             $curl = new \curl();
@@ -806,10 +1008,11 @@ class util {
      * @return array
      */
     public
-    static function get_sub_categories($idtype, $categoryidvalue) {
+    static function get_sub_categories($idtype, $categoryidvalue)
+    {
         $param = [
-                'wsfunction' => 'core_course_get_categories',
-                'addsubcategories' => 0,
+            'wsfunction' => 'core_course_get_categories',
+            'addsubcategories' => 0,
         ];
         $criteria = '&criteria[0][key]=' . $idtype . '&criteria[0][value]=' . $categoryidvalue;
         $results = self::get_data_from_api($criteria, $param);

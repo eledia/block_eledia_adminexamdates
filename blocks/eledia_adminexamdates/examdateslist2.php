@@ -29,10 +29,6 @@ $context = context_system::instance();
 
 require_login();
 
-if (!has_capability('block/eledia_adminexamdates:view', $context)) {
-    print_error(' only users with rights to view admin exam dates allowed');
-}
-
 $confirmexamdate = optional_param('confirmexamdate', 0, PARAM_INT);
 $cancelexamdate = optional_param('cancelexamdate', 0, PARAM_INT);
 $confirmexamdateyes = optional_param('confirmexamdateyes', 0, PARAM_INT);
@@ -73,7 +69,7 @@ if (!empty($confirmexamdate)) {
         block_eledia_adminexamdates\util::examcancel($confirmexamdateyes);
     }
    // $PAGE->requires->css('/blocks/eledia_adminexamdates/styles/datatables.min.css');
-
+    $PAGE->requires->js_call_amd('block_eledia_adminexamdates/examdateslist_datatables', 'init');
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
 
@@ -123,7 +119,7 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     echo $OUTPUT->container_end();
-    $PAGE->requires->js_call_amd('block_eledia_adminexamdates/examdateslist_datatables', 'init');
+
 
 }
 

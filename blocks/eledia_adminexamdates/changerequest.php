@@ -29,10 +29,6 @@ $context = context_system::instance();
 
 require_login();
 
-if (!has_capability('block/eledia_adminexamdates:view', $context)) {
-    print_error(' only users with rights to view admin exam dates allowed');
-}
-
 $examdateid = optional_param('examdateid', 0, PARAM_INT);
 $mailsend = optional_param('mailsend', 0, PARAM_INT);
 
@@ -43,16 +39,17 @@ $PAGE->set_context($context);
 $PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
 $PAGE->set_pagelayout('course');
 
-$mform = new \block_eledia_adminexamdates\forms\changerequest_form();
+$mform = new \block_eledia_adminexamdates\forms\changerequest_form();;
 
 
 // Execute the form.
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php'));
 } else if (!empty($formdata = $mform->get_data()) && !empty($formdata->changerequesttext)) {
-    block_eledia_adminexamdates\util::sendchengerequestemail($examdateid, $formdata->changerequesttext);
+    block_eledia_adminexamdates\util::sendchangerequestemail($examdateid, $formdata->changerequesttext);
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php'));
 } else {
+    $mform->set_data(['examdateid'=>$examdateid]);
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
     $blockid = $DB->get_record('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'id', IGNORE_MULTIPLE)->id;

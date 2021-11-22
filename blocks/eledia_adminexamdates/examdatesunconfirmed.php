@@ -29,10 +29,6 @@ $context = context_system::instance();
 
 require_login();
 
-if (!has_capability('block/eledia_adminexamdates:view', $context)) {
-    print_error(' only users with rights to view admin exam dates allowed');
-}
-
 $confirmexamdate = optional_param('confirmexamdate', 0, PARAM_INT);
 $cancelexamdate = optional_param('cancelexamdate', 0, PARAM_INT);
 $confirmexamdateyes = optional_param('confirmexamdateyes', 0, PARAM_INT);
@@ -94,10 +90,10 @@ if (!empty($confirmexamdate)) {
     echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
-    echo \html_writer::start_tag('div',array('class' => 'row'));
+    echo \html_writer::start_tag('div',array('class' => 'row mt-3'));
     echo \html_writer::start_tag('div',array('class' => 'col-xs-12'));
     echo \html_writer::start_tag('p');
-    echo \html_writer::tag('h1', get_string('unconfirmed_btn', 'block_eledia_adminexamdates'));
+    //echo \html_writer::tag('h1', get_string('unconfirmed_btn', 'block_eledia_adminexamdates'));
     echo \html_writer::end_tag('p');
     echo block_eledia_adminexamdates\util::getexamdateitems();
     echo \html_writer::end_tag('div');

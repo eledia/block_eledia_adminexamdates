@@ -83,6 +83,11 @@ if ($ADMIN->fulltree) {
         new lang_string('setting_emailexamteam', 'block_eledia_adminexamdates'),
         '', '', PARAM_EMAIL);
 
+    $configs[] = new admin_setting_configtext('responsiblepersons',
+        new lang_string('responsiblepersons', 'block_eledia_adminexamdates'),
+        new lang_string('config_responsiblepersons', 'block_eledia_adminexamdates'),
+        '', PARAM_RAW, '40');
+
     foreach ($configs as $config) {
         $config->plugin = 'block_eledia_adminexamdates';
         $settings->add($config);

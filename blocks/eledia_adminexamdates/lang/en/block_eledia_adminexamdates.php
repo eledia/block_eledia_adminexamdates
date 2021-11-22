@@ -53,12 +53,14 @@ $string['examiner'] ='Examiner';
 $string['contactperson'] ='Contact person';
 $string['contactpersonemail'] ='Contact person\'s email';
 $string['responsibleperson'] ='SCL responsible person';
-$string['examrooms_default'] = 'PR1|Prüfungsraum 1|100
-PR2|Prüfungsraum 2|100
-AB|Administrationsbüro|0
-ER|Endabnahmeraum|0';
-$string['config_examrooms'] = 'Each line configures its own room. In each line there is first a unique room ID (e.g. \'PR1\'), followed by the name of the room (e.g. \'Examination room 1\'), as well as the room capacity, i.e. the maximum number of participants (e.g. \'100\'), separated by a vertical line.';
+$string['examrooms_default'] = 'PR1|Prüfungsraum 1|100|#E91E63
+PR2|Prüfungsraum 2|100|#3F51B5
+AB|Administrationsbüro|0|#009688
+ER|Endabnahmeraum|0|#6D4C41';
+$string['config_examrooms'] = 'Each line configures its own room. In each line there is first a unique room ID (e.g. \'PR1\'), followed by the name of the room (e.g. \'Examination room 1\'), as well as the room capacity, i.e. the maximum number of participants (e.g. \'100\') and the displayed room color (e.g. \'#3F51B\'), separated by a vertical line.';
 $string['examrooms'] ='Configuration of the examination rooms';
+$string['config_responsiblepersons'] = 'List of the user IDs of those responsible for the SCL, each separated by a comma. (e.g. \'2,4,5,12\')';
+$string['responsiblepersons'] ='Configuration of SCL responsible persons';
 $string['summersemester'] ='Sommersemester';
 $string['wintersemester'] ='Wintersemester';
 $string['select_semester'] ='Semester';
@@ -131,8 +133,38 @@ $string['changerequesttext'] = 'Enter the change request';
 $string['send_email'] ='Send email';
 $string['examdaterooms'] ='Exam rooms';
 $string['eledia_adminexamdates:addinstance'] = 'Add a new eLeDia e-exam dates administration block';
-$string['eledia_adminexamdates:myaddinstance'] = 'Add a new eLeDia e-exam dates administration block to Dashboard';
-$string['eledia_adminexamdates:view'] = 'View the eLeDia e-exam dates administration block';
 $string['eledia_adminexamdates:confirmexamdates'] = 'Confirm the e-exam dates in the eLeDia e-exam dates administration block';
 $string['delete'] ='Delete';
+$string['confirm_delete_singleexamdate_msg'] = 'Do you really want to delete for the exam: \'{$a->name}\' the {$a->index}. single exam date?';
+$string['error_examdate_already_taken']  = 'This exam date is already taken. Please look for another date!';
+$string['autocomplete_placeholder']  = 'Search or enter with the Enter key ';
+$string['error_email'] = 'Please enter a valid email address!';
+$string['pleasechoose'] = 'Please choose ...';
+$string['error_choose'] = 'Please choose!';
+$string['error_choose_or_enter'] = 'Please select or enter with the enter key!';
+$string['error_wrong_userid'] = 'Please enter names and no numbers!';
+$string['config_select_calendar_month'] = 'Month';
+$string['config_select_calendar_year'] = 'Year';
+$string['calendar_date'] = 'Selection of a date';
+$string['confirm_save_singleexamdate_msg'] = 'The {$ a-> index} single exam date of the exam: \' {$ a-> name} \' has been saved.';
+$string['error_wrong_email'] = 'Please enter a correct e-mail address with the Enter key - or search in selection!';
+$string['error_wrong_userid_email'] = 'Please enter a correct e-mail address and no numbers!';
+$string['examcancel_email_subject'] = 'Cancellation of the date for the exam: {$a->name}';
+$string['examcancel_email_body'] = 'The exam date will be canceled for: 
 
+{$a->name}, {$a->date} o\'clock.';
+$string['changerequest_email_subject'] = 'Change request to the exam team for: {$a->name}';
+$string['changerequest_email_body'] = 'Change request to the exam team
+
+Exam: 
+{$ a-> name}, 
+{$a->date} o\'clock, 
+{$a->url} 
+
+Request: 
+{$a->changerequest}
+
+';
+$string['checklist_btn'] = 'Checklist';
+$string['editexamdate_btn'] = 'Edit exam date';
+$string['singleexamdate_btn'] = 'Single exam date';

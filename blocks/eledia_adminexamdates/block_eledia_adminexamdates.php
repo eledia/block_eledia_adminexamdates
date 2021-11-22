@@ -48,8 +48,6 @@ class block_eledia_adminexamdates extends block_base
      */
     public function get_content()
     {
-        $context = context_system::instance();
-
         if ($this->content !== null) {
             return $this->content;
         }
@@ -68,11 +66,9 @@ class block_eledia_adminexamdates extends block_base
             $this->content->text = $this->config->text;
         } else {
             $text = '';
-            if (has_capability('block/eledia_adminexamdates:view', $context)) {
-                $strexamdatesunconfirmedbutton = get_string('examdatesunconfirmed', 'block_eledia_adminexamdates');
-                $examdatesunconfirmedurl = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
-                $text .= html_writer::link($examdatesunconfirmedurl, $strexamdatesunconfirmedbutton, array('class' => 'btn btn-primary w-100 mb-2'));
-            }
+            $strexamdatesunconfirmedbutton = get_string('examdatesunconfirmed', 'block_eledia_adminexamdates');
+            $examdatesunconfirmedurl = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
+            $text .= html_writer::link($examdatesunconfirmedurl, $strexamdatesunconfirmedbutton, array('class' => 'btn btn-primary w-100 mb-2'));
         }
         $this->content->text = $text;
 

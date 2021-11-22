@@ -44,6 +44,8 @@ class changerequest_form extends \moodleform
         $mform->setType('changerequesttext', PARAM_RAW);
         $mform->addRule('changerequesttext', null, 'required');
 
+        $mform->addElement('hidden', 'examdateid');
+        $mform->setType('examdateid', PARAM_INT);
 
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton', get_string('send_email','block_eledia_adminexamdates'));

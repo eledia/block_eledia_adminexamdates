@@ -40,41 +40,44 @@ class singleexamdate_form extends \moodleform
 
         $mform =& $this->_form;
 
-       // $mform->addElement('header', '', get_string('singleexamdate_header', 'block_eledia_adminexamdates'));
+        // $mform->addElement('header', '', get_string('singleexamdate_header', 'block_eledia_adminexamdates'));
 
 
         $options = [];
         $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
 
+        $roomcapacity = [];
         foreach ($rooms as $room) {
             $roomitems = explode('|', $room);
-            $roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
-            $options[$roomitems[0]] = $roomitems[1] . $roomcapacity;
+            if (!empty($roomitems[2])) {
+                array_push($roomcapacity, $roomitems[0]);
+            }
+            $options[$roomitems[0]] = $roomitems[1];
         };
 
-       // $blocks =& $this->_customdata['blocks'];
-      // print_R( $blocks);exit;
-       // $blocksnumber=count($blocks);
-       // $mform->toHtml('<ul class="nav nav-pills" role="tablist">');
-       // foreach ($options as $key => $val) {
-       //
-       //     $mform->toHtml('<li class="nav-item">');
-       //     $mform->toHtml('<button class="nav-link" data-toggle="pill" href="#room' . $key . '">' . $val . '</button>');
-       //     $mform->toHtml('</li>');
-       // }
-       //
-       // $mform->toHtml('</ul>');
-       // $mform->toHtml('<div class="tab-content">');
-       // $mform->toHtml('<div id="room' . $key . '" class="container tab-pane"><br>');
-      //  for($i = 0; $i < $blocksnumber; $i++) {
+        // $blocks =& $this->_customdata['blocks'];
+        // print_R( $blocks);exit;
+        // $blocksnumber=count($blocks);
+        // $mform->toHtml('<ul class="nav nav-pills" role="tablist">');
+        // foreach ($options as $key => $val) {
+        //
+        //     $mform->toHtml('<li class="nav-item">');
+        //     $mform->toHtml('<button class="nav-link" data-toggle="pill" href="#room' . $key . '">' . $val . '</button>');
+        //     $mform->toHtml('</li>');
+        // }
+        //
+        // $mform->toHtml('</ul>');
+        // $mform->toHtml('<div class="tab-content">');
+        // $mform->toHtml('<div id="room' . $key . '" class="container tab-pane"><br>');
+        //  for($i = 0; $i < $blocksnumber; $i++) {
         //foreach ($blocks as $block) {
-            //  $mform->toHtml('<div id="termin' . $index . '" class="container tab-pane ' . $activecssclass . '"><br>');
-            $mform->addElement('date_time_selector', "blocktimestart", get_string('block_timestart', 'block_eledia_adminexamdates'));
-            $mform->addRule("blocktimestart", null, 'required');
+        //  $mform->toHtml('<div id="termin' . $index . '" class="container tab-pane ' . $activecssclass . '"><br>');
+        $mform->addElement('date_time_selector', "blocktimestart", get_string('block_timestart', 'block_eledia_adminexamdates'));
+        $mform->addRule("blocktimestart", null, 'required');
 
-            $mform->addElement('text', "blockduration", get_string('block_duration', 'block_eledia_adminexamdates'), array('size' => 4));
-            $mform->setType("blockduration", PARAM_INT);
-     //  }
+        $mform->addElement('text', "blockduration", get_string('block_duration', 'block_eledia_adminexamdates'), array('size' => 4));
+        $mform->setType("blockduration", PARAM_INT);
+        //  }
 
         /* $options = [];
          $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
@@ -174,59 +177,79 @@ class singleexamdate_form extends \moodleform
 //
 //            $mform->addElement('text', "blockduration[$index]", get_string('block_duration', 'block_eledia_adminexamdates'), array('size' => 4));
 //            $mform->setType("blockduration[$index]", PARAM_INT);
-            //   $mform->addRule("blockduration[$index]", null, 'required');
+        //   $mform->addRule("blockduration[$index]", null, 'required');
 
 //            $mform->addElement('text', "blocknumberstudents[$index]", get_string('block_number_students', 'block_eledia_adminexamdates'), array('size' => 4));
 //            $mform->setType("blocknumberstudents[$index]", PARAM_INT);
-            //  $mform->addRule("blocknumberstudents[$index]", null, 'required');
+        //  $mform->addRule("blocknumberstudents[$index]", null, 'required');
 
 //            $mform->addElement('select', "blockexamrooms[$index]",
 //                get_string('select_blockexamrooms', 'block_eledia_adminexamdates'), $options, $settings);
 //            $mform->addRule("blockexamrooms[$index]", null, 'required');
 //            $mform->setType("blockexamrooms[$index]", PARAM_RAW);
 //            $mform->setDefault("blockexamrooms[$index]", 'PR1');
-            $checkboxes = [];
-      //  for($i = 0; $i < $blocksnumber; $i++) {
-            foreach ($options as $key => $val) {
-                $checkboxes[] =
-                    $mform->createElement('advcheckbox', "blockexamroomscheck[{$key}]", '', $val);
+        $checkboxes = [];
+        //  for($i = 0; $i < $blocksnumber; $i++) {
+        foreach ($options as $key => $val) {
+            $checkboxes[] =
+                $mform->createElement('advcheckbox', "blockexamroomscheck[{$key}]", '', $val);
+        }
+        //   }
+        $mform->addGroup($checkboxes, '', get_string('examdaterooms', 'block_eledia_adminexamdates'), ['<br>'], false);
+
+        $sql = "SELECT *
+                  FROM {user} 
+                 WHERE deleted = 0
+                  ORDER BY lastname, firstname";
+
+        $users = $DB->get_records_sql($sql);
+        $userlist = [];
+        foreach ($users as $id => $user) {
+            if ($user->id > 2 && !is_siteadmin($user)) {
+                //$userfields = get_object_vars($user);
+                //array_shift($userfields);
+                $userlist[$id] = fullname($user);
             }
-     //   }
-            $mform->addGroup($checkboxes, '',get_string('examdaterooms', 'block_eledia_adminexamdates'),['<br>'], false);
+        }
+
+        $autocompleteoptions = [
+            'multiple' => true,
+            'tags' => true,
+            'placeholder' => get_string('autocomplete_placeholder', 'block_eledia_adminexamdates')
+        ];
 
         foreach ($options as $key => $val) {
-          //$mform->toHtml('<div id="room' . $key . '" class="container tab-pane"><br>');
+
+            //$mform->toHtml('<div id="room' . $key . '" class="container tab-pane"><br>');
             $mform->addElement('header', "roomheader[{$key}]", $val);
-            $mform->setExpanded("roomheader[{$key}]",true,true);
+            $mform->setExpanded("roomheader[{$key}]", true, true);
 
-           // $mform->hideIf("roomheader[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
+            if (in_array($key, $roomcapacity)) {
 
-           // $mform->hideIf("roomheader[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
-                // $mform->addElement('checkbox', "blockexamroomscheck{$i}{$key}",'', $val);
                 $mform->addElement('text', "roomnumberstudents[{$key}]", get_string('room_number_students', 'block_eledia_adminexamdates'), array('size' => 4));
                 $mform->setType("roomnumberstudents[{$key}]", PARAM_INT);
-                //$mform->hideIf("roomnumberstudents[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
 
-
-                $mform->addElement('text', "roomsupervisor1[{$key}]", get_string('room_supervisor', 'block_eledia_adminexamdates') . ' 1', array('size' => 30));
+                $mform->addElement('autocomplete', "roomsupervisor1[{$key}]", get_string('room_supervisor', 'block_eledia_adminexamdates') . '&nbsp;1',
+                    $userlist, $autocompleteoptions);
                 $mform->setType("roomsupervisor1[{$key}]", PARAM_RAW);
-               // $mform->hideIf("roomsupervisor1[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
 
-                $mform->addElement('text', "roomsupervisor2[{$key}]", get_string('room_supervisor', 'block_eledia_adminexamdates') . ' 2', array('size' => 30));
+                $mform->addElement('autocomplete', "roomsupervisor2[{$key}]", get_string('room_supervisor', 'block_eledia_adminexamdates') . '&nbsp;2',
+                    $userlist, $autocompleteoptions);
                 $mform->setType("roomsupervisor2[{$key}]", PARAM_RAW);
-                //$mform->hideIf("roomsupervisor2[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
 
-                $mform->addElement('text', "roomsupervision1[{$key}]", get_string('room_supervision', 'block_eledia_adminexamdates') . ' 1', array('size' => 30));
+                $mform->addElement('autocomplete', "roomsupervision1[{$key}]", get_string('room_supervision', 'block_eledia_adminexamdates') . '&nbsp;1',
+                    $userlist, $autocompleteoptions);
                 $mform->setType("roomsupervision1[{$key}]", PARAM_RAW);
-                //$mform->hideIf("roomsupervision1[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
 
-                $mform->addElement('text', "roomsupervision2[{$key}]", get_string('room_supervision', 'block_eledia_adminexamdates') . ' 2', array('size' => 30));
+                $mform->addElement('autocomplete', "roomsupervision2[{$key}]", get_string('room_supervision', 'block_eledia_adminexamdates') . '&nbsp;2',
+                    $userlist, $autocompleteoptions);
                 $mform->setType("roomsupervision2[{$key}]", PARAM_RAW);
-                //$mform->hideIf("roomsupervision2[{$key}]", "blockexamroomscheck[{$key}]", 'notchecked');
-
-          //7  $mform->toHtml('</div>');
+            } else {
+                $mform->addElement('textarea', "roomannotationtext[{$key}]", get_string('annotationtext', 'block_eledia_adminexamdates'), array('rows' => 10, 'cols' => 80));
+                $mform->setType("roomannotationtext[{$key}]", PARAM_RAW);
             }
-       // $mform->toHtml('</div>');
+        }
+        // $mform->toHtml('</div>');
 //
 //            $mform->toHtml(' </div>');
 //
@@ -259,7 +282,7 @@ class singleexamdate_form extends \moodleform
 
          $mform->addElement('hidden', 'examdateid');
          $mform->setType('examdateid', PARAM_INT);*/
-       // $mform->toHtml('</div></div>');
+        // $mform->toHtml('</div></div>');
         $mform->addElement('hidden', 'save');
         $mform->setType('save', PARAM_INT);
         $mform->addElement('hidden', 'blockid');
@@ -275,7 +298,9 @@ class singleexamdate_form extends \moodleform
         $mform->closeHeaderBefore('buttonar');
 
     }
-    public function validation($data, $files) {
+
+    public function validation($data, $files)
+    {
         $errors = parent::validation($data, $files);
 
         return $errors;

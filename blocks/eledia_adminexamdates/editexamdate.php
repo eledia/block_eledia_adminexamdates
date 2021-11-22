@@ -29,10 +29,6 @@ $context = context_system::instance();
 
 require_login();
 
-if (!has_capability('block/eledia_adminexamdates:view', $context)) {
-    print_error(' only users with rights to view admin exam dates allowed');
-}
-
 $newexamdate = optional_param('newexamdate', 0, PARAM_INT);
 $editexamdate = optional_param('editexamdate', 0, PARAM_INT);
 $examtimestart = optional_param('examtimestart', 0, PARAM_INT);
@@ -50,7 +46,7 @@ $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexa
 // Execute the form.
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php'));
-} else if ($newexamdate || $editexamdate || empty($formdata = $mform->get_data())) {
+} else if (empty($formdata = $mform->get_data())) {
     if (!empty($editexamdate)) {
         $data = block_eledia_adminexamdates\util::editexamdate($editexamdate);
         $mform->set_data($data);
@@ -85,15 +81,30 @@ if ($mform->is_cancelled()) {
     }
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
-    echo \html_writer::start_tag('div', array('class' => 'row'));
+    if ($hasconfirmexamdatescap && !$newexamdate) {
+        echo \html_writer::start_tag('div', array('class' => 'row mt-3'));
+        echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
+        echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
+        echo \html_writer::tag('button', get_string('editexamdate_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
+        echo \html_writer::end_tag('div');
+        $checklistlink = get_string('checklistlink', 'block_eledia_adminexamdates').$editexamdate;
+        $editsingleexamdateurl =
+            new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $editexamdate]);
+        echo $OUTPUT->single_button($editsingleexamdateurl, get_string('singleexamdate_btn', 'block_eledia_adminexamdates'), 'post');
+        echo $OUTPUT->single_button($checklistlink, get_string('checklist_btn', 'block_eledia_adminexamdates'), 'post');
+
+        echo \html_writer::end_tag('div');
+        echo \html_writer::end_tag('div');
+    }
+    echo \html_writer::start_tag('div', array('class' => 'row mt-3'));
     echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
 
     echo \html_writer::start_tag('p');
-    if ($newexamdate) {
+/*    if ($newexamdate) {
         echo \html_writer::tag('h1', get_string('newexamdate', 'block_eledia_adminexamdates'));
     } else {
         echo \html_writer::tag('h1', get_string('editexamdate_header', 'block_eledia_adminexamdates'));
-    }
+    }*/
     echo \html_writer::end_tag('p');
 
     $mform->display();
@@ -105,7 +116,7 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->footer();
 } else {
     if (!empty($formdata = $mform->get_data())) {
-        $needfreetimeslots = empty($formdata->examdateid) ? true : false;
+        $needfreetimeslots = empty($formdata->editexamdate) ? true : false;
         $examdateid = block_eledia_adminexamdates\util::saveexamdate($formdata);
         if ($needfreetimeslots) {
             block_eledia_adminexamdates\util::getfreetimeslots($examdateid, $formdata);
@@ -114,8 +125,10 @@ if ($mform->is_cancelled()) {
             }
         }
     }
+    if ($hasconfirmexamdatescap) {
+        redirect(new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php'));
+    }
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php'));
-
 }
 
 

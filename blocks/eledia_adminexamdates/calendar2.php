@@ -29,9 +29,6 @@ $context = context_system::instance();
 
 require_login();
 
-if (!has_capability('block/eledia_adminexamdates:view', $context)) {
-    print_error(' only users with rights to view admin exam dates allowed');
-}
 // <script src="calendar/dist/js/jquery-calendar.min.js"></script>
 echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bootstrap.min.css">
   <script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>

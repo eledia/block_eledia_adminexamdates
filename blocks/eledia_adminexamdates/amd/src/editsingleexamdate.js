@@ -37,10 +37,12 @@ export const init = () => {
     });
 
     var elements = document.getElementsByClassName("delsingleexamdate");
-    var delbtn = document.getElementById("delsingleexamdatebtn");
+    var delForm = document.querySelector("#delsingleexamdatebtn form");
     var submitFunction = function() {
         var attribute = this.getAttribute("data-examblockid");
-        alert(attribute);
+        var delInput = delForm.querySelector('input[name="delete"]');
+        delInput.value = attribute;
+        delForm.submit();
     };
 
     Array.from(elements).forEach(function(element) {

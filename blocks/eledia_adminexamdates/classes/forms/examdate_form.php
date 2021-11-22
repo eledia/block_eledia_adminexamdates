@@ -35,10 +35,27 @@ class examdate_form extends \moodleform
 
     public function definition()
     {
+        global $DB, $USER;
         $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
 
         $mform =& $this->_form;
 
+        $sql = "SELECT *
+                  FROM {user} 
+                 WHERE deleted = 0
+                  ORDER BY lastname, firstname";
+
+        $users = $DB->get_records_sql($sql);
+        $useridlist =[0=>''];
+        foreach ($users as $id => $user) {
+            if ($user->id > 2 && !is_siteadmin($user)) {
+                $useridlist[$id] = fullname($user).' | '.$user->email;
+            }
+        }
+
+        $autocompleteoptions = [
+            'multiple' => true
+        ];
         //$mform->addElement('header', '', get_string('examdate_header', 'block_eledia_adminexamdates'));
         $options = [];
         $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
@@ -60,7 +77,7 @@ class examdate_form extends \moodleform
             $mform->addElement('hidden', 'examrooms');
         }
         $mform->setType('examrooms', PARAM_RAW);
-        $mform->setDefault('examrooms', implode(',',$defaultrooms));
+        $mform->setDefault('examrooms', implode(',', $defaultrooms));
 
         $years = [];
         $years[] = date('Y', strtotime('-1 year'));
@@ -95,6 +112,7 @@ class examdate_form extends \moodleform
         $mform->setDefault('semester', $defaultsemester);
 
         $options = [];
+        $options[0] = get_string('pleasechoose', 'block_eledia_adminexamdates');
         $departmentchoices = unserialize(get_config('block_eledia_adminexamdates', 'departmentchoices'));
         $departments = explode(',', get_config('block_eledia_adminexamdates', 'departments'));
         foreach ($departments as $department) {
@@ -105,39 +123,73 @@ class examdate_form extends \moodleform
 
         $mform->addElement('select', 'department',
             get_string('department', 'block_eledia_adminexamdates'), $options);
-        $mform->addRule('department', null, 'required');
+        $mform->addRule('department', null, 'required', null, 'client');
+        $mform->addRule('department', get_string('error_choose', 'block_eledia_adminexamdates'), 'nonzero', null, 'client');
 
         $mform->addElement('text', 'examname', get_string('examname', 'block_eledia_adminexamdates'), array('size' => 50));
         $mform->setType('examname', PARAM_TEXT);
-        $mform->addRule('examname', null, 'required');
+        $mform->addRule('examname', null, 'required', null, 'client');
 
         $mform->addElement('text', 'numberstudents', get_string('number_students', 'block_eledia_adminexamdates'), array('size' => 4));
         $mform->setType('numberstudents', PARAM_INT);
-        $mform->addRule('numberstudents', null, 'required');
+        $mform->addRule('numberstudents', null, 'required', null, 'client');
+        $mform->addRule('numberstudents', null, 'numeric', null, 'client');
 
         $mform->addElement('date_time_selector', 'examtimestart', get_string('examtimestart', 'block_eledia_adminexamdates'));
-        $mform->addRule('examtimestart', null, 'required');
+        $mform->addRule('examtimestart', null, 'required', null, 'client');
 
         $mform->addElement('text', 'examduration', get_string('examduration', 'block_eledia_adminexamdates'));
         $mform->setType('examduration', PARAM_INT);
-        $mform->addRule('examduration', null, 'required');
+        $mform->addRule('examduration', null, 'required', null, 'client');
+        $mform->addRule('examduration', null, 'numeric', null, 'client');
 
-        $mform->addElement('text', 'examiner', get_string('examiner', 'block_eledia_adminexamdates'), array('size' => 50));
-        $mform->setType('examiner', PARAM_TEXT);
-        $mform->addRule('examiner', null, 'required');
+        $mform->addElement('autocomplete', 'examiner', get_string('examiner', 'block_eledia_adminexamdates'),
+            $useridlist, $autocompleteoptions);
+        $mform->setType('examiner', PARAM_RAW_TRIMMED);
+        $mform->addRule('examiner', get_string('required'), 'required', null, 'client');
+        //$mform->setDefault('examiner', '');
+        //$mform->addRule('examiner', get_string('error_choose_or_enter', 'block_eledia_adminexamdates'), 'nonzero', null, 'client');
 
-        $mform->addElement('text', 'contactperson', get_string('contactperson', 'block_eledia_adminexamdates'), array('size' => 50));
-        $mform->setType('contactperson', PARAM_TEXT);
-        $mform->addRule('contactperson', null, 'required');
+        $autocompleteoptions = [
+            'multiple' => false
+        ];
+        $default = array_key_exists($USER->id, $useridlist) ? $USER->id : '';
+        $mform->addElement('autocomplete', 'contactperson', get_string('contactperson', 'block_eledia_adminexamdates'),
+            $useridlist, $autocompleteoptions);
+        $mform->setType('contactperson', PARAM_RAW_TRIMMED);
+        $mform->addRule('contactperson', get_string('required'), 'required', null, 'client');
+        $mform->addRule('contactperson', get_string('required'), 'nonzero', null, 'client');
+        // $mform->addRule('contactperson', get_string('error_choose_or_enter', 'block_eledia_adminexamdates'), 'nonzero', null, 'client');
+        $mform->setDefault('contactperson', $default);
 
-        $mform->addElement('text', 'contactpersonemail', get_string('contactpersonemail', 'block_eledia_adminexamdates'), array('size' => 50));
-        $mform->setType('contactpersonemail', PARAM_EMAIL);
-        $mform->addRule('contactpersonemail', null, 'required');
+//        $mform->addElement('autocomplete', 'contactpersonemail', get_string('contactpersonemail', 'block_eledia_adminexamdates'),
+//            $useremaillist, $autocompleteoptions);
+//        $mform->setType('contactpersonemail', PARAM_RAW_TRIMMED);
+//        $mform->addRule('contactpersonemail', get_string('error_choose_or_enter', 'block_eledia_adminexamdates'), 'required', null, 'client');
+//        $mform->setDefault('contactpersonemail', $default);
+        if ($hasconfirmexamdatescap) {
+            $responsiblepersons = explode(',',
+                preg_replace('/^\h*\v+/m', '',
+                    get_config('block_eledia_adminexamdates', 'responsiblepersons')));
+            $options = [0 => ''];
 
-        $mform->addElement('text', 'responsibleperson', get_string('responsibleperson', 'block_eledia_adminexamdates'), array('size' => 50));
-        $mform->setType('responsibleperson', PARAM_TEXT);
-        $mform->addRule('responsibleperson', null, 'required');
+            foreach ($responsiblepersons as $responsibleperson) {
+                if ($user = \core_user::get_user($responsibleperson)) {
+                    $options[$user->id] = fullname($user) . ' | ' . $user->email;;
+                }
+            }
 
+            $mform->addElement('autocomplete', 'responsibleperson', get_string('responsibleperson', 'block_eledia_adminexamdates'),
+                $options);
+            $mform->setType('responsibleperson', PARAM_RAW_TRIMMED);
+            $mform->addRule('responsibleperson', get_string('required'), 'required', null, 'client');
+            $mform->addRule('responsibleperson', get_string('required'), 'nonzero', null, 'client');
+            $mform->setDefault('responsibleperson', 0);
+        } else{
+            $mform->addElement('hidden', 'responsibleperson');
+            $mform->setType('responsibleperson', PARAM_INT);
+            $mform->setDefault('responsibleperson', 0);
+        }
         $mform->addElement('textarea', 'annotationtext', get_string('annotationtext', 'block_eledia_adminexamdates'), array('rows' => 10, 'cols' => 80));
         $mform->setType('annotationtext', PARAM_RAW);
 
@@ -152,11 +204,27 @@ class examdate_form extends \moodleform
         $mform->closeHeaderBefore('buttonar');
     }
 
-    public function validation($data, $files) {
+    public function validation($data, $files)
+    {
+        global $DB;
         $errors = parent::validation($data, $files);
-        if ($error= \block_eledia_adminexamdates\util::hasfreetimeslots($data)){
-            $errors['examtimestart'] =$error;
+        if ($error = \block_eledia_adminexamdates\util::hasfreetimeslots($data)) {
+            $errors['examtimestart'] = $error;
         }
+//        $data = (object)$data;
+//        if (intval($data->contactpersonemail) && !($DB->get_record('user',
+//                array('id' => intval($data->contactpersonemail))))) {
+//            $errors['contactpersonemail'] = get_string('error_wrong_userid_email', 'block_eledia_adminexamdates');
+//        }
+//        if (!intval($data->contactpersonemail) && !validate_email($data->contactpersonemail)) {
+//            $errors['contactpersonemail'] = get_string('error_wrong_email', 'block_eledia_adminexamdates');
+//        }
+//
+//        if (intval($data->contactperson) && !($DB->get_record('user',
+//                array('id' => intval($data->contactperson))))) {
+//            $errors['contactperson'] = get_string('error_wrong_userid', 'block_eledia_adminexamdates');
+//        }
+
         return $errors;
     }
 }

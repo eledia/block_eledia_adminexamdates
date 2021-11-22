@@ -1,0 +1,13 @@
+#page-blocks-eledia_adminexamdates-editsingleexamdate .delsingleexamdate,
+#page-blocks-eledia_adminexamdates-editsingleexamdate .calendar-singleexamdate {
+    cursor: pointer;
+}
+#page-blocks-eledia_adminexamdates-calendar .calendar-timeline {
+    margin-top: 72px !important;
+}
+.path-blocks-eledia_adminexamdates #page-header {
+    display: none;
+}
+.path-blocks-eledia_adminexamdates #page-content {
+    margin-top: 20px;
+}

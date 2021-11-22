@@ -29,9 +29,6 @@ $context = context_system::instance();
 
 require_login();
 
-if (!has_capability('block/eledia_adminexamdates:view', $context)) {
-    print_error(' only users with rights to view admin exam dates allowed');
-}
 if (!has_capability('block/eledia_adminexamdates:confirmexamdates', $context)) {
     print_error(' only users with rights to confirm admin exam dates allowed');
 }
@@ -47,6 +44,7 @@ $PAGE->set_url($myurl);
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
 $PAGE->set_pagelayout('course');
+$PAGE->requires->jquery();
 
 if (!empty($confirmexamdate)) {
     $examdatename = $DB->get_record('eledia_adminexamdates', ['id' => $confirmexamdate], 'examname');
@@ -75,7 +73,11 @@ if (!empty($confirmexamdate)) {
     if (!empty($cancelexamdateyes)) {
         block_eledia_adminexamdates\util::examcancel($confirmexamdateyes);
     }
+
+
+
     echo $OUTPUT->header();
+    echo '<script type="text/javascript" src="datatables/datatables.min.js"></script>';
     echo $OUTPUT->container_start();
 
     $url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1]);
@@ -94,10 +96,10 @@ if (!empty($confirmexamdate)) {
     echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
-    echo \html_writer::start_tag('div',array('class' => 'row'));
+    echo \html_writer::start_tag('div',array('class' => 'row mt-3'));
     echo \html_writer::start_tag('div',array('class' => 'col-md-12'));
     echo \html_writer::start_tag('p');
-    echo \html_writer::tag('h1', get_string('examdateslist_btn', 'block_eledia_adminexamdates'));
+   // echo \html_writer::tag('h1', get_string('examdateslist_btn', 'block_eledia_adminexamdates'));
     echo \html_writer::end_tag('p');
 
     $urleditsingleexamdate = new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['blockid' => '']);
@@ -107,7 +109,26 @@ if (!empty($confirmexamdate)) {
     echo '<style>
 
 </style>';
-    echo '<script type="text/javascript" src="datatables/datatables.min.js"></script>';
+
+
+//    echo '<script type="text/javascript" src="datatables/Buttons-2.0.1/js/dataTables.buttons.min.js"></script>';
+// echo '<script type="text/javascript" src="datatables/pdfmake-0.1.36/pdfmake.min.js"></script>';
+// echo '<script type="text/javascript" src="datatables/JSZip-2.5.0/jszip.min.js"></script>';
+// echo '<script type="text/javascript" src="datatables/Buttons-2.0.1/js/buttons.bootstrap4.js"></script>';
+// echo '<script type="text/javascript" src="datatables/Buttons-2.0.1/js/buttons.print.min.js"></script>';
+//   // echo '<script type="text/javascript" src="datatables/pdfmake-0.1.36/pdfmake.min.js"></script>';
+//    echo '<script type="text/javascript" src="datatables/Buttons-2.0.1/js/buttons.html5.min.js"></script>';
+//    echo '<script type="text/javascript" src="datatables/pdfmake-0.1.36/vfs_fonts.js"></script>';
+
+    echo '
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+	<script type="text/javascript"  src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+	<script type="text/javascript"  src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+	<script type="text/javascript"  src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+	<script type="text/javascript"  src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>';
+
+
 
     echo block_eledia_adminexamdates\util::getexamdatetable();
     $checklistlink = get_string('checklistlink', 'block_eledia_adminexamdates');
@@ -115,7 +136,7 @@ if (!empty($confirmexamdate)) {
     echo '$(document).ready(function() {
      var groupColumn = 0;
          var table = $("#examdatestable").DataTable( {
-         "buttons": [
+ buttons: [
         "copy", "excel", "pdf"
     ],
           "columnDefs": [

@@ -38,36 +38,45 @@ if (is_array($displaydate)) {
     $displaydate = mktime(0, 0, 0, $displaydate['month'], $displaydate['day'], $displaydate['year']);
 }
 
-
+//  <script src="calendar/src/js/jquery-calendar.js"></script>
 //<script src="calendar/dist/js/jquery-calendar.min.js"></script>
 echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bootstrap.min.css">
   <script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
   <script src="calendar/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
   <script src="calendar/node_modules/moment/min/moment-with-locales.min.js"></script>
   <script src="calendar/node_modules/jquery-touchswipe/jquery.touchSwipe.min.js"></script>
-  <script src="calendar/dist/js/jquery-calendar.min.js"></script>
-  <link rel="stylesheet" href="calendar/dist/css/jquery-calendar.min.css">
+<script src="amd/build/jquery-calendar.min.js"></script>
+
+  <link rel="stylesheet" href="calendar/src/css/jquery-calendar.css">
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fontawesome.css">
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fa-solid.css">';
 
 $sql = "SELECT ad.id, a.id AS examdateid, a.examname, a.examduration, ag.blocktimestart, ad.examroom, ad.blockid, a.numberstudents, a.examiner, a.contactperson, a.confirmed, a.userid
                     FROM {eledia_adminexamdates} a
                     LEFT JOIN {eledia_adminexamdates_blocks} ag ON ag.examdateid = a.id
-                    LEFT JOIN {eledia_adminexamdates_rooms} ad ON ad.blockid = ag.id";
+                    LEFT JOIN {eledia_adminexamdates_rooms} ad ON ad.blockid = ag.id
+                    ORDER BY ag.blocktimestart, ad.examroom DESC";
 //WHERE ag.blocktimestart > ? AND ag.blocktimestart < ?";
 
 $dates = $DB->get_records_sql($sql);
 $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
 
 $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
-$roomcolors = [];
+$roomcategories = [];
+$roomcategorycolors = [];
 foreach ($rooms as $room) {
     $roomitems = explode('|', $room);
     //$roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
     $roomnames[$roomitems[0]] = trim($roomitems[1]);
     $roomcolors[trim($roomitems[1])] = $roomitems[3];
+    $object = new stdClass();
+    $object->category = trim($roomitems[1]);
+    $object->color = trim($roomitems[3]);
+    $roomcategorycolors[]= $object;
+    $roomcategories[] = trim($roomitems[1]);
 };
-
+//$roomcategorycolors=array_reverse($roomcategorycolors);
+//$roomcategories=array_reverse($roomcategories);
 echo " <script>
     $(document).ready(function(){
         moment.locale('de');
@@ -95,7 +104,7 @@ foreach ($dates as $date) {
         $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php', ['cancelexamdate' => $date->examdateid]);
         $url = $url->out();
         $buttonhtml .= \html_writer::tag('a', get_string('cancelexamdate', 'block_eledia_adminexamdates'), ['class' => 'btn btn-secondary',
-                'href' =>  $url]) . ' ';
+                'href' => $url]) . ' ';
 
         if (isset($date->confirmed) && !$date->confirmed) {
             $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php', ['confirmexamdate' => $date->examdateid]);
@@ -105,7 +114,7 @@ foreach ($dates as $date) {
         }
     }
 
-    if(!$hasconfirmexamdatescap && isset($date->confirmed) && $date->confirmed) {
+    if (!$hasconfirmexamdatescap && isset($date->confirmed) && $date->confirmed) {
         $url = new \moodle_url('/blocks/eledia_adminexamdates/changerequest.php', ['examdateid' => $date->examdateid]);
         $url = $url->out();
         $buttonhtml .= \html_writer::tag('a', get_string('change_request_btn', 'block_eledia_adminexamdates'), ['class' => 'btn btn-secondary',
@@ -276,6 +285,10 @@ echo \html_writer::end_tag('div');
 
 $urleditexamdate = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1, 'examtimestart' => '']);
 echo $OUTPUT->box($OUTPUT->single_button($urleditexamdate, '', 'post'), 'd-none', 'editexamdate');
+
+$roomcategories = json_encode($roomcategories);
+$roomcategorycolors = json_encode($roomcategorycolors);
+echo \html_writer::tag('div', '', ['id' => 'calendar-roomcategories', 'class' => 'd-none', 'data-calendar-roomcategories' => $roomcategories, 'data-calendar-roomcolors' => $roomcategorycolors]);
 
 echo $OUTPUT->container_end();
 

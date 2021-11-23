@@ -419,7 +419,7 @@ ul = $(this.element).find('div.calendar-events').find('ul');
         div.append($('<button>', {
           "class": 'btn btn-sm btn-light btn-move-calendar'
         }).attr('data-direction', 'left').append($('<i>', {
-          "class": 'las la-angle-left'
+          "class": 'fas fa-arrow-left'
         })));
       }
       div.append($('<span>')
@@ -432,7 +432,7 @@ ul = $(this.element).find('div.calendar-events').find('ul');
         div.append($('<button>', {
           "class": 'btn btn-sm btn-light btn-move-calendar'
         }).attr('data-direction', 'right').append($('<i>', {
-          "class": 'las la-angle-right'
+          "class": 'fas fa-arrow-right'
         })));
       }
       li.append(div);
@@ -475,7 +475,7 @@ ul = $(this.element).find('div.calendar-events').find('ul');
       })
         .attr('data-direction', 'left')
         .append($('<i>', {
-          "class": 'las la-angle-left'
+          "class": 'fas fa-angle-left'
         }))
       );
     }
@@ -493,7 +493,7 @@ ul = $(this.element).find('div.calendar-events').find('ul');
         .css('float', 'right')
         .attr('data-direction', 'right')
         .append($('<i>', {
-          "class": 'las la-angle-right'
+          "class": 'fas fa-arrow-right'
         }))
       );
     }
@@ -1339,7 +1339,7 @@ toTimeStamp = parseInt(this.toTimestamp);
     i = roomcolors.length;
     while (i--) {
       if (roomcolors[i].category == category) {
-        object.push({
+        object.unshift({
           category: category,
           color: roomcolors[i].color
         });

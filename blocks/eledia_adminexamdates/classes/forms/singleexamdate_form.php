@@ -245,7 +245,7 @@ class singleexamdate_form extends \moodleform
                     $userlist, $autocompleteoptions);
                 $mform->setType("roomsupervision2[{$key}]", PARAM_RAW);
             } else {
-                $mform->addElement('textarea', "roomannotationtext[{$key}]", get_string('annotationtext', 'block_eledia_adminexamdates'), array('rows' => 10, 'cols' => 80));
+                $mform->addElement('textarea', "roomannotationtext[{$key}]", get_string('annotationtext', 'block_eledia_adminexamdates'), array('rows' => 10, 'cols' => 40));
                 $mform->setType("roomannotationtext[{$key}]", PARAM_RAW);
             }
         }

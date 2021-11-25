@@ -57,7 +57,7 @@ $string['examrooms_default'] = 'PR1|Prüfungsraum 1|100|#E91E63
 PR2|Prüfungsraum 2|100|#3F51B5
 AB|Administrationsbüro|0|#009688
 ER|Endabnahmeraum|0|#6D4C41';
-$string['config_examrooms'] = 'Each line configures its own room. In each line there is first a unique room ID (e.g. \'PR1\'), followed by the name of the room (e.g. \'Examination room 1\'), as well as the room capacity, i.e. the maximum number of participants (e.g. \'100\') and the displayed room color (e.g. \'#3F51B\'), separated by a vertical line.';
+$string['config_examrooms'] = 'Each line configures its own room. In each line there is first a unique room ID (e.g. \'PR1\'), followed by the name of the room (e.g. \'Examination room 1\'), as well as the room capacity, i.e. the maximum number of participants (e.g. \'100\') and the displayed room color (e.g. \'#3F51B5\'), separated by a vertical line.';
 $string['examrooms'] ='Configuration of the examination rooms';
 $string['config_responsiblepersons'] = 'List of the user IDs of those responsible for the SCL, each separated by a comma. (e.g. \'2,4,5,12\')';
 $string['responsiblepersons'] ='Configuration of SCL responsible persons';
@@ -78,6 +78,7 @@ $string['setting_examcoursetemplateidnumber'] = 'Course ID of the exam course te
 $string['config_examcoursetemplateidnumber'] = 'This course ID should be set in the exam course template of the e-exam system.';
 $string['calendar_btn'] = 'Exam date calendar';
 $string['unconfirmed_btn'] = 'Unconfirmed exam dates';
+$string['confirmed_btn'] = 'Confirmed exam dates';
 $string['setting_startexam'] = 'Earliest start of the e-exam (full hours only)';
 $string['setting_endexam'] = 'E-exam end at the latest (full hours only)';
 $string['setting_breakbetweenblockdates'] = 'Break between two block dates (in minutes)';
@@ -149,6 +150,15 @@ $string['calendar_date'] = 'Selection of a date';
 $string['confirm_save_singleexamdate_msg'] = 'The {$ a-> index} single exam date of the exam: \' {$ a-> name} \' has been saved.';
 $string['error_wrong_email'] = 'Please enter a correct e-mail address with the Enter key - or search in selection!';
 $string['error_wrong_userid_email'] = 'Please enter a correct e-mail address and no numbers!';
+$string['examconfirm_email_subject'] = 'Confirmation of the exam date: {$a->name}';
+$string['examconfirm_email_body'] = 'The exam date is confirmed for: 
+
+{$a->name}, 
+{$a->date} o\'clock, 
+{$a->course},
+{$a->url} 
+
+';
 $string['examcancel_email_subject'] = 'Cancellation of the date for the exam: {$a->name}';
 $string['examcancel_email_body'] = 'The exam date will be canceled for: 
 
@@ -168,3 +178,6 @@ Request:
 $string['checklist_btn'] = 'Checklist';
 $string['editexamdate_btn'] = 'Edit exam date';
 $string['singleexamdate_btn'] = 'Single exam date';
+$string['category_regularexam'] = 'Regular exam';
+$string['category_semestertest'] = 'Semester test';
+$string['selection_exam_category'] = 'Exam category';

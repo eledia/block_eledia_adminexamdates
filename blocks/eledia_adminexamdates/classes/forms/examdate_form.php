@@ -40,16 +40,28 @@ class examdate_form extends \moodleform
 
         $mform =& $this->_form;
 
+        if ($hasconfirmexamdatescap) {
+            $radioarray = array();
+            $radioarray[] = $mform->createElement('radio', 'category', '', get_string('category_regularexam', 'block_eledia_adminexamdates'), 0);
+            $radioarray[] = $mform->createElement('radio', 'category', '', get_string('category_semestertest', 'block_eledia_adminexamdates'), 1);
+            $mform->addGroup($radioarray, 'categories', get_string('selection_exam_category', 'block_eledia_adminexamdates'), array(' '), false);
+            $mform->setDefault('category', 0);
+        } else {
+            $mform->addElement('hidden', 'category');
+            $mform->setType('category', PARAM_INT);
+            $mform->setDefault('category', 0);
+        }
+
         $sql = "SELECT *
                   FROM {user} 
                  WHERE deleted = 0
                   ORDER BY lastname, firstname";
 
         $users = $DB->get_records_sql($sql);
-        $useridlist =[0=>''];
+        $useridlist = [0 => ''];
         foreach ($users as $id => $user) {
             if ($user->id > 2 && !is_siteadmin($user)) {
-                $useridlist[$id] = fullname($user).' | '.$user->email;
+                $useridlist[$id] = fullname($user) . ' | ' . $user->email;
             }
         }
 
@@ -185,7 +197,7 @@ class examdate_form extends \moodleform
             $mform->addRule('responsibleperson', get_string('required'), 'required', null, 'client');
             $mform->addRule('responsibleperson', get_string('required'), 'nonzero', null, 'client');
             $mform->setDefault('responsibleperson', 0);
-        } else{
+        } else {
             $mform->addElement('hidden', 'responsibleperson');
             $mform->setType('responsibleperson', PARAM_INT);
             $mform->setDefault('responsibleperson', 0);

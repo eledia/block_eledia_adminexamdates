@@ -57,7 +57,7 @@ $string['examrooms_default'] = 'PR1|Prüfungsraum 1|100|#E91E63
 PR2|Prüfungsraum 2|100|#3F51B5
 AB|Administrationsbüro|0|#009688
 ER|Endabnahmeraum|0|#6D4C41';
-$string['config_examrooms'] = 'Jede Zeile konfiguriert einen eigenen Prüfungsraum. In jeder Zeile steht zunächst eine eindeutige Raum-ID (z.B. \'PR1\'), dann der Name des Raumes (z.B. \'Prüfungsraum 1\') sowie die Raumkapazität, also die maximale Teilnehmerzahl (z.B. \'100\') und die angezeigte Raum-Farbe (z.B. \'#3F51B\'), getrennt durch jeweils einen senkrechten Strich.';
+$string['config_examrooms'] = 'Jede Zeile konfiguriert einen eigenen Prüfungsraum. In jeder Zeile steht zunächst eine eindeutige Raum-ID (z.B. \'PR1\'), dann der Name des Raumes (z.B. \'Prüfungsraum 1\') sowie die Raumkapazität, also die maximale Teilnehmerzahl (z.B. \'100\') und die angezeigte Raum-Farbe (z.B. \'#3F51B5\'), getrennt durch jeweils einen senkrechten Strich.';
 $string['examrooms'] ='Konfiguration der Prüfungsräume';
 $string['config_responsiblepersons'] = 'Liste der User-IDs der SCL Verantwortlichen, getrennt jeweils durch ein Komma. (Beispiel: \'2,4,5,12\')';
 $string['responsiblepersons'] ='Konfiguration der SCL Verantwortlichen';
@@ -78,6 +78,7 @@ $string['setting_examcoursetemplateidnumber'] = 'Kurs-ID der Klausur-Kursvorlage
 $string['config_examcoursetemplateidnumber'] = 'Diese Kurs-ID sollte in der Klausur-Kursvorlage des Prüfungssystems gesetzt sein.';
 $string['calendar_btn'] = 'Prüfungstermin-Kalender';
 $string['unconfirmed_btn'] = 'Unbestätigte Prüfungstermine';
+$string['confirmed_btn'] = 'Bestätigte Prüfungstermine';
 $string['setting_startexam'] = 'Frühester E-Klausur Beginn (nur volle Stunden)';
 $string['setting_endexam'] = 'Spätestens E-Klausur Ende (nur volle Stunden)';
 $string['setting_breakbetweenblockdates'] = 'Pause zwischen zwei Blockterminen (in Minuten)';
@@ -149,6 +150,15 @@ $string['calendar_date'] = 'Auswahl eines Datums';
 $string['confirm_save_singleexamdate_msg'] = 'Der {$a->index} Teiltermin der Klausur: \'{$a->name}\' wurde gespeichert.';
 $string['error_wrong_email'] = 'Bitte geben Sie eine korrekte E-Mail-Adresse mit der Eingabetaste ein - oder suchen Sie in der Auswahl!';
 $string['error_wrong_userid_email'] = 'Bitte eine korrekte E-Mail-Adresse und keine Zahlen eingeben!';
+$string['examconfirm_email_subject'] = 'Bestätigung des Prüfungstermins: {$a->name}';
+$string['examconfirm_email_body'] = 'Der Prüfungstermin wurde bestätigt für: 
+
+{$a->name}, 
+{$a->date} Uhr,
+{$a->course},
+{$a->url} 
+
+';
 $string['examcancel_email_subject'] = 'Absage des Prüfungstermins für: {$a->name}';
 $string['examcancel_email_body'] = 'Der Prüfungstermin wurde abgesagt für: 
 
@@ -168,6 +178,11 @@ Anfrage:
 $string['checklist_btn'] = 'Checkliste';
 $string['editexamdate_btn'] = 'Prüfungstermin bearbeiten';
 $string['singleexamdate_btn'] = 'Einzeltermin planen';
+$string['category_regularexam'] = 'Reguläre Prüfung';
+$string['category_semestertest'] = 'Semesterbegleitender Test';
+$string['selection_exam_category'] = 'Prüfungskategorie';
+
+
 
 
 

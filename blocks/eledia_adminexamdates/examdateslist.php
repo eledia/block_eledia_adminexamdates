@@ -75,7 +75,6 @@ if (!empty($confirmexamdate)) {
     }
 
 
-
     echo $OUTPUT->header();
     echo '<script type="text/javascript" src="datatables/datatables.min.js"></script>';
     echo $OUTPUT->container_start();
@@ -85,9 +84,9 @@ if (!empty($confirmexamdate)) {
     $urlcalendar = new moodle_url('/blocks/eledia_adminexamdates/calendar.php');
     $unconfirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
 
-    echo \html_writer::start_tag('div',array('class' => 'container-fluid px-4'));
-    echo \html_writer::start_tag('div',array('class' => 'row'));
-    echo \html_writer::start_tag('div',array('class' => 'col-md-12'));
+    echo \html_writer::start_tag('div', array('class' => 'container-fluid px-4'));
+    echo \html_writer::start_tag('div', array('class' => 'row'));
+    echo \html_writer::start_tag('div', array('class' => 'col-md-12'));
     echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'), 'post');
     echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
     echo \html_writer::tag('button', get_string('examdateslist_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
@@ -96,10 +95,10 @@ if (!empty($confirmexamdate)) {
     echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
-    echo \html_writer::start_tag('div',array('class' => 'row mt-3'));
-    echo \html_writer::start_tag('div',array('class' => 'col-md-12'));
+    echo \html_writer::start_tag('div', array('class' => 'row mt-3'));
+    echo \html_writer::start_tag('div', array('class' => 'col-md-12'));
     echo \html_writer::start_tag('p');
-   // echo \html_writer::tag('h1', get_string('examdateslist_btn', 'block_eledia_adminexamdates'));
+    // echo \html_writer::tag('h1', get_string('examdateslist_btn', 'block_eledia_adminexamdates'));
     echo \html_writer::end_tag('p');
 
     $urleditsingleexamdate = new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['blockid' => '']);
@@ -127,7 +126,6 @@ if (!empty($confirmexamdate)) {
 	<script type="text/javascript"  src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
 	<script type="text/javascript"  src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
 	<script type="text/javascript"  src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>';
-
 
 
     echo block_eledia_adminexamdates\util::getexamdatetable();
@@ -225,6 +223,13 @@ if (!empty($confirmexamdate)) {
         event.stopPropagation();
         var data = table.row( $(this).parents("tr") ).data();
         window.location.href = "' . $checklistlink . '"+data[10];
+    } );
+    
+    $("#examdatestable tbody").on( "click", "a", function (event) {
+        event.preventDefault(); 
+        event.stopPropagation();
+        var url = $(this).attr("href"); 
+        window.open(url, "_blank");
     } );
  
 } );

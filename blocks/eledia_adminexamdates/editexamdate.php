@@ -62,6 +62,7 @@ if ($mform->is_cancelled()) {
     $newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
     $urllist = new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php');
     $unconfirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
+    $confirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesconfirmed.php');
     $urlcalendar = new moodle_url('/blocks/eledia_adminexamdates/calendar.php');
 
     echo \html_writer::start_tag('div', array('class' => 'container-fluid px-4'));
@@ -72,6 +73,9 @@ if ($mform->is_cancelled()) {
         echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'), 'post');
     }
     echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_eledia_adminexamdates'), 'post');
+    if (!$hasconfirmexamdatescap) {
+        echo $OUTPUT->single_button($confirmed, get_string('confirmed_btn', 'block_eledia_adminexamdates'), 'post');
+    }
     if ($newexamdate) {
         echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
         echo \html_writer::tag('button', get_string('newexamdate', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));

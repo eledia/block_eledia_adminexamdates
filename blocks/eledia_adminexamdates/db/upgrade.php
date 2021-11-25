@@ -77,5 +77,35 @@ function xmldb_block_eledia_adminexamdates_upgrade($oldversion) {
         // Eledia_adminexamdates savepoint reached.
         upgrade_block_savepoint(true, 2021111600, 'eledia_adminexamdates');
     }
+
+    if ($oldversion < 2021112300) {
+
+        // Define field contactpersonemail to be dropped from eledia_adminexamdates.
+        $table = new xmldb_table('eledia_adminexamdates');
+        $field = new xmldb_field('contactpersonemail');
+
+        // Conditionally launch drop field contactpersonemail.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        $field = new xmldb_field('contactpersonid');
+
+        // Conditionally launch drop field contactpersonid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        $field = new xmldb_field('category', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'annotationtext');
+
+        // Conditionally launch add field category.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Eledia_adminexamdates savepoint reached.
+        upgrade_block_savepoint(true, 2021112300, 'eledia_adminexamdates');
+    }
+
     return true;
 }

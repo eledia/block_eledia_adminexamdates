@@ -51,15 +51,27 @@ echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bo
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fontawesome.css">
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fa-solid.css">';
 
-$sql = "SELECT ad.id, a.id AS examdateid, a.examname, a.examduration, ag.blocktimestart, ad.examroom, ad.blockid, a.numberstudents, a.examiner, a.contactperson, a.confirmed, a.userid
+$sql = "SELECT ar.id, a.id AS examdateid, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.examroom, ar.blockid, a.numberstudents, a.examiner, a.contactperson, a.confirmed, a.userid
                     FROM {eledia_adminexamdates} a
-                    LEFT JOIN {eledia_adminexamdates_blocks} ag ON ag.examdateid = a.id
-                    LEFT JOIN {eledia_adminexamdates_rooms} ad ON ad.blockid = ag.id
-                    ORDER BY ag.blocktimestart, ad.examroom DESC";
+                    LEFT JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
+                    LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
+                    ORDER BY ab.blocktimestart, ar.examroom DESC";
+
+$sqlspecial = "SELECT ar.id, ar.blockid,ab.blocktimestart, ab.blockduration, ar.examroom, ar.roomannotationtext 
+                    FROM {eledia_adminexamdates_blocks} ab 
+                    LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
+                    WHERE ab.examdateid IS NULL
+                    ORDER BY ab.blocktimestart, ar.examroom DESC";
 //WHERE ag.blocktimestart > ? AND ag.blocktimestart < ?";
 
 $dates = $DB->get_records_sql($sql);
+
 $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
+
+if ($hasconfirmexamdatescap) {
+    $specialroomdates = $DB->get_records_sql($sqlspecial);
+}
+
 
 $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
 $roomcategories = [];
@@ -90,7 +102,7 @@ echo " <script>
 
 $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
 foreach ($dates as $date) {
-    $endtime = $date->blocktimestart + ($date->examduration * 60);
+    $endtime = $date->blocktimestart + ($date->blockduration * 60);
     $roomname = $roomnames[$date->examroom];
     $buttonhtml = \html_writer::start_tag('div', ['class' => 'd-inline']);
     if ($hasconfirmexamdatescap || (isset($date->confirmed) && !$date->confirmed)) {
@@ -150,7 +162,44 @@ foreach ($dates as $date) {
          ";
 
 }
+if ($hasconfirmexamdatescap) {
+    foreach ($specialroomdates as $specialroomdate) {
+        $endtime = $specialroomdate->blocktimestart + ($specialroomdate->blockduration * 60);
+        $roomname = $roomnames[$specialroomdate->examroom];
+      $buttonhtml = \html_writer::start_tag('div', ['class' => 'd-inline']);
+            $url = new \moodle_url('/blocks/eledia_adminexamdates/specialrooms.php',
+                    ['blockid' => $specialroomdate->blockid]);
+            $url = $url->out();
+            $buttonhtml .= \html_writer::tag('a', get_string('specialrooms_btn', 'block_eledia_adminexamdates'),
+                            ['class' => 'btn btn-secondary',
+                                    'href' => $url]) . ' ';
+        $url = new \moodle_url('/blocks/eledia_adminexamdates/specialrooms.php',
+                ['cancelspecialrooms' => $specialroomdate->blockid]);
+        $url = $url->out();
+        $buttonhtml .= \html_writer::tag('a', get_string('cancelspecialrooms', 'block_eledia_adminexamdates'),
+                        ['class' => 'btn btn-secondary',
+                                'href' => $url]) . ' ';
 
+        $buttonhtml .= \html_writer::end_tag('div');
+
+        $title = $roomnames[$specialroomdate->examroom];
+
+        $content =  "<dl><dt>Anmerkungen: </dt><dd>$specialroomdate->roomannotationtext</dd></dl><div>$buttonhtml</div>";
+
+        echo "     
+      
+        {
+           start: $specialroomdate->blocktimestart,
+          end: $endtime,
+          title: '$roomname',
+          content: '$content' ,
+          category:'$roomname'
+        },
+        
+         ";
+
+    }
+}
 $fromhour = get_config('block_eledia_adminexamdates', 'startexam');
 $tohour = get_config('block_eledia_adminexamdates', 'endexam');
 echo "       ];

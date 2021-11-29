@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The exam date request form.
+ * The special room booking form.
  *
  * @package     block_eledia_adminexamdates
  * @copyright   2021 René Hansen <support@eledia.de>

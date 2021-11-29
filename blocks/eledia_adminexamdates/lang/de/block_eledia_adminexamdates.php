@@ -37,6 +37,9 @@ $string['examroom'] = 'Prüfungsraum';
 $string['select_examroom'] = 'Prüfungsraum wählen';
 $string['examtimestart'] = 'Prüfungsbeginn';
 $string['examduration'] = 'Klausur-Schreibzeit (Minuten)';
+$string['booktimestart'] = 'Buchungsbeginn';
+$string['bookduration'] = 'Buchungsdauer (Minuten)';
+$string['select_specialroom'] = 'Sonderraum wählen';
 $string['examname'] = 'Klausurbezeichnung';
 $string['examdaterequester'] = 'Beantragung';
 $string['timecreated'] = 'Erstellt';
@@ -181,6 +184,12 @@ $string['singleexamdate_btn'] = 'Einzeltermin planen';
 $string['category_regularexam'] = 'Reguläre Prüfung';
 $string['category_semestertest'] = 'Semesterbegleitender Test';
 $string['selection_exam_category'] = 'Prüfungskategorie';
+$string['specialrooms_btn'] = 'Bearbeiten';
+$string['chooseroomcategory_msg'] = 'Wollen Sie einen neuen Prüfungstermin erstellen oder Sonderräume buchen?';
+$string['cancelspecialrooms_msg'] = 'Wollen Sie {$a->rooms} stornieren für {$a->date} Uhr?';
+$string['cancelspecialrooms'] = 'Stornieren';
+$string['book_specialrooms'] = 'Sonderräume buchen';
+
 
 
 

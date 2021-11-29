@@ -825,7 +825,8 @@ self = this;
 
       var eventWidth = 100 / (parseInt(currentElement.attr('data-divider')) / String(currentElement.attr('data-positions')).split(',').length);
       var eventLeft = (String(currentElement.attr('data-positions')).split(',')[0] / parseInt(currentElement.attr('data-divider'))) * 100;
-
+      var eventLeft = (String(currentElement.attr('data-positions')).split(',')[0] / 4) * 100;
+      var eventWidth = 25;
       self.setEventPosition(this, eventTop, eventHeight, eventLeft, eventWidth);
     });
   };
@@ -838,7 +839,7 @@ self = this;
 
         var eventTop = (parseInt($(this).closest('.calendar-month-events-day').index()) * self.conf.month.weekline.heightPx) + 20 - 1;
         var eventHeight = self.conf.month.weekline.heightPx - 21 + 1;
-        var eventWidth = 100 / n;
+        var eventWidth = 100 / 4;
         var eventLeft = (100 / n) * i;
 
         self.setEventPosition(this, eventTop, eventHeight, eventLeft, eventWidth);

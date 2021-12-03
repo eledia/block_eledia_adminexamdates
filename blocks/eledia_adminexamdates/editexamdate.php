@@ -41,8 +41,15 @@ $PAGE->set_context($context);
 $PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
 $PAGE->set_pagelayout('course');
 
-$mform = new \block_eledia_adminexamdates\forms\examdate_form();
 $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
+$onlynumberstudents = false;
+if ($editexamdate){
+    $examdate=$DB->get_record('eledia_adminexamdates', ['id' => $editexamdate]);
+    $onlynumberstudents = (!$hasconfirmexamdatescap &&($examdate->confirmed || !empty($examdate->responsibleperson))) ? true : false;
+}
+
+$mform = new \block_eledia_adminexamdates\forms\examdate_form(null, array('onlynumberstudents'=>$onlynumberstudents));
+
 
 // Execute the form.
 if ($mform->is_cancelled()) {
@@ -59,6 +66,7 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->confirm($message, $continueexamdate, $bookspecialroom);
     echo $OUTPUT->box_end();
 } else if (empty($formdata = $mform->get_data())) {
+
          if (!empty($editexamdate)) {
         $data = block_eledia_adminexamdates\util::editexamdate($editexamdate);
         $mform->set_data($data);
@@ -132,6 +140,7 @@ if ($mform->is_cancelled()) {
         echo $OUTPUT->footer();
 
 } else {
+
     $needfreetimeslots = empty($formdata->editexamdate) ? true : false;
 
     $examdateid = block_eledia_adminexamdates\util::saveexamdate($formdata);
@@ -140,11 +149,12 @@ if ($mform->is_cancelled()) {
         if ($hasconfirmexamdatescap) {
             redirect(new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $examdateid]));
         }
-    
+
     }
     if ($hasconfirmexamdatescap) {
         redirect(new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php'));
     }
+
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php'));
 }
 

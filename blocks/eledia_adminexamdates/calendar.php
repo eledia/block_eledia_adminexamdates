@@ -24,7 +24,6 @@ require('../../config.php');
 
 global $USER, $CFG, $PAGE, $OUTPUT, $DB;
 
-
 $context = context_system::instance();
 
 require_login();
@@ -51,7 +50,7 @@ echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bo
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fontawesome.css">
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fa-solid.css">';
 
-$sql = "SELECT ar.id, a.id AS examdateid, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.examroom, ar.blockid, a.numberstudents, a.examiner, a.contactperson, a.confirmed, a.userid
+$sql = "SELECT ar.id, a.id AS examdateid, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.examroom, ar.blockid, a.numberstudents, a.examiner,a.responsibleperson, a.contactperson, a.confirmed, a.userid
                     FROM {eledia_adminexamdates} a
                     LEFT JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
                     LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
@@ -72,19 +71,22 @@ if ($hasconfirmexamdatescap) {
     $specialroomdates = $DB->get_records_sql($sqlspecial);
 }
 
-
 $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
 $roomcategories = [];
 $roomcategorycolors = [];
+$roomswithcapacity = [];
 foreach ($rooms as $room) {
     $roomitems = explode('|', $room);
     //$roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
+    if (!empty($roomitems[2])) {
+        array_push($roomswithcapacity, $roomitems[0]);
+    }
     $roomnames[$roomitems[0]] = trim($roomitems[1]);
     $roomcolors[trim($roomitems[1])] = $roomitems[3];
     $object = new stdClass();
     $object->category = trim($roomitems[1]);
     $object->color = trim($roomitems[3]);
-    $roomcategorycolors[]= $object;
+    $roomcategorycolors[] = $object;
     $roomcategories[] = trim($roomitems[1]);
 };
 //$roomcategorycolors=array_reverse($roomcategorycolors);
@@ -102,35 +104,43 @@ echo " <script>
 
 $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
 foreach ($dates as $date) {
+    if (!$hasconfirmexamdatescap && !in_array($date->examroom, $roomswithcapacity)) {
+        continue;
+    }
     $endtime = $date->blocktimestart + ($date->blockduration * 60);
     $roomname = $roomnames[$date->examroom];
     $buttonhtml = \html_writer::start_tag('div', ['class' => 'd-inline']);
     if ($hasconfirmexamdatescap || (isset($date->confirmed) && !$date->confirmed)) {
         $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $date->examdateid]);
         $url = $url->out();
-        $buttonhtml .= \html_writer::tag('a', get_string('editexamdate', 'block_eledia_adminexamdates'), ['class' => 'btn btn-secondary',
-                'href' => $url]) . ' ';
+        $buttonhtml .= \html_writer::tag('a', get_string('editexamdate', 'block_eledia_adminexamdates'),
+                        ['class' => 'btn btn-secondary',
+                                'href' => $url]) . ' ';
     }
     if ($hasconfirmexamdatescap) {
 
         $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php', ['cancelexamdate' => $date->examdateid]);
         $url = $url->out();
-        $buttonhtml .= \html_writer::tag('a', get_string('cancelexamdate', 'block_eledia_adminexamdates'), ['class' => 'btn btn-secondary',
-                'href' => $url]) . ' ';
+        $buttonhtml .= \html_writer::tag('a', get_string('cancelexamdate', 'block_eledia_adminexamdates'),
+                        ['class' => 'btn btn-secondary',
+                                'href' => $url]) . ' ';
 
-        if (isset($date->confirmed) && !$date->confirmed) {
-            $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php', ['confirmexamdate' => $date->examdateid]);
+        if (isset($date->confirmed) && !$date->confirmed && isset($date->responsibleperson) && !empty($date->responsibleperson)) {
+            $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php',
+                    ['confirmexamdate' => $date->examdateid]);
             $url = $url->out();
-            $buttonhtml .= \html_writer::tag('a', get_string('confirmexamdate', 'block_eledia_adminexamdates'), ['class' => 'btn btn-secondary',
-                'href' => $url]);
+            $buttonhtml .= \html_writer::tag('a', get_string('confirmexamdate', 'block_eledia_adminexamdates'),
+                    ['class' => 'btn btn-secondary',
+                            'href' => $url]);
         }
     }
 
     if (!$hasconfirmexamdatescap && isset($date->confirmed) && $date->confirmed) {
         $url = new \moodle_url('/blocks/eledia_adminexamdates/changerequest.php', ['examdateid' => $date->examdateid]);
         $url = $url->out();
-        $buttonhtml .= \html_writer::tag('a', get_string('change_request_btn', 'block_eledia_adminexamdates'), ['class' => 'btn btn-secondary',
-            'href' => $url]);
+        $buttonhtml .= \html_writer::tag('a', get_string('change_request_btn', 'block_eledia_adminexamdates'),
+                ['class' => 'btn btn-secondary',
+                        'href' => $url]);
     }
 
     $buttonhtml .= \html_writer::end_tag('div');
@@ -147,7 +157,9 @@ foreach ($dates as $date) {
     $examinernames = implode(', ', $examinernames);
     $contactperson = \core_user::get_user($date->contactperson);
     $contactperson = fullname($contactperson) . ' | ' . $contactperson->email;
-    $content = ($hasconfirmexamdatescap || $myexamdate) ? "<dl><dt>Anzahl der Teilnehmer: </dt><dd>$date->numberstudents</dd><dt>Dozent/ Prüfer: </dt><dd>$examinernames</dd><dt>Ansprechpartner: </dt><dd>$contactperson</dd></dl><div>$buttonhtml</div>" : 'Dieser Raum ist bereits belegt.';
+    $content = ($hasconfirmexamdatescap || $myexamdate) ?
+            "<dl><dt>Anzahl der Teilnehmer: </dt><dd>$date->numberstudents</dd><dt>Dozent/ Prüfer: </dt><dd>$examinernames</dd><dt>Ansprechpartner: </dt><dd>$contactperson</dd></dl><div>$buttonhtml</div>" :
+            'Dieser Raum ist bereits belegt.';
 
     echo "     
       
@@ -166,13 +178,13 @@ if ($hasconfirmexamdatescap) {
     foreach ($specialroomdates as $specialroomdate) {
         $endtime = $specialroomdate->blocktimestart + ($specialroomdate->blockduration * 60);
         $roomname = $roomnames[$specialroomdate->examroom];
-      $buttonhtml = \html_writer::start_tag('div', ['class' => 'd-inline']);
-            $url = new \moodle_url('/blocks/eledia_adminexamdates/specialrooms.php',
-                    ['blockid' => $specialroomdate->blockid]);
-            $url = $url->out();
-            $buttonhtml .= \html_writer::tag('a', get_string('specialrooms_btn', 'block_eledia_adminexamdates'),
-                            ['class' => 'btn btn-secondary',
-                                    'href' => $url]) . ' ';
+        $buttonhtml = \html_writer::start_tag('div', ['class' => 'd-inline']);
+        $url = new \moodle_url('/blocks/eledia_adminexamdates/specialrooms.php',
+                ['blockid' => $specialroomdate->blockid]);
+        $url = $url->out();
+        $buttonhtml .= \html_writer::tag('a', get_string('specialrooms_btn', 'block_eledia_adminexamdates'),
+                        ['class' => 'btn btn-secondary',
+                                'href' => $url]) . ' ';
         $url = new \moodle_url('/blocks/eledia_adminexamdates/specialrooms.php',
                 ['cancelspecialrooms' => $specialroomdate->blockid]);
         $url = $url->out();
@@ -183,8 +195,11 @@ if ($hasconfirmexamdatescap) {
         $buttonhtml .= \html_writer::end_tag('div');
 
         $title = $roomnames[$specialroomdate->examroom];
+        $roomannotationtext = trim(preg_replace('/\s\s+/', ' ', text_to_html($specialroomdate->roomannotationtext)));
 
-        $content =  "<dl><dt>Anmerkungen: </dt><dd>$specialroomdate->roomannotationtext</dd></dl><div>$buttonhtml</div>";
+        $content = "<dl><dt>" . get_string('annotationtext', 'block_eledia_adminexamdates')
+                . ": </dt><dd>" . $roomannotationtext .
+                "</dd></dl><div>$buttonhtml</div>";
 
         echo "     
       
@@ -301,7 +316,6 @@ $PAGE->set_pagelayout('course');
 
 $mform = new \block_eledia_adminexamdates\forms\calendar_form();
 
-
 echo $OUTPUT->header();
 echo $OUTPUT->container_start();
 
@@ -315,7 +329,8 @@ echo \html_writer::start_tag('div', array('class' => 'container-fluid px-4'));
 echo \html_writer::start_tag('div', array('class' => 'row'));
 echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
 echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
-echo \html_writer::tag('button', get_string('calendar_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
+echo \html_writer::tag('button', get_string('calendar_btn', 'block_eledia_adminexamdates'),
+        array('disabled' => true, 'class' => 'btn '));
 echo \html_writer::end_tag('div');
 if ($hasconfirmexamdatescap) {
     echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'), 'post');
@@ -341,9 +356,10 @@ echo $OUTPUT->box($OUTPUT->single_button($urleditexamdate, '', 'post'), 'd-none'
 
 $roomcategories = json_encode($roomcategories);
 $roomcategorycolors = json_encode($roomcategorycolors);
-echo \html_writer::tag('div', '', ['id' => 'calendar-roomcategories', 'class' => 'd-none', 'data-calendar-roomcategories' => $roomcategories, 'data-calendar-roomcolors' => $roomcategorycolors]);
+echo \html_writer::tag('div', '',
+        ['id' => 'calendar-roomcategories', 'class' => 'd-none', 'data-calendar-roomcategories' => $roomcategories,
+                'data-calendar-roomcolors' => $roomcategorycolors]);
 
 echo $OUTPUT->container_end();
-
 
 echo $OUTPUT->footer();

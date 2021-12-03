@@ -43,48 +43,58 @@ class util {
         global $DB, $USER;
         $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
         $dataobject = new \stdClass();
-        $dataobject->examrooms = is_array($formdata->examrooms)
-                ? implode(',', $formdata->examrooms) : $formdata->examrooms;
-        $dataobject->examtimestart = $formdata->examtimestart;
-        $dataobject->examduration = $formdata->examduration;
-        $dataobject->department = $formdata->department;
-        $dataobject->category = $formdata->category;
-        $dataobject->examname = $formdata->examname;
-        $dataobject->semester = $formdata->semester;
-        $dataobject->numberstudents = $formdata->numberstudents;
-        $dataobject->examiner = implode(',', $formdata->examiner);
-        $dataobject->contactperson = $formdata->contactperson;
-        //        if (!ctype_digit(strval($formdata->contactperson))) {
-        //            $dataobject->contactperson = $formdata->contactperson;
-        //            $dataobject->contactpersonid = null;
-        //        } else {
-        //            $contactperson = $DB->get_record('user',
-        //                array('id' => $formdata->contactperson), '*', MUST_EXIST);
-        //            $dataobject->contactpersonid = $formdata->contactperson;
-        //            $dataobject->contactperson = fullname($contactperson);
-        //        }
-        //        if (!ctype_digit(strval($formdata->contactpersonemail))) {
-        //            $dataobject->contactpersonemail = $formdata->contactpersonemail;
-        //        } else {
-        //            $contactperson = $DB->get_record('user',
-        //                array('id' => $formdata->contactpersonemail), '*', MUST_EXIST);
-        //            $dataobject->contactpersonemail = $contactperson->email;
-        //        }
-        $dataobject->responsibleperson = $formdata->responsibleperson;
-        $dataobject->annotationtext = $formdata->annotationtext;
 
-        if (empty($formdata->editexamdate)) {
-            $dataobject->userid = $USER->id;
-            $dataobject->timecreated = time();
-            $examdateid = $DB->insert_record('eledia_adminexamdates', $dataobject);
-        } else {
+        if ($formdata->onlynumberstudents) {
+
             $examdateid = $formdata->editexamdate;
             $dataobject->id = $formdata->editexamdate;
+            $dataobject->numberstudents = $formdata->numberstudents;
+            $dataobject->confirmed = false;
             $DB->update_record('eledia_adminexamdates', $dataobject);
-        }
+        } else {
+            $dataobject->examrooms = is_array($formdata->examrooms)
+                    ? implode(',', $formdata->examrooms) : $formdata->examrooms;
+            $dataobject->examtimestart = $formdata->examtimestart;
+            $dataobject->examduration = $formdata->examduration;
+            $dataobject->department = $formdata->department;
+            $dataobject->category = $formdata->category;
+            $dataobject->examname = $formdata->examname;
+            $dataobject->semester = $formdata->semester;
+            $dataobject->numberstudents = $formdata->numberstudents;
+            $dataobject->examiner = implode(',', $formdata->examiner);
+            $dataobject->contactperson = $formdata->contactperson;
+            //        if (!ctype_digit(strval($formdata->contactperson))) {
+            //            $dataobject->contactperson = $formdata->contactperson;
+            //            $dataobject->contactpersonid = null;
+            //        } else {
+            //            $contactperson = $DB->get_record('user',
+            //                array('id' => $formdata->contactperson), '*', MUST_EXIST);
+            //            $dataobject->contactpersonid = $formdata->contactperson;
+            //            $dataobject->contactperson = fullname($contactperson);
+            //        }
+            //        if (!ctype_digit(strval($formdata->contactpersonemail))) {
+            //            $dataobject->contactpersonemail = $formdata->contactpersonemail;
+            //        } else {
+            //            $contactperson = $DB->get_record('user',
+            //                array('id' => $formdata->contactpersonemail), '*', MUST_EXIST);
+            //            $dataobject->contactpersonemail = $contactperson->email;
+            //        }
+            $dataobject->responsibleperson = $formdata->responsibleperson;
+            $dataobject->annotationtext = $formdata->annotationtext;
 
-        if ($hasconfirmexamdatescap && (!isset($dataobject->confirmed) || !$dataobject->confirmed)) {
-            self::examconfirm($examdateid);
+            if (empty($formdata->editexamdate)) {
+                $dataobject->userid = $USER->id;
+                $dataobject->timecreated = time();
+                $examdateid = $DB->insert_record('eledia_adminexamdates', $dataobject);
+            } else {
+                $examdateid = $formdata->editexamdate;
+                $dataobject->id = $formdata->editexamdate;
+                $DB->update_record('eledia_adminexamdates', $dataobject);
+            }
+
+            if ($hasconfirmexamdatescap && (!isset($dataobject->confirmed) || !$dataobject->confirmed)) {
+                self::examconfirm($examdateid);
+            }
         }
         return $examdateid;
 
@@ -269,7 +279,6 @@ class util {
         $sql = "SELECT ar.id, a.id AS examdateid, a.examduration, ab.blocktimestart, ab.blockduration, ar.examroom, ar.blockid
                     FROM {eledia_adminexamdates_blocks} ab 
                     JOIN {eledia_adminexamdates} a ON ab.examdateid = a.id
-                    JOIN {eledia_adminexamdates_blocks} ag ON ab.examdateid = a.id
                     JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
                    WHERE ab.blocktimestart > ? AND ab.blocktimestart < ?
                    ORDER BY ab.blocktimestart";
@@ -640,6 +649,7 @@ class util {
                   ORDER BY examtimestart DESC";
 
         $adminexamdates = $DB->get_records_sql($sql);
+
         foreach ($adminexamdates as $adminexamdate) {
             $adminexamblocks =
                     $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $adminexamdate->id], 'blocktimestart');
@@ -679,11 +689,11 @@ class util {
             }
             $text .= \html_writer::end_tag('dl');
             $text .= \html_writer::end_tag('p');
-            if ($hasconfirmexamdatescap || !$adminexamdate->confirmed) {
-                $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $adminexamdate->id]);
+            //  if ($hasconfirmexamdatescap || !$adminexamdate->confirmed) {
+            $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $adminexamdate->id]);
 
-                $text .= $OUTPUT->single_button($url, get_string('editexamdate', 'block_eledia_adminexamdates'), 'post');
-            }
+            $text .= $OUTPUT->single_button($url, get_string('editexamdate', 'block_eledia_adminexamdates'), 'post');
+            //   }
             if ($hasconfirmexamdatescap || ((!$hasconfirmexamdatescap && !$adminexamdate->confirmed))) {
                 $url = new \moodle_url($PAGE->url, ['cancelexamdate' => $adminexamdate->id]);
 
@@ -694,8 +704,15 @@ class util {
                 $text .= $OUTPUT->single_button($url, get_string('change_request_btn', 'block_eledia_adminexamdates'), 'post');
             }
             if ($hasconfirmexamdatescap) {
-                $url = new \moodle_url($PAGE->url, ['confirmexamdate' => $adminexamdate->id]);
-                $text .= $OUTPUT->single_button($url, get_string('confirmexamdate', 'block_eledia_adminexamdates'), 'post');
+                if (!empty($adminexamdate->responsibleperson)) {
+                    $url = new \moodle_url($PAGE->url, ['confirmexamdate' => $adminexamdate->id]);
+                    $text .= $OUTPUT->single_button($url, get_string('confirmexamdate', 'block_eledia_adminexamdates'), 'post');
+                } else {
+                    $text .= \html_writer::start_tag('div', array('class' => 'singlebutton'));
+                    $text .= \html_writer::tag('button', get_string('confirmexamdate', 'block_eledia_adminexamdates'),
+                            array('disabled' => true, 'class' => 'btn btn-secondary'));
+                    $text .= \html_writer::end_tag('div');
+                }
 
                 $url = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php',
                         ['examdateid' => $adminexamdate->id]);
@@ -841,12 +858,10 @@ class util {
         global $DB, $USER;
 
         $config = get_config('block_eledia_adminexamdates');
-
+        $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
+        $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'blocktimestart');
         // Get the template's course ID using the course idnumber.
-        if (!empty($config->examcoursetemplateidnumber)) {
-            $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
-            $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'blocktimestart');
-
+        if (!empty($config->examcoursetemplateidnumber) && (!isset($examdate->courseid) || !$examdate->courseid)) {
             $param = [
                     'wsfunction' => 'core_course_get_courses_by_field',
                     'field' => 'idnumber',
@@ -892,6 +907,8 @@ class util {
                 // Get the duplicated course section data and look for the date replacement string in the names and replace.
                 if (isset($results->id)) {
                     $courseid = $results->id;
+                    $DB->update_record('eledia_adminexamdates', (object) ['id' => $examdateid,
+                             'courseid' => $courseid]);
                     $param = [
                             'wsfunction' => 'core_course_get_contents',
                             'courseid' => $courseid
@@ -916,44 +933,44 @@ class util {
                             }
                         }
 
-                        if (!$examdate->confirmed) {
-                            // Send confirmation email to contactperson and the exam team.
-
-                            $emailuser = new stdClass();
-                            $emailuser->email = \core_user::get_user($examdate->contactperson)->email;
-                            $emailuser->id = -99;
-
-                            $emailexamteam = get_config('block_eledia_adminexamdates', 'emailexamteam');
-                            $emailexamteam = !empty($emailexamteam) ? $emailexamteam : false;
-
-                            $subject = get_string('examconfirm_email_subject', 'block_eledia_adminexamdates',
-                                    ['name' => $examdate->examname]);
-                            $date = date('d.m.Y H.i', $examdate->examtimestart)
-                                    . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60));
-                            $course = \html_writer::tag('a', get_string('edit'),
-                                    array('href' => get_config('block_eledia_adminexamdates', 'apidomain')
-                                            . '/course/view.php?id=' . $courseid));
-                            $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php',
-                                    ['editexamdate' => $examdateid]);
-                            $url = $url->out();
-                            $link = \html_writer::tag('a', get_string('course'), array('href' => $url));
-                            $messagetext = get_string('examconfirm_email_body', 'block_eledia_adminexamdates',
-                                    ['name' => $examdate->examname, 'date' => $date, 'course' => $course, 'url' => $link]);
-
-                            email_to_user($emailuser, $USER, $subject, $messagetext);
-
-                            if ($emailexamteam) {
-                                $emailuser->email = $emailexamteam;
-                                email_to_user($emailuser, $USER, $subject, $messagetext);
-                            }
-                        }
-
-                        // Set the 'confirmed' state and course ID to this exam date.
-                        $DB->update_record('eledia_adminexamdates', (object) ['id' => $examdateid,
-                                'confirmed' => 1, 'courseid' => $courseid]);
                     }
                 }
             }
+        }
+        if (!$examdate->confirmed) {
+            // Send confirmation email to contactperson and the exam team.
+
+            $emailuser = new stdClass();
+            $emailuser->email = \core_user::get_user($examdate->contactperson)->email;
+            $emailuser->id = -99;
+
+            $emailexamteam = get_config('block_eledia_adminexamdates', 'emailexamteam');
+            $emailexamteam = !empty($emailexamteam) ? $emailexamteam : false;
+
+            $subject = get_string('examconfirm_email_subject', 'block_eledia_adminexamdates',
+                    ['name' => $examdate->examname]);
+            $date = date('d.m.Y H.i', $examdate->examtimestart)
+                    . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60));
+            $course = \html_writer::tag('a', get_string('edit'),
+                    array('href' => get_config('block_eledia_adminexamdates', 'apidomain')
+                            . '/course/view.php?id=' . $courseid));
+            $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php',
+                    ['editexamdate' => $examdateid]);
+            $url = $url->out();
+            $link = \html_writer::tag('a', get_string('course'), array('href' => $url));
+            $messagetext = get_string('examconfirm_email_body', 'block_eledia_adminexamdates',
+                    ['name' => $examdate->examname, 'date' => $date, 'course' => $course, 'url' => $link]);
+
+            email_to_user($emailuser, $USER, $subject, $messagetext);
+
+            if ($emailexamteam) {
+                $emailuser->email = $emailexamteam;
+                email_to_user($emailuser, $USER, $subject, $messagetext);
+            }
+
+            // Set the 'confirmed' state and course ID to this exam date.
+            $DB->update_record('eledia_adminexamdates', (object) ['id' => $examdateid,
+                    'confirmed' => 1]);
         }
     }
 

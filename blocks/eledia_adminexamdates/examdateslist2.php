@@ -68,8 +68,10 @@ if (!empty($confirmexamdate)) {
     if (!empty($cancelexamdateyes)) {
         block_eledia_adminexamdates\util::examcancel($confirmexamdateyes);
     }
-   // $PAGE->requires->css('/blocks/eledia_adminexamdates/styles/datatables.min.css');
-    $PAGE->requires->js_call_amd('block_eledia_adminexamdates/examdateslist_datatables', 'init');
+    echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/datatables/datatables.min.js"></script>';
+    $PAGE->requires->css('/blocks/eledia_adminexamdates/styles/datatables.min.css');
+   //$PAGE->requires->js_call_amd('block_eledia_adminexamdates/examdateslist_datatables', 'init');
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
 
@@ -108,7 +110,25 @@ if (!empty($confirmexamdate)) {
 </table>
 ';
 
-
+echo '<script> var data = [
+        [
+            "Tiger Nixon",
+            "System Architect",
+        ],
+        [
+            "Garrett Winters",
+            "Director",
+        ]
+    ];
+    $(document).ready(function() {
+        var table =$("#table1").DataTable({
+            buttons: [ "copy", "excel", "pdf" ],
+            data: data
+        });
+$("#btn-place").html(table.buttons().container());
+$("#table1").removeClass("dataTable");
+});
+    </script>';
 
     ///////////////////////
 

@@ -24,7 +24,6 @@ require('../../config.php');
 
 global $USER, $CFG, $PAGE, $OUTPUT, $DB;
 
-
 $context = context_system::instance();
 
 require_login();
@@ -37,6 +36,7 @@ $confirmexamdate = optional_param('confirmexamdate', 0, PARAM_INT);
 $cancelexamdate = optional_param('cancelexamdate', 0, PARAM_INT);
 $confirmexamdateyes = optional_param('confirmexamdateyes', 0, PARAM_INT);
 $cancelexamdateyes = optional_param('cancelexamdateyes', 0, PARAM_INT);
+$semester = optional_param('semester', 0, PARAM_INT);
 
 $myurl = new \moodle_url($FULLME);
 
@@ -45,11 +45,12 @@ $PAGE->set_context($context);
 $PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
 $PAGE->set_pagelayout('course');
 $PAGE->requires->jquery();
-
+//echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>';
 if (!empty($confirmexamdate)) {
     $examdatename = $DB->get_record('eledia_adminexamdates', ['id' => $confirmexamdate], 'examname');
     $message = get_string('confirmexamdatemsg', 'block_eledia_adminexamdates', ['name' => $examdatename->examname]);
-    $formcontinue = new single_button(new moodle_url($PAGE->url, ['confirmexamdateyes' => $confirmexamdate]), get_string('yes'), 'post');
+    $formcontinue =
+            new single_button(new moodle_url($PAGE->url, ['confirmexamdateyes' => $confirmexamdate]), get_string('yes'), 'post');
     $formcancel = new single_button(new moodle_url($PAGE->url), get_string('no'));
     echo $OUTPUT->header();
     echo $OUTPUT->box_start('generalbox');
@@ -59,7 +60,8 @@ if (!empty($confirmexamdate)) {
 } else if (!empty($cancelexamdate)) {
     $examdatename = $DB->get_record('eledia_adminexamdates', ['id' => $cancelexamdate], 'examname');
     $message = get_string('cancelexamdatemsg', 'block_eledia_adminexamdates', ['name' => $examdatename->examname]);
-    $formcontinue = new single_button(new moodle_url($PAGE->url, ['cancelexamdateyes' => $cancelexamdate]), get_string('yes'), 'post');
+    $formcontinue =
+            new single_button(new moodle_url($PAGE->url, ['cancelexamdateyes' => $cancelexamdate]), get_string('yes'), 'post');
     $formcancel = new single_button(new moodle_url($PAGE->url), get_string('no'));
     echo $OUTPUT->header();
     echo $OUTPUT->box_start('generalbox');
@@ -74,9 +76,8 @@ if (!empty($confirmexamdate)) {
         block_eledia_adminexamdates\util::examcancel($confirmexamdateyes);
     }
 
-
     echo $OUTPUT->header();
-    echo '<script type="text/javascript" src="datatables/datatables.min.js"></script>';
+    echo '<script type="text/javascript" src="js/datatables/datatables.min.js"></script>';
     echo $OUTPUT->container_start();
 
     $url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1]);
@@ -89,7 +90,8 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::start_tag('div', array('class' => 'col-md-12'));
     echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'), 'post');
     echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
-    echo \html_writer::tag('button', get_string('examdateslist_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
+    echo \html_writer::tag('button', get_string('examdateslist_btn', 'block_eledia_adminexamdates'),
+            array('disabled' => true, 'class' => 'btn '));
     echo \html_writer::end_tag('div');
     echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_eledia_adminexamdates'), 'post');
     echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
@@ -109,33 +111,21 @@ if (!empty($confirmexamdate)) {
 
 </style>';
 
-
-//    echo '<script type="text/javascript" src="datatables/Buttons-2.0.1/js/dataTables.buttons.min.js"></script>';
-// echo '<script type="text/javascript" src="datatables/pdfmake-0.1.36/pdfmake.min.js"></script>';
-// echo '<script type="text/javascript" src="datatables/JSZip-2.5.0/jszip.min.js"></script>';
-// echo '<script type="text/javascript" src="datatables/Buttons-2.0.1/js/buttons.bootstrap4.js"></script>';
-// echo '<script type="text/javascript" src="datatables/Buttons-2.0.1/js/buttons.print.min.js"></script>';
-//   // echo '<script type="text/javascript" src="datatables/pdfmake-0.1.36/pdfmake.min.js"></script>';
-//    echo '<script type="text/javascript" src="datatables/Buttons-2.0.1/js/buttons.html5.min.js"></script>';
-//    echo '<script type="text/javascript" src="datatables/pdfmake-0.1.36/vfs_fonts.js"></script>';
-
-    echo '
-	<script type="text/javascript" src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-	<script type="text/javascript"  src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-	<script type="text/javascript"  src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-	<script type="text/javascript"  src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
-	<script type="text/javascript"  src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>';
-
-
-    echo block_eledia_adminexamdates\util::getexamdatetable();
+    echo \html_writer::start_tag('div', array('class' => 'mb-1'));
+    echo \html_writer::start_tag('span');
+    echo block_eledia_adminexamdates\util::get_html_select_semester($semester);
+    echo \html_writer::end_tag('span');
+    echo \html_writer::tag('span', '', array('id' => 'examdatestable-btn-place'));
+    echo \html_writer::end_tag('div');
+    echo block_eledia_adminexamdates\util::getexamdatetable($semester);
     $checklistlink = get_string('checklistlink', 'block_eledia_adminexamdates');
     echo '<script type="text/javascript">';
+
     echo '$(document).ready(function() {
      var groupColumn = 0;
          var table = $("#examdatestable").DataTable( {
  buttons: [
-        "copy", "excel", "pdf"
+        "excel", "pdf"
     ],
           "columnDefs": [
             { "visible": false,"searchable": false, "targets": groupColumn },
@@ -158,13 +148,13 @@ if (!empty($confirmexamdate)) {
             var api = this.api();
             var rows = api.rows( {page:"current"} ).nodes();
             var last=null;
- 
+
             api.column(groupColumn, {page:"current"} ).data().each( function ( group, i ) {
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
                         \'<tr class="group table-primary font-weight-bold"><td colspan="9">\'+group+\'</td></tr>\'
                     );
- 
+
                     last = group;
                 }
             } );
@@ -175,15 +165,15 @@ if (!empty($confirmexamdate)) {
                 var candidates = rows
                     .data()
                     .pluck(7)
-                    .reduce( function (a, b) { 
+                    .reduce( function (a, b) {
                         var sum = (parseInt(a)) ? parseInt(a) : 0;
                         sum += (parseInt(b)) ? parseInt(b) : 0;
                         return sum;
                     }, 0);
-                
+
                 return $("<tr/>")
                     .append( \'<td colspan="6">Summe \'+group+\'</td><td>\'+candidates+\'</td><td colspan="2"></td>\' );
-                    
+
             },
             "dataSrc": 0
         },
@@ -212,26 +202,31 @@ if (!empty($confirmexamdate)) {
         }
     } );
     $("#examdatestable").removeClass("dataTable");
+     $("#examdatestable-btn-place").html(table.buttons().container());
   $("#examdatestable tbody").on("click", "tr", function () {
         var data = table.row( this ).data();
         var editsingleexamdateform = $("#editsingleexamdate");
         editsingleexamdateform.find("input[name=\'blockid\']").val(data[9]);
         editsingleexamdateform.find("form").submit();
     } );
-    
+
     $("#examdatestable tbody").on( "click", "button", function (event) {
         event.stopPropagation();
         var data = table.row( $(this).parents("tr") ).data();
         window.location.href = "' . $checklistlink . '"+data[10];
     } );
-    
+
     $("#examdatestable tbody").on( "click", "a", function (event) {
-        event.preventDefault(); 
+        event.preventDefault();
         event.stopPropagation();
-        var url = $(this).attr("href"); 
+        var url = $(this).attr("href");
         window.open(url, "_blank");
     } );
- 
+    
+    $("#examdatestable-semester-select").on("change", function () {
+    $("#examdatestable-semester-form").submit();
+});
+
 } );
     </script>';
     echo \html_writer::end_tag('div');
@@ -239,7 +234,6 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::end_tag('div');
     echo $OUTPUT->container_end();
 }
-
 
 echo $OUTPUT->footer();
 

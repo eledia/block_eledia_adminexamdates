@@ -730,8 +730,34 @@ class util {
      *
      */
     public
-    static function getexamdatetable() {
+    static function getexamdatetable($semester) {
         global $DB;
+        if (!empty($semester)) {
+            $year = substr($semester, 0, 4);
+            if (substr($semester, -1) == 1) {
+                $timestart = strtotime("1 April $year");
+                $timeend = strtotime("1 October $year") - 1;
+            } else {
+                $timestart = strtotime("1 October $year");
+                $year++;
+                $timeend = strtotime("1 April $year") - 1;
+            }
+        } else {
+            $time = time();
+            if ($time < strtotime("1 April")) {
+                $lastyear = date("Y", strtotime("-1 year"));
+                $timestart = strtotime("1 October $lastyear");
+                $timeend = strtotime("1 April") - 1;
+            } else if ($time < strtotime("1 October")) {
+                $timestart = strtotime("1 April");
+                $timeend = strtotime("1 October") - 1;
+            } else {
+                $nextyear = date("Y", strtotime("+1 year"));
+                $timestart = strtotime("1 October");
+                $timeend = strtotime("1 April $nextyear") - 1;
+            }
+        }
+
         $roomoptions = [];
         $roomswithcapacity = [];
 
@@ -752,7 +778,7 @@ class util {
                 FROM {eledia_adminexamdates} a
                 JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
                 JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
-                WHERE ar.examroom {$inexamroomssql}
+                WHERE ab.blocktimestart > {$timestart} AND ab.blocktimestart < {$timeend} AND ar.examroom {$inexamroomssql} 
                 ORDER BY ab.blocktimestart";
         //     WHERE ag.blocktimestart > ? AND ag.blocktimestart < ?";
 
@@ -908,7 +934,7 @@ class util {
                 if (isset($results->id)) {
                     $courseid = $results->id;
                     $DB->update_record('eledia_adminexamdates', (object) ['id' => $examdateid,
-                             'courseid' => $courseid]);
+                            'courseid' => $courseid]);
                     $param = [
                             'wsfunction' => 'core_course_get_contents',
                             'courseid' => $courseid
@@ -988,8 +1014,11 @@ class util {
         $emailuser = new stdClass();
         $emailuser->email = \core_user::get_user($examdate->contactperson)->email;
         $emailuser->id = -99;
-
-        $responsiblepersonemail = $examdate->responsibleperson ? \core_user::get_user($examdate->responsibleperson)->email : false;
+        if (!$examdate->confirmed) {
+            $email = ($emailuser->email != $USER->email) ? $USER->email : false;
+        } else {
+            $email = $examdate->responsibleperson ? \core_user::get_user($examdate->responsibleperson)->email : false;
+        }
         $emailexamteam = get_config('block_eledia_adminexamdates', 'emailexamteam');
         $emailexamteam = !empty($emailexamteam) ? $emailexamteam : false;
 
@@ -1007,8 +1036,8 @@ class util {
 
         email_to_user($emailuser, $USER, $subject, $messagetext);
 
-        if ($responsiblepersonemail) {
-            $emailuser->email = $responsiblepersonemail;
+        if ($email) {
+            $emailuser->email = $email;
             email_to_user($emailuser, $USER, $subject, $messagetext);
         }
 
@@ -1131,6 +1160,60 @@ class util {
                 return $subcategories;
             }
         }
+    }
+
+    /**
+     * Get html semester dropdown
+     *
+     * @return array
+     */
+    public
+    static function get_html_select_semester($semester) {
+        $years = [];
+        $years[] = date('Y', strtotime('-1 year'));
+        $years[] = date('Y');
+        for ($i = 1; $i < 5; $i++) {
+            $years[] = date('Y', strtotime('+' . $i . ' year'));
+        }
+        $options = [];
+        foreach ($years as $key => $year) {
+            $options[$year . '1'] = get_string('summersemester', 'block_eledia_adminexamdates') . ' ' . $year;
+            if (array_key_exists($key + 1, $years)) {
+                $options[$year . '2'] =
+                        get_string('wintersemester', 'block_eledia_adminexamdates') . ' ' . $year . '/' . $years[$key + 1];
+            }
+        }
+
+        $time = time();
+        if ($time < strtotime("1 April")) {
+            $defaultsemester = $years[0] . '2';
+        } else if ($time < strtotime("1 October")) {
+            $defaultsemester = $years[1] . '1';
+        } else {
+            $defaultsemester = $years[1] . '2';
+        }
+        $text = \html_writer::start_tag('form',
+                ['id' => 'examdatestable-semester-form']);
+
+        $text .= \html_writer::tag('label', get_string('select_semester', 'block_eledia_adminexamdates') . ':&nbsp;',
+                ['for' => 'semester']);
+        $text .= \html_writer::start_tag('select',
+                ['id' => 'examdatestable-semester-select', 'name' => 'semester',
+                        'class' => 'custom-select custom-select-sm form-control']);
+
+        $semester = !empty($semester) ? $semester : $defaultsemester;
+        foreach ($options as $key => $name) {
+            if ($semester == $key) {
+                $text .= \html_writer::tag('option', $name,
+                        ['value' => $key, 'selected' => 'selected']);
+            } else {
+                $text .= \html_writer::tag('option', $name,
+                        ['value' => $key]);
+            }
+        }
+        $text .= \html_writer::end_tag('select');
+        $text .= \html_writer::end_tag('form');
+        return $text . '&nbsp;';
     }
 }
 

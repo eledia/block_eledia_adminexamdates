@@ -1028,6 +1028,22 @@ class util {
         $messagetext = get_string('examcancel_email_body', 'block_eledia_adminexamdates',
                 ['name' => $examdate->examname, 'date' => $date]);
 
+        // If the exam course exist - set the exam archive course category.
+        if (!empty($examdate->courseid) &&
+                !empty($archivecategoryidnumber = get_config('block_eledia_adminexamdates', 'archivecategoryidnumber'))) {
+            $param = [
+                    'wsfunction' => 'core_course_get_categories',
+                    'addsubcategories' => 0,
+            ];
+            $criteria = "&criteria[0][key]=idnumber&criteria[0][value]=$archivecategoryidnumber";
+            $results = self::get_data_from_api($criteria, $param);
+            if (!empty($archivecategoryid = $results[0]->id)) {
+                $param = ['wsfunction' => 'core_course_update_courses'];
+                $paramcourse = "&courses[0][id]=$examdate->courseid&courses[0][categoryid]=$archivecategoryid";
+                $results = self::get_data_from_api($paramcourse, $param);
+            }
+        }
+
         if (!empty($examparts) && !empty($examdate)) {
             $DB->delete_records_list('eledia_adminexamdates_rooms', 'blockid', array_keys($examparts));
             $DB->delete_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);

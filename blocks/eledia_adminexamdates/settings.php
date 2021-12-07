@@ -37,6 +37,10 @@ if ($ADMIN->fulltree) {
         get_string('setting_envcategoryidnumber', 'block_eledia_adminexamdates'),
         get_string('config_envcategoryidnumber', 'block_eledia_adminexamdates'), 'EXAMENV', PARAM_RAW);
 
+    $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/archivecategoryidnumber',
+            get_string('setting_archivecategoryidnumber', 'block_eledia_adminexamdates'),
+            get_string('config_archivecategoryidnumber', 'block_eledia_adminexamdates'), 'EXAMARCHIVE', PARAM_RAW);
+    
     $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/examcoursetemplateidnumber',
         get_string('setting_examcoursetemplateidnumber', 'block_eledia_adminexamdates'),
         get_string('config_examcoursetemplateidnumber', 'block_eledia_adminexamdates'), 'EXAMTEMPLATE', PARAM_RAW);

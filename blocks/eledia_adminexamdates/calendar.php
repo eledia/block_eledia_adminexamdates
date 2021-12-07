@@ -89,6 +89,9 @@ foreach ($rooms as $room) {
     $roomcategorycolors[] = $object;
     $roomcategories[] = trim($roomitems[1]);
 };
+
+$roomscount = $hasconfirmexamdatescap ? count($roomcategories) : count($roomswithcapacity);
+
 //$roomcategorycolors=array_reverse($roomcategorycolors);
 //$roomcategories=array_reverse($roomcategories);
 echo " <script>
@@ -228,6 +231,7 @@ echo "       ];
             random: false,
             events: ['#E91E63', '#3F51B5','#009688', '#6D4C41'],
             },
+            rooms: $roomscount,
         locale: 'de',
         weekday: {
         dayline: {

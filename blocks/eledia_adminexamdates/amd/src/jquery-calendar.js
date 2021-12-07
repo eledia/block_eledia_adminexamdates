@@ -65,6 +65,7 @@ jQuery(document).ready(function($) {
     this.conf = {
       locale: (Args.locale) ? Args.locale : 'fr',
       view: 'week',
+      rooms: (Args.rooms !== false) ? Args.rooms : false,
       enableKeyboard: (Args.enableKeyboard) ? Args.enableKeyboard : true,
       defaultView: {
         largeScreen: (Args.defaultView) ? (Args.defaultView.largeScreen) ? (Args.defaultView.largeScreen) : 'week' : 'week',
@@ -822,11 +823,14 @@ self = this;
         }
         i++;
       }
-
-      var eventWidth = 100 / (parseInt(currentElement.attr('data-divider')) / String(currentElement.attr('data-positions')).split(',').length);
-      var eventLeft = (String(currentElement.attr('data-positions')).split(',')[0] / parseInt(currentElement.attr('data-divider'))) * 100;
-      var eventLeft = (String(currentElement.attr('data-positions')).split(',')[0] / 4) * 100;
-      var eventWidth = 25;
+      if (self.conf.rooms !== false) {
+        var eventLeft = (String(currentElement.attr('data-positions')).split(',')[0] / self.conf.rooms) * 100;
+        var eventWidth = 100 / self.conf.rooms;
+      } else {
+        var eventWidth = 100 / (parseInt(currentElement.attr('data-divider')) / String(currentElement.attr('data-positions')).split(',').length);
+        var eventLeft = (String(currentElement.attr('data-positions')).split(',')[0] / parseInt(currentElement.attr('data-divider'))) * 100;
+      }
+     console.log('###rooms:' + self.conf.rooms);
       self.setEventPosition(this, eventTop, eventHeight, eventLeft, eventWidth);
     });
   };
@@ -839,7 +843,7 @@ self = this;
 
         var eventTop = (parseInt($(this).closest('.calendar-month-events-day').index()) * self.conf.month.weekline.heightPx) + 20 - 1;
         var eventHeight = self.conf.month.weekline.heightPx - 21 + 1;
-        var eventWidth = 100 / 4;
+        var eventWidth = 100 / n;
         var eventLeft = (100 / n) * i;
 
         self.setEventPosition(this, eventTop, eventHeight, eventLeft, eventWidth);

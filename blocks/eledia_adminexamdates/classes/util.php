@@ -576,12 +576,12 @@ class util {
         $text .= \html_writer::tag('h5', $examdate->examname, array('class' => 'card-title'));
         $text .= \html_writer::start_tag('p', array('class' => 'card-text'));
         $text .= \html_writer::start_tag('dl');
-        $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates') . ': ');
+        $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates') );
         $text .= \html_writer::tag('dd', date('d.m.Y H.i', $examdate->examtimestart)
                 . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60)));
-        $text .= \html_writer::tag('dt', get_string('number_students', 'block_eledia_adminexamdates') . ': ');
+        $text .= \html_writer::tag('dt', get_string('expected_number_students', 'block_eledia_adminexamdates') );
         $text .= \html_writer::tag('dd', $examdate->numberstudents);
-        $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates') . ': ');
+        $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates') );
         $examiners = explode(',', $examdate->examiner);
         $examinernames = [];
         foreach ($examiners as $examiner) {
@@ -590,11 +590,11 @@ class util {
             }
         }
         $text .= \html_writer::tag('dd', implode(', ', $examinernames));
-        $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates') . ': ');
+        $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates') );
         $contactperson = \core_user::get_user($examdate->contactperson);
         $text .= \html_writer::tag('dd', fullname($contactperson) . ' | ' . $contactperson->email);
-        $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates') . ': ');
-        $responsibleperson = $examdate->responsibleperson ? fullname(\core_user::get_user($examdate->responsibleperson)) : '';
+        $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates'));
+        $responsibleperson = $examdate->responsibleperson ? fullname(\core_user::get_user($examdate->responsibleperson)) : '-';
         $text .= \html_writer::tag('dd', $responsibleperson);
 
         $urldeletesingleexamdate =
@@ -659,12 +659,12 @@ class util {
             $text .= \html_writer::tag('h5', $adminexamdate->examname, array('class' => 'card-title'));
             $text .= \html_writer::start_tag('p', array('class' => 'card-text'));
             $text .= \html_writer::start_tag('dl');
-            $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates') . ': ');
+            $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates'));
             $text .= \html_writer::tag('dd', date('d.m.Y H.i', $adminexamdate->examtimestart)
                     . ' - ' . date('H.i', $adminexamdate->examtimestart + ($adminexamdate->examduration * 60)));
-            $text .= \html_writer::tag('dt', get_string('number_students', 'block_eledia_adminexamdates') . ': ');
+            $text .= \html_writer::tag('dt', get_string('expected_number_students', 'block_eledia_adminexamdates') );
             $text .= \html_writer::tag('dd', $adminexamdate->numberstudents);
-            $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates') . ': ');
+            $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates'));
             $examiners = explode(',', $adminexamdate->examiner);
             $examinernames = [];
             foreach ($examiners as $examiner) {
@@ -673,12 +673,12 @@ class util {
                 }
             }
             $text .= \html_writer::tag('dd', implode(', ', $examinernames));
-            $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates') . ': ');
+            $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates') );
             $contactperson = \core_user::get_user($adminexamdate->contactperson);
             $text .= \html_writer::tag('dd', fullname($contactperson) . ' | ' . $contactperson->email);
-            $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates') . ': ');
+            $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates'));
             $responsibleperson =
-                    $adminexamdate->responsibleperson ? fullname(\core_user::get_user($adminexamdate->responsibleperson)) : '';
+                    $adminexamdate->responsibleperson ? fullname(\core_user::get_user($adminexamdate->responsibleperson)) : '-';
             $text .= \html_writer::tag('dd', $responsibleperson);
             $index = 1;
             foreach ($adminexamblocks as $adminexamblock) {
@@ -1209,7 +1209,7 @@ class util {
             $defaultsemester = $years[1] . '2';
         }
         $text = \html_writer::start_tag('form',
-                ['id' => 'examdatestable-semester-form']);
+                ['id' => 'examdatestable-semester-form', 'method'=>'post']);
 
         $text .= \html_writer::tag('label', get_string('select_semester', 'block_eledia_adminexamdates') . ':&nbsp;',
                 ['for' => 'semester']);

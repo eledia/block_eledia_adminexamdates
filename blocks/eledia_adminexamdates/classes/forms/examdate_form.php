@@ -147,7 +147,7 @@ class examdate_form extends \moodleform {
             $mform->addRule('examname', null, 'required', null, 'client');
         }
 
-        $mform->addElement('text', 'numberstudents', get_string('number_students', 'block_eledia_adminexamdates'),
+        $mform->addElement('text', 'numberstudents', get_string('expected_number_students', 'block_eledia_adminexamdates'),
                 array('size' => 4));
         $mform->setType('numberstudents', PARAM_INT);
         $mform->addRule('numberstudents', null, 'required', null, 'client');

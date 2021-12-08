@@ -50,12 +50,12 @@ $string['confirmexamdate'] = 'Bestätigen';
 $string['confirmexamdatemsg'] = 'Wollen Sie die den Prüfungstermin bestätigen für: \'{$a->name}\'?';
 $string['cancelexamdatemsg'] = 'Wollen Sie die den Prüfungstermin stornieren für: \'{$a->name}\'?';
 $string['configure_description'] = 'Hier können Sie die Prüfungstermin-Verwaltung konfigurieren.';
-$string['number_students'] ='Anzahl der Teilnehmenden';
+$string['expected_number_students'] ='Erwartete Anzahl der Teilnehmenden';
 $string['department'] ='Fachbereich';
-$string['examiner'] ='Dozent/ Prüfer';
-$string['contactperson'] ='Ansprechpartner';
-$string['contactpersonemail'] ='E-Mail des Ansprechpartners';
-$string['responsibleperson'] ='SCL Verantwortlicher';
+$string['examiner'] ='Dozent:in/ Prüfer:in';
+$string['contactperson'] ='Ansprechpartner:in';
+$string['contactpersonemail'] ='E-Mail des/der Ansprechpartners/Ansprechpartnerin';
+$string['responsibleperson'] ='SCL Verantwortliche:r';
 $string['examrooms_default'] = 'PR1|Prüfungsraum 1|100|#E91E63
 PR2|Prüfungsraum 2|100|#3F51B5
 AB|Administrationsbüro|0|#009688
@@ -95,10 +95,10 @@ $string['examdateslist_btn'] = 'Prüfungstermin-Liste';
 $string['tablehead_month'] = 'Monat';
 $string['tablehead_date'] = 'Datum';
 $string['tablehead_examname'] = 'Bezeichnung Klausur';
-$string['tablehead_examiner'] = 'Prüfer/Dozent';
+$string['tablehead_examiner'] = 'Prüfer:in/Dozent:in';
 $string['tablehead_examroom'] = 'Prüfungsraum';
-$string['tablehead_supervisor1'] = 'Betreuer 1';
-$string['tablehead_supervisor2'] = 'Betreuer 2';
+$string['tablehead_supervisor1'] = 'Betreuer:in 1';
+$string['tablehead_supervisor2'] = 'Betreuer:in 2';
 $string['tablehead_candidates'] = 'Prüflinge';
 $string['tablehead_status'] = 'Status';
 $string['tablehead_blockid'] = 'Teiltermin ID';
@@ -124,7 +124,7 @@ $string['dt_sortdescending'] = ': aktivieren um die Spalte absteigend zu sortier
 $string['block_timestart'] = 'Prüfungsbeginn (Blocktermin)';
 $string['block_duration'] = 'Klausur-Schreibzeit (Minuten)';
 $string['room_number_students'] = 'Anzahl der Teilnehmenden (Raum)';
-$string['room_supervisor'] = 'Betreuer (Raum)';
+$string['room_supervisor'] = 'Betreuer:in (Raum)';
 $string['room_supervision'] = 'Klausuraufsicht (Raum)';
 $string['checklistlink'] = '/mod/checklist/tabtermin.php?id=60&examid=';
 $string['partialdate'] = 'Teiltermin';
@@ -191,6 +191,10 @@ $string['chooseroomcategory_msg'] = 'Wollen Sie einen neuen Prüfungstermin erst
 $string['cancelspecialrooms_msg'] = 'Wollen Sie {$a->rooms} stornieren für {$a->date} Uhr?';
 $string['cancelspecialrooms'] = 'Stornieren';
 $string['book_specialrooms'] = 'Sonderräume buchen';
+$string['room_occupied'] = '{$a->room} belegt';
+$string['room_already_occupied'] = '{$a->room} ist in dieser Zeit bereits belegt.';
+
+
 
 
 

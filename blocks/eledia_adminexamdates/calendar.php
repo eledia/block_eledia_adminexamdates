@@ -36,11 +36,20 @@ $displaydate = optional_param('displaydate', 0, PARAM_INT);
 if (is_array($displaydate)) {
     $displaydate = mktime(0, 0, 0, $displaydate['month'], $displaydate['day'], $displaydate['year']);
 }
+// <script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
 
 //  <script src="calendar/src/js/jquery-calendar.js"></script>
 //<script src="calendar/dist/js/jquery-calendar.min.js"></script>
+$myurl = new \moodle_url($FULLME);
+
+$PAGE->set_url($myurl);
+$PAGE->set_context($context);
+$PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
+$PAGE->requires->jquery();
+//<script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
+$PAGE->set_pagelayout('course');
 echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bootstrap.min.css">
-  <script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
   <script src="calendar/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
   <script src="calendar/node_modules/moment/min/moment-with-locales.min.js"></script>
   <script src="calendar/node_modules/jquery-touchswipe/jquery.touchSwipe.min.js"></script>
@@ -149,7 +158,7 @@ foreach ($dates as $date) {
     $buttonhtml .= \html_writer::end_tag('div');
 
     $myexamdate = ($date->userid == $USER->id || $date->contactperson == $USER->id) ? true : false;
-    $title = ($hasconfirmexamdatescap || $myexamdate) ? $date->examname : 'Belegt';
+    $title = ($hasconfirmexamdatescap || $myexamdate) ? $date->examname : get_string('room_occupied', 'block_eledia_adminexamdates',['room'=>$roomnames[$date->examroom]]);
     $examiners = explode(',', $date->examiner);
     $examinernames = [];
     foreach ($examiners as $examiner) {
@@ -161,8 +170,11 @@ foreach ($dates as $date) {
     $contactperson = \core_user::get_user($date->contactperson);
     $contactperson = fullname($contactperson) . ' | ' . $contactperson->email;
     $content = ($hasconfirmexamdatescap || $myexamdate) ?
-            "<dl><dt>Anzahl der Teilnehmer: </dt><dd>$date->numberstudents</dd><dt>Dozent/ Prüfer: </dt><dd>$examinernames</dd><dt>Ansprechpartner: </dt><dd>$contactperson</dd></dl><div>$buttonhtml</div>" :
-            'Dieser Raum ist bereits belegt.';
+            "<dl><dt>".get_string('expected_number_students', 'block_eledia_adminexamdates').
+            "</dt><dd>$date->numberstudents</dd><dt>".get_string('examiner', 'block_eledia_adminexamdates').
+            "</dt><dd>$examinernames</dd><dt>".get_string('contactperson', 'block_eledia_adminexamdates').
+            "</dt><dd>$contactperson</dd></dl><div>$buttonhtml</div>" :
+            get_string('room_already_occupied', 'block_eledia_adminexamdates',['room'=>$roomnames[$date->examroom]]);
 
     echo "     
       
@@ -311,12 +323,7 @@ unixTimestamp: $displaydate
     });
   </script>";
 
-$myurl = new \moodle_url($FULLME);
 
-$PAGE->set_url($myurl);
-$PAGE->set_context($context);
-$PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
-$PAGE->set_pagelayout('course');
 
 $mform = new \block_eledia_adminexamdates\forms\calendar_form();
 

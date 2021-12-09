@@ -576,12 +576,12 @@ class util {
         $text .= \html_writer::tag('h5', $examdate->examname, array('class' => 'card-title'));
         $text .= \html_writer::start_tag('p', array('class' => 'card-text'));
         $text .= \html_writer::start_tag('dl');
-        $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates') );
+        $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates'));
         $text .= \html_writer::tag('dd', date('d.m.Y H.i', $examdate->examtimestart)
                 . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60)));
-        $text .= \html_writer::tag('dt', get_string('expected_number_students', 'block_eledia_adminexamdates') );
+        $text .= \html_writer::tag('dt', get_string('number_students', 'block_eledia_adminexamdates'));
         $text .= \html_writer::tag('dd', $examdate->numberstudents);
-        $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates') );
+        $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates'));
         $examiners = explode(',', $examdate->examiner);
         $examinernames = [];
         foreach ($examiners as $examiner) {
@@ -590,7 +590,7 @@ class util {
             }
         }
         $text .= \html_writer::tag('dd', implode(', ', $examinernames));
-        $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates') );
+        $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates'));
         $contactperson = \core_user::get_user($examdate->contactperson);
         $text .= \html_writer::tag('dd', fullname($contactperson) . ' | ' . $contactperson->email);
         $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates'));
@@ -654,7 +654,7 @@ class util {
             $adminexamblocks =
                     $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $adminexamdate->id], 'blocktimestart');
             $text .= \html_writer::start_tag('div', array('class' => 'row mt-3'));
-            $text .= \html_writer::start_tag('div', array('class' => 'card'));
+            $text .= \html_writer::start_tag('div', array('class' => 'card mr-3'));
             $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
             $text .= \html_writer::tag('h5', $adminexamdate->examname, array('class' => 'card-title'));
             $text .= \html_writer::start_tag('p', array('class' => 'card-text'));
@@ -662,7 +662,7 @@ class util {
             $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates'));
             $text .= \html_writer::tag('dd', date('d.m.Y H.i', $adminexamdate->examtimestart)
                     . ' - ' . date('H.i', $adminexamdate->examtimestart + ($adminexamdate->examduration * 60)));
-            $text .= \html_writer::tag('dt', get_string('expected_number_students', 'block_eledia_adminexamdates') );
+            $text .= \html_writer::tag('dt', get_string('number_students', 'block_eledia_adminexamdates'));
             $text .= \html_writer::tag('dd', $adminexamdate->numberstudents);
             $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates'));
             $examiners = explode(',', $adminexamdate->examiner);
@@ -673,7 +673,7 @@ class util {
                 }
             }
             $text .= \html_writer::tag('dd', implode(', ', $examinernames));
-            $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates') );
+            $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates'));
             $contactperson = \core_user::get_user($adminexamdate->contactperson);
             $text .= \html_writer::tag('dd', fullname($contactperson) . ' | ' . $contactperson->email);
             $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates'));
@@ -720,6 +720,9 @@ class util {
             }
             $text .= \html_writer::end_tag('div');
             $text .= \html_writer::end_tag('div');
+            if (!$hasconfirmexamdatescap && ($adminexamdate->confirmed || !empty($adminexamdate->responsibleperson))) {
+                $text .= self::get_html_checklisttable($adminexamdate->id, $adminexamdate->examname);
+            }
             $text .= \html_writer::end_tag('div');
         }
         return $text;
@@ -1209,7 +1212,7 @@ class util {
             $defaultsemester = $years[1] . '2';
         }
         $text = \html_writer::start_tag('form',
-                ['id' => 'examdatestable-semester-form', 'method'=>'post']);
+                ['id' => 'examdatestable-semester-form', 'method' => 'post']);
 
         $text .= \html_writer::tag('label', get_string('select_semester', 'block_eledia_adminexamdates') . ':&nbsp;',
                 ['for' => 'semester']);
@@ -1230,6 +1233,64 @@ class util {
         $text .= \html_writer::end_tag('select');
         $text .= \html_writer::end_tag('form');
         return $text . '&nbsp;';
+    }
+
+    /**
+     * Get html checklist table
+     *
+     * @return array
+     */
+    public
+    static function get_html_checklisttable($examdateid, $examdatename) {
+        global $DB;
+
+        $sql = "SELECT item.id, 
+       case  WHEN ch.id IS NOT null THEN true else false END as checked, 
+       item.displaytext as topic, 
+       item.duetime as daysrelatedtoexam,
+    DATE_FORMAT(DATE_ADD(from_unixtime(floor((SELECT examtimestart from {eledia_adminexamdates} exam 
+        where exam.id = {$examdateid}))), INTERVAL item.duetime DAY),'%d.%m.%Y') as topicdate
+    from {elediachecklist_item} item
+    LEFT join {elediachecklist_check} ch ON (item.id = ch.item and ch.teacherid = 2)
+    WHERE item.id IN (3,5,8,9,10,15,17)";
+
+        $checklistitems = $DB->get_records_sql($sql);
+        $text = '';
+        $text .= \html_writer::start_tag('div', array('class' => 'card'));
+        $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
+        $text .= \html_writer::tag('h5',
+                get_string('checklist_table_title', 'block_eledia_adminexamdates')
+                . ': ' . $examdatename, array('class' => 'card-title'));
+        $text .= \html_writer::start_tag('div ', array('class' => 'card-text'));
+        $text .= \html_writer::start_tag('table', ['class' => 'table table-striped']);
+        $text .= \html_writer::start_tag('thead');
+        //$text .= \html_writer::tag('th', '');
+        $text .= \html_writer::tag('th', '');
+        $text .= \html_writer::tag('th', get_string('checklist_table_topic', 'block_eledia_adminexamdates'));
+        //$text .= \html_writer::tag('th', get_string('checklist_table_daysrelatedtoexam', 'block_eledia_adminexamdates'));
+        $text .= \html_writer::tag('th', get_string('checklist_table_topicdate', 'block_eledia_adminexamdates'));
+        $text .= \html_writer::end_tag('thead');
+        $text .= \html_writer::start_tag('tbody');
+        $checksquareicon = \html_writer::tag('i', '',
+                array('class' => 'icon fa fa-check-square'));
+        $unchecksquareicon = \html_writer::tag('i', '',
+                array('class' => 'icon fa fa-square-o'));
+        foreach ($checklistitems as $checklistitem) {
+            $text .= \html_writer::tag('td', $checklistitem->id, ['class' => 'text-right']);
+            $text .= \html_writer::start_tag('td');
+            $text .= $checklistitem->checked ? $checksquareicon : $unchecksquareicon;
+            $text .= \html_writer::end_tag('td');
+            $text .= \html_writer::tag('td', $checklistitem->topic);
+            $text .= \html_writer::tag('td', $checklistitem->daysrelatedtoexam, ['class' => 'text-right']);
+            $text .= \html_writer::tag('td', $checklistitem->topicdate, ['class' => 'text-right']);
+            $text .= \html_writer::end_tag('tr');
+        }
+        $text .= \html_writer::end_tag('tbody');
+        $text .= \html_writer::end_tag('table');
+        $text .= \html_writer::end_tag('div');
+        $text .= \html_writer::end_tag('div');
+        $text .= \html_writer::end_tag('div');
+        return $text;
     }
 }
 

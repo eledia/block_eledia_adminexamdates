@@ -50,7 +50,7 @@ $string['confirmexamdate'] = 'Bestätigen';
 $string['confirmexamdatemsg'] = 'Wollen Sie die den Prüfungstermin bestätigen für: \'{$a->name}\'?';
 $string['cancelexamdatemsg'] = 'Wollen Sie die den Prüfungstermin stornieren für: \'{$a->name}\'?';
 $string['configure_description'] = 'Hier können Sie die Prüfungstermin-Verwaltung konfigurieren.';
-$string['expected_number_students'] ='Erwartete Anzahl der Teilnehmenden';
+$string['number_students'] ='Erwartete Anzahl der Teilnehmenden';
 $string['department'] ='Fachbereich';
 $string['examiner'] ='Dozent:in/ Prüfer:in';
 $string['contactperson'] ='Ansprechpartner:in';
@@ -193,6 +193,12 @@ $string['cancelspecialrooms'] = 'Stornieren';
 $string['book_specialrooms'] = 'Sonderräume buchen';
 $string['room_occupied'] = '{$a->room} belegt';
 $string['room_already_occupied'] = '{$a->room} ist in dieser Zeit bereits belegt.';
+$string['checklist_table_title'] = 'Checkliste';
+$string['checklist_table_topic'] = 'Thema';
+$string['checklist_table_daysrelatedtoexam'] = 'Tage';
+$string['checklist_table_topicdate'] = 'Datum';
+
+
 
 
 

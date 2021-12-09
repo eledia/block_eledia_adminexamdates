@@ -170,7 +170,7 @@ foreach ($dates as $date) {
     $contactperson = \core_user::get_user($date->contactperson);
     $contactperson = fullname($contactperson) . ' | ' . $contactperson->email;
     $content = ($hasconfirmexamdatescap || $myexamdate) ?
-            "<dl><dt>".get_string('expected_number_students', 'block_eledia_adminexamdates').
+            "<dl><dt>".get_string('number_students', 'block_eledia_adminexamdates').
             "</dt><dd>$date->numberstudents</dd><dt>".get_string('examiner', 'block_eledia_adminexamdates').
             "</dt><dd>$examinernames</dd><dt>".get_string('contactperson', 'block_eledia_adminexamdates').
             "</dt><dd>$contactperson</dd></dl><div>$buttonhtml</div>" :

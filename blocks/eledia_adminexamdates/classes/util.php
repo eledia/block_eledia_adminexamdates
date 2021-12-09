@@ -1264,10 +1264,8 @@ class util {
         $text .= \html_writer::start_tag('div ', array('class' => 'card-text'));
         $text .= \html_writer::start_tag('table', ['class' => 'table table-striped']);
         $text .= \html_writer::start_tag('thead');
-        //$text .= \html_writer::tag('th', '');
         $text .= \html_writer::tag('th', '');
         $text .= \html_writer::tag('th', get_string('checklist_table_topic', 'block_eledia_adminexamdates'));
-        //$text .= \html_writer::tag('th', get_string('checklist_table_daysrelatedtoexam', 'block_eledia_adminexamdates'));
         $text .= \html_writer::tag('th', get_string('checklist_table_topicdate', 'block_eledia_adminexamdates'));
         $text .= \html_writer::end_tag('thead');
         $text .= \html_writer::start_tag('tbody');
@@ -1276,12 +1274,10 @@ class util {
         $unchecksquareicon = \html_writer::tag('i', '',
                 array('class' => 'icon fa fa-square-o'));
         foreach ($checklistitems as $checklistitem) {
-            $text .= \html_writer::tag('td', $checklistitem->id, ['class' => 'text-right']);
             $text .= \html_writer::start_tag('td');
             $text .= $checklistitem->checked ? $checksquareicon : $unchecksquareicon;
             $text .= \html_writer::end_tag('td');
             $text .= \html_writer::tag('td', $checklistitem->topic);
-            $text .= \html_writer::tag('td', $checklistitem->daysrelatedtoexam, ['class' => 'text-right']);
             $text .= \html_writer::tag('td', $checklistitem->topicdate, ['class' => 'text-right']);
             $text .= \html_writer::end_tag('tr');
         }

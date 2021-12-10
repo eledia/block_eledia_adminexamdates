@@ -40,14 +40,6 @@ if (is_array($displaydate)) {
 
 //  <script src="calendar/src/js/jquery-calendar.js"></script>
 //<script src="calendar/dist/js/jquery-calendar.min.js"></script>
-$myurl = new \moodle_url($FULLME);
-
-$PAGE->set_url($myurl);
-$PAGE->set_context($context);
-$PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
-$PAGE->requires->jquery();
-//<script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
-$PAGE->set_pagelayout('course');
 echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bootstrap.min.css">
 <script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
   <script src="calendar/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -58,6 +50,15 @@ echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bo
   <link rel="stylesheet" href="calendar/src/css/jquery-calendar.css">
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fontawesome.css">
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fa-solid.css">';
+$myurl = new \moodle_url($FULLME);
+
+$PAGE->set_url($myurl);
+$PAGE->set_context($context);
+$PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
+
+//<script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
+$PAGE->set_pagelayout('course');
+
 
 $sql = "SELECT ar.id, a.id AS examdateid, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.examroom, ar.blockid, a.numberstudents, a.examiner,a.responsibleperson, a.contactperson, a.confirmed, a.userid
                     FROM {eledia_adminexamdates} a
@@ -122,7 +123,7 @@ foreach ($dates as $date) {
     $endtime = $date->blocktimestart + ($date->blockduration * 60);
     $roomname = $roomnames[$date->examroom];
     $buttonhtml = \html_writer::start_tag('div', ['class' => 'd-inline']);
-    if ($hasconfirmexamdatescap || (isset($date->confirmed) && !$date->confirmed)) {
+    if ($hasconfirmexamdatescap || !$date->confirmed) {
         $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $date->examdateid]);
         $url = $url->out();
         $buttonhtml .= \html_writer::tag('a', get_string('editexamdate', 'block_eledia_adminexamdates'),
@@ -137,17 +138,15 @@ foreach ($dates as $date) {
                         ['class' => 'btn btn-secondary',
                                 'href' => $url]) . ' ';
 
-        if (isset($date->confirmed) && !$date->confirmed && isset($date->responsibleperson) && !empty($date->responsibleperson)) {
             $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php',
                     ['confirmexamdate' => $date->examdateid]);
             $url = $url->out();
             $buttonhtml .= \html_writer::tag('a', get_string('confirmexamdate', 'block_eledia_adminexamdates'),
                     ['class' => 'btn btn-secondary',
                             'href' => $url]);
-        }
     }
 
-    if (!$hasconfirmexamdatescap && isset($date->confirmed) && $date->confirmed) {
+    if (!$hasconfirmexamdatescap && $date->confirmed) {
         $url = new \moodle_url('/blocks/eledia_adminexamdates/changerequest.php', ['examdateid' => $date->examdateid]);
         $url = $url->out();
         $buttonhtml .= \html_writer::tag('a', get_string('change_request_btn', 'block_eledia_adminexamdates'),

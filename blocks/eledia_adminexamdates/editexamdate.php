@@ -45,7 +45,7 @@ $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexa
 $onlynumberstudents = false;
 if ($editexamdate){
     $examdate=$DB->get_record('eledia_adminexamdates', ['id' => $editexamdate]);
-    $onlynumberstudents = (!$hasconfirmexamdatescap &&($examdate->confirmed || !empty($examdate->responsibleperson))) ? true : false;
+    $onlynumberstudents = (!$hasconfirmexamdatescap &&($examdate->confirmed==1 || $examdate->confirmed==2)) ? true : false;
 }
 
 $mform = new \block_eledia_adminexamdates\forms\examdate_form(null, array('onlynumberstudents'=>$onlynumberstudents));

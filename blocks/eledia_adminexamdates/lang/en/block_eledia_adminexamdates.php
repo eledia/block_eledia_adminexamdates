@@ -195,5 +195,5 @@ $string['room_occupied'] = '{$a->room} occupied';
 $string['room_already_occupied'] = '{$a->room} is already occupied during this time.';
 $string['checklist_table_title'] = 'checklist';
 $string['checklist_table_topic'] = 'Topic';
-$string['checklist_table_daysrelatedtoexam'] = 'Days';
 $string['checklist_table_topicdate'] = 'Date';
+$string['calendarlink'] = 'Calendar view';

@@ -54,7 +54,7 @@ $myurl = new \moodle_url($FULLME);
 
 $PAGE->set_url($myurl);
 $PAGE->set_context($context);
-$PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
+$PAGE->set_title(get_string('calendar_btn', 'block_eledia_adminexamdates'));
 
 //<script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
 $PAGE->set_pagelayout('course');

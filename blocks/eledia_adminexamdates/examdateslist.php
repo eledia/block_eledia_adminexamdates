@@ -37,12 +37,16 @@ $cancelexamdate = optional_param('cancelexamdate', 0, PARAM_INT);
 $confirmexamdateyes = optional_param('confirmexamdateyes', 0, PARAM_INT);
 $cancelexamdateyes = optional_param('cancelexamdateyes', 0, PARAM_INT);
 $semester = optional_param('semester', 0, PARAM_INT);
+$frommonth = optional_param('frommonth', 0, PARAM_INT);
+$tomonth = optional_param('tomonth', 0, PARAM_INT);
+$fromyear = optional_param('fromyear', 0, PARAM_INT);
+$toyear = optional_param('toyear', 0, PARAM_INT);
 
 $myurl = new \moodle_url($FULLME);
 
 $PAGE->set_url($myurl);
 $PAGE->set_context($context);
-$PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
+$PAGE->set_title(get_string('examdateslist_btn', 'block_eledia_adminexamdates'));
 $PAGE->set_pagelayout('course');
 $PAGE->requires->jquery();
 //echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>';
@@ -112,23 +116,53 @@ if (!empty($confirmexamdate)) {
 </style>';
 
     echo \html_writer::start_tag('div', array('class' => 'mb-1'));
-    echo \html_writer::start_tag('span');
+    echo \html_writer::start_tag('div', array('class' => 'row'));
+    echo \html_writer::start_tag('div', array('class' => 'col-md-4'));
     echo block_eledia_adminexamdates\util::get_html_select_semester($semester);
-    echo \html_writer::end_tag('span');
-    echo \html_writer::tag('span', '', array('id' => 'examdatestable-btn-place'));
     echo \html_writer::end_tag('div');
-    echo block_eledia_adminexamdates\util::getexamdatetable($semester);
+    echo \html_writer::start_tag('div', array('class' => 'col-md-6'));
+    echo block_eledia_adminexamdates\util::get_html_select_month($frommonth, $fromyear,$tomonth,$toyear);
+    echo \html_writer::end_tag('div');
+    echo \html_writer::start_tag('div', array('id' => 'examdatestable-btn-place','class' => 'col-md-2'));
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo block_eledia_adminexamdates\util::getexamdatetable($semester,$frommonth, $fromyear,$tomonth,$toyear);
     $checklistlink = get_string('checklistlink', 'block_eledia_adminexamdates');
     echo '<script type="text/javascript">';
-
+    $title = get_string('examdateslist_btn', 'block_eledia_adminexamdates');
     echo '$(document).ready(function() {
      var groupColumn = 0;
          var table = $("#examdatestable").DataTable( {
- buttons: [
-        "excel", "pdf"
-    ],
+ buttons: [  {
+                extend: "excelHtml5",
+                exportOptions: {
+                    columns: [ 0, 1, 2, 3,4,5,6,7,8 ],
+                    orthogonal: "export",
+                    title: "'.$title.'",
+                }
+                
+            },
+            {
+                extend: "pdfHtml5",
+                exportOptions: {
+                    columns: [  1, 2, 3,4,5,6],
+                    orthogonal: "export",
+                    title: "'.$title.'",
+                }
+            }
+              ],
+             
           "columnDefs": [
-            { "visible": false,"searchable": false, "targets": groupColumn },
+            { "visible": false,"searchable": false, "targets": groupColumn ,render: function (data, type, row) {
+                return type === "export" ?
+                    data.slice( 27 ) :
+                    data;
+            }},
+            {"targets": [ 1 ],render: function (data, type, row) {
+                return type === "export" ?
+                    data.slice( 33 ) :
+                    data;
+            }},
             {"targets": [ 4 ], "searchable": false},
             {"targets": [ 7 ], "searchable": false},
             {"targets": [ 8 ], "searchable": false},

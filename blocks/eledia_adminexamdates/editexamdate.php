@@ -38,7 +38,8 @@ $myurl = new \moodle_url($FULLME);
 
 $PAGE->set_url($myurl);
 $PAGE->set_context($context);
-$PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
+$title = ($newexamdate) ? get_string('newexamdate', 'block_eledia_adminexamdates') : get_string('editexamdate_btn', 'block_eledia_adminexamdates');
+$PAGE->set_title($title);
 $PAGE->set_pagelayout('course');
 
 $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());

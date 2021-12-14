@@ -197,3 +197,6 @@ $string['checklist_table_title'] = 'checklist';
 $string['checklist_table_topic'] = 'Topic';
 $string['checklist_table_topicdate'] = 'Date';
 $string['calendarlink'] = 'Calendar view';
+$string['select_frommonth'] = 'From:';
+$string['select_tomonth'] = 'To:';
+

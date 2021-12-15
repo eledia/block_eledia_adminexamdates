@@ -266,6 +266,7 @@ class util {
         }
         return $blockid;
     }
+
     /**
      * Has free time slots.
      *
@@ -304,7 +305,7 @@ class util {
         $breakbetweenblockdates = get_config('block_eledia_adminexamdates', 'breakbetweenblockdates');
         $distancebetweenblockdates = get_config('block_eledia_adminexamdates', 'distancebetweenblockdates');
         $dateconflict = false;
-        $blockdate= (object) [
+        $blockdate = (object) [
                 'blocktimestart' => $formdata->examtimestart,
                 'blockduration' => $formdata->examduration,
                 'timestart' => $formdata->examtimestart - ($distancebetweenblockdates * 60),
@@ -314,11 +315,12 @@ class util {
             if (!((($blockdate->timestart <= $date->blocktimestart) && ($blockdate->timeend <= $date->blocktimestart)) ||
                     (($blockdate->timestart >= $date->blocktimestart + ($date->blockduration * 60)) &&
                             ($blockdate->timeend >= $date->blocktimestart + ($date->blockduration * 60))))) {
-                        $dateconflict = true;
-                        break;
+                $dateconflict = true;
+                break;
             }
         }
     }
+
     /**
      * Has free time slots.
      *
@@ -622,7 +624,7 @@ class util {
         $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
         $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid]);
         $examblocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdate->id], 'blocktimestart');
-        $lastblock= end($examblocks);
+        $lastblock = end($examblocks);
         $examname = ($examdate->courseid) ? \html_writer::tag('a', $examdate->examname,
                 array('href' => get_config('block_eledia_adminexamdates', 'apidomain')
                         . '/course/view.php?id=' . $examdate->courseid, 'class' => 'examdate-course-link',
@@ -721,7 +723,7 @@ class util {
                             'target' => '_blank')) : $adminexamdate->examname;
             $adminexamblocks =
                     $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $adminexamdate->id], 'blocktimestart');
-            $lastblock= end($adminexamblocks);
+            $lastblock = end($adminexamblocks);
             $text .= \html_writer::start_tag('div', array('class' => 'row mt-3'));
             $text .= \html_writer::start_tag('div', array('class' => 'card mr-3'));
             $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
@@ -803,7 +805,7 @@ class util {
      *
      */
     public
-    static function getexamdatetable($semester,$frommonth, $fromyear,$tomonth,$toyear) {
+    static function getexamdatetable($semester, $frommonth, $fromyear, $tomonth, $toyear) {
         global $DB;
         if (!empty($semester)) {
             $year = substr($semester, 0, 4);
@@ -830,9 +832,9 @@ class util {
                 $timeend = strtotime("1 April $nextyear") - 1;
             }
         }
-        if (!empty($frommonth) && !empty($tomonth) && !empty($fromyear)&& !empty($toyear)){
-            $timestart= make_timestamp($fromyear, $frommonth, 1);
-            $timeend= strtotime("next month",make_timestamp($toyear, $tomonth, 1))-1;
+        if (!empty($frommonth) && !empty($tomonth) && !empty($fromyear) && !empty($toyear)) {
+            $timestart = make_timestamp($fromyear, $frommonth, 1);
+            $timeend = strtotime("next month", make_timestamp($toyear, $tomonth, 1)) - 1;
         }
         $roomoptions = [];
         $roomswithcapacity = [];
@@ -1309,19 +1311,20 @@ class util {
 
         return $text . '&nbsp;';
     }
+
     /**
      * Get html semester dropdown
      *
      * @return array
      */
     public
-    static function get_html_select_month($frommonth, $fromyear,$tomonth,$toyear) {
-        $optionsmonths =[];
-        for($i = 1; $i <= 12; $i++) {
-            $optionsmonths[$i] = utf8_encode(strftime('%B',  mktime(0, 0, 0, $i)));
+    static function get_html_select_month($frommonth, $fromyear, $tomonth, $toyear) {
+        $optionsmonths = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $optionsmonths[$i] = utf8_encode(strftime('%B', mktime(0, 0, 0, $i)));
         }
-        $optionsyears =[];
-        for($i = date('Y',strtotime('- 2 years')); $i <= date('Y',strtotime('+ 5 years')); $i++) {
+        $optionsyears = [];
+        for ($i = date('Y', strtotime('- 2 years')); $i <= date('Y', strtotime('+ 5 years')); $i++) {
             $optionsyears[$i] = $i;
         }
         $text = \html_writer::start_tag('form',
@@ -1393,7 +1396,7 @@ class util {
             }
         }
         $text .= \html_writer::end_tag('select');
-        $text .= \html_writer::tag('button', get_string('select'), array('submit'=>'submit','class' => 'btn btn-secondary'));
+        $text .= \html_writer::tag('button', get_string('select'), array('submit' => 'submit', 'class' => 'btn btn-secondary'));
 
         $text .= \html_writer::end_tag('form');
 
@@ -1450,6 +1453,91 @@ class util {
             }
             $text .= \html_writer::end_tag('tbody');
             $text .= \html_writer::end_tag('table');
+            $text .= \html_writer::end_tag('div');
+            $text .= \html_writer::end_tag('div');
+            $text .= \html_writer::end_tag('div');
+        }
+        return $text;
+    }
+
+    /**
+     * Get html statistics table
+     *
+     * @return array
+     */
+    public
+    static function get_html_statisticstable($formdata) {
+        global $DB;
+        $regularexam = $formdata->category_regularexam ? 0 : 1;
+        $semestertest = $formdata->category_semestertest ? 1 : 0;
+        $department = implode(',', $formdata->department);
+
+        if ($formdata->period == 0) {
+            $semester = $formdata->semester;
+            $year = substr($semester, 0, 4);
+            if (substr($semester, -1) == 1) {
+                $datestart = strtotime("1 April $year");
+                $dateend = strtotime("1 October $year") - 1;
+            } else {
+                $datestart = strtotime("1 October $year");
+                $year++;
+                $dateend = strtotime("1 April $year") - 1;
+            }
+        } else {
+            $datestart = $formdata->datestart;
+            $dateend = strtotime('tomorrow', $formdata->dateend) - 1;
+        }
+        $sql = "SELECT ar.id, a.id AS examdateid, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.blockid, ar.roomnumberstudents,
+       COUNT(DISTINCT a.id) AS examnumber,  COUNT(DISTINCT ab.id) AS blocknumber, 
+        SUM(ar.roomnumberstudents)  AS numberstudents
+                    FROM {eledia_adminexamdates} a
+                    LEFT JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
+                    LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
+                    WHERE a.examtimestart > {$datestart} AND a.examtimestart < {$dateend} AND a.confirmed = 1
+                        AND ( a.category = {$regularexam} OR a.category = {$semestertest}) AND a.department IN ({$department})
+                    ORDER BY ab.blocktimestart DESC";
+        $records = $DB->get_records_sql($sql);
+
+        $text = '';
+        if (!empty($records)) {
+            $first = array_values($records)[0];
+            $text .= \html_writer::start_tag('div', array('class' => 'card'));
+            $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
+            $text .= \html_writer::tag('h5',
+                    get_string('statistics_title', 'block_eledia_adminexamdates')
+                    . ': ', array('class' => 'card-title'));
+            $text .= \html_writer::start_tag('div ', array('class' => 'card-text'));
+
+            $text .= \html_writer::start_tag('dl');
+
+            $period = date('d.m.Y', $datestart)
+                    . ' - ' . date('d.m.Y', $dateend);
+            $text .= \html_writer::tag('dt', get_string('period', 'block_eledia_adminexamdates'));
+            $text .= \html_writer::tag('dd', $period);
+
+            $categories = [];
+            if ($formdata->category_regularexam) {
+                $categories[] = get_string('category_regularexam', 'block_eledia_adminexamdates');
+            }
+            if ($formdata->category_semestertest) {
+                $categories[] = get_string('category_semestertest', 'block_eledia_adminexamdates');
+            }
+
+            $text .= \html_writer::tag('dt', get_string('selection_exam_category', 'block_eledia_adminexamdates'));
+            $text .= \html_writer::tag('dd', implode(', ', $categories));
+
+            $departmentchoices = unserialize(get_config('block_eledia_adminexamdates', 'departmentchoices'));
+            $departments = array_intersect_key($departmentchoices, array_flip($formdata->department));
+            sort($departments);
+            $text .= \html_writer::tag('dt', get_string('department', 'block_eledia_adminexamdates'));
+            $text .= \html_writer::tag('dd', implode(', ', $departments));
+            $text .= \html_writer::tag('dt', get_string('numberstudents', 'block_eledia_adminexamdates'));
+            $text .= \html_writer::tag('dd', empty($first->numberstudents) ? 0 : $first->numberstudents);
+            $text .= \html_writer::tag('dt', get_string('examnumber', 'block_eledia_adminexamdates'));
+            $text .= \html_writer::tag('dd', $first->examnumber);
+            $text .= \html_writer::tag('dt', get_string('blocknumber', 'block_eledia_adminexamdates'));
+            $text .= \html_writer::tag('dd', $first->blocknumber);
+            $text .= \html_writer::end_tag('dl');
             $text .= \html_writer::end_tag('div');
             $text .= \html_writer::end_tag('div');
             $text .= \html_writer::end_tag('div');

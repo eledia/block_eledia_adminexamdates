@@ -85,6 +85,7 @@ if ($mform->is_cancelled()) {
         $unconfirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
         $confirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesconfirmed.php');
         $urlcalendar = new moodle_url('/blocks/eledia_adminexamdates/calendar.php');
+        $statistics = new moodle_url('/blocks/eledia_adminexamdates/statistics.php');
 
         echo \html_writer::start_tag('div', array('class' => 'container-fluid px-4'));
         echo \html_writer::start_tag('div', array('class' => 'row'));
@@ -105,6 +106,9 @@ if ($mform->is_cancelled()) {
         } else {
             echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
         }
+    if ($hasconfirmexamdatescap) {
+        echo $OUTPUT->single_button($statistics, get_string('statistics', 'block_eledia_adminexamdates'), 'post');
+    }
         echo \html_writer::end_tag('div');
         echo \html_writer::end_tag('div');
         if ($hasconfirmexamdatescap && !$newexamdate) {

@@ -334,6 +334,7 @@ $newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_el
 $urllist = new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php');
 $unconfirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
 $confirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesconfirmed.php');
+$statistics = new moodle_url('/blocks/eledia_adminexamdates/statistics.php');
 
 echo \html_writer::start_tag('div', array('class' => 'container-fluid px-4'));
 echo \html_writer::start_tag('div', array('class' => 'row'));
@@ -350,6 +351,9 @@ if (!$hasconfirmexamdatescap) {
     echo $OUTPUT->single_button($confirmed, get_string('confirmed_btn', 'block_eledia_adminexamdates'), 'post');
 }
 echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
+if ($hasconfirmexamdatescap) {
+    echo $OUTPUT->single_button($statistics, get_string('statistics', 'block_eledia_adminexamdates'), 'post');
+}
 echo \html_writer::end_tag('div');
 echo \html_writer::end_tag('div');
 echo \html_writer::start_tag('div', array('class' => 'row'));

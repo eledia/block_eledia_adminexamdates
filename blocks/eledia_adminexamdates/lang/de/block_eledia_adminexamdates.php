@@ -199,9 +199,17 @@ $string['checklist_table_topicdate'] = 'Datum';
 $string['calendarlink'] = 'Kalenderansicht';
 $string['select_frommonth'] = 'Von:';
 $string['select_tomonth'] = 'Bis:';
-
-
-
+$string['statistics'] = 'Prüfungstermin-Statistik';
+$string['select_period'] = 'Zeitraum';
+$string['period_semester'] = 'Semester';
+$string['period_date'] = 'Datum';
+$string['datestart'] = 'Von';
+$string['dateend'] = 'Bis';
+$string['statistics_title'] = 'Prüfungstermin-Statistik';
+$string['period'] = 'Zeitraum';
+$string['numberstudents'] = 'Anzahl Teilnehmende';
+$string['examnumber'] = 'Anzahl Prüfungen';
+$string['blocknumber'] = 'Anzahl Teiltermine';
 
 
 

@@ -199,4 +199,14 @@ $string['checklist_table_topicdate'] = 'Date';
 $string['calendarlink'] = 'Calendar view';
 $string['select_frommonth'] = 'From:';
 $string['select_tomonth'] = 'To:';
-
+$string['statistics'] = 'Exam date statistics';
+$string['select_period'] = 'Period';
+$string['period_semester'] = 'Semester';
+$string['period_date'] = 'Date';
+$string['datestart'] = 'From';
+$string['dateend'] = 'To';
+$string['statistics_title'] = 'Exam date statistics';
+$string['period'] = 'Period';
+$string['numberstudents'] = 'Number of students';
+$string['examnumber'] = 'Number of exams';
+$string['blocknumber'] = 'Number of partial dates';

@@ -138,7 +138,7 @@ if (!empty($confirmexamdate)) {
  buttons: [  {
                 extend: "excelHtml5",
                 exportOptions: {
-                    columns: [ 0, 1, 2, 3,4,5,6,7,8 ],
+                    columns: [ 0, 1, 2, 3,4,5,6,7,8,9 ],
                     orthogonal: "export",
                     title: "'.$title.'",
                 }
@@ -147,7 +147,7 @@ if (!empty($confirmexamdate)) {
             {
                 extend: "pdfHtml5",
                 exportOptions: {
-                    columns: [  1, 2, 3,4,5,6],
+                    columns: [  1, 2, 3,4,5,6,7],
                     orthogonal: "export",
                     title: "'.$title.'",
                 }
@@ -166,10 +166,10 @@ if (!empty($confirmexamdate)) {
                     data;
             }},
             {"targets": [ 4 ], "searchable": false},
-            {"targets": [ 7 ], "searchable": false},
             {"targets": [ 8 ], "searchable": false},
-            {"targets": [ 9 ], "searchable": false, "visible": false},
+            {"targets": [ 9 ], "searchable": false},
             {"targets": [ 10 ], "searchable": false, "visible": false},
+            {"targets": [ 11 ], "searchable": false, "visible": false},
             {
             "targets": -1,
             "data": null,
@@ -188,7 +188,7 @@ if (!empty($confirmexamdate)) {
             api.column(groupColumn, {page:"current"} ).data().each( function ( group, i ) {
                 if ( last !== group ) {
                     $(rows).eq( i ).before(
-                        \'<tr class="group table-primary font-weight-bold"><td colspan="9">\'+group+\'</td></tr>\'
+                        \'<tr class="group table-primary font-weight-bold"><td colspan="10">\'+group+\'</td></tr>\'
                     );
 
                     last = group;
@@ -200,7 +200,7 @@ if (!empty($confirmexamdate)) {
             "endRender": function ( rows, group ) {
                 var candidates = rows
                     .data()
-                    .pluck(7)
+                    .pluck(8)
                     .reduce( function (a, b) {
                         var sum = (parseInt(a)) ? parseInt(a) : 0;
                         sum += (parseInt(b)) ? parseInt(b) : 0;
@@ -208,7 +208,7 @@ if (!empty($confirmexamdate)) {
                     }, 0);
 
                 return $("<tr/>")
-                    .append( \'<td colspan="6">Summe \'+group+\'</td><td>\'+candidates+\'</td><td colspan="2"></td>\' );
+                    .append( \'<td colspan="7">Summe \'+group+\'</td><td>\'+candidates+\'</td><td colspan="2"></td>\' );
 
             },
             "dataSrc": 0

@@ -96,6 +96,7 @@ $string['tablehead_month'] = 'Monat';
 $string['tablehead_date'] = 'Datum';
 $string['tablehead_examname'] = 'Bezeichnung Klausur';
 $string['tablehead_examiner'] = 'Prüfer:in/Dozent:in';
+$string['tablehead_contactperson'] = 'Ansprechpartner:in';
 $string['tablehead_examroom'] = 'Prüfungsraum';
 $string['tablehead_supervisor1'] = 'Betreuer:in 1';
 $string['tablehead_supervisor2'] = 'Betreuer:in 2';

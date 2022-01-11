@@ -865,7 +865,7 @@ class util {
 
         $dates = $DB->get_recordset_sql($sql, $inexamroomsparams);
         $tableheaditems =
-                ['month', 'date', 'examname', 'examiner', 'examroom', 'supervisor1', 'supervisor2', 'candidates', 'status',
+                ['month', 'date', 'examname', 'examiner', 'contactperson', 'examroom', 'supervisor1', 'supervisor2', 'candidates', 'status',
                         'blockid', 'examid', 'links'];
         $text = \html_writer::start_tag('table',
                 array('id' => 'examdatestable', 'class' => 'table table-striped table-bordered table-hover table-sm',
@@ -900,6 +900,9 @@ class util {
                 }
             }
             $text .= \html_writer::tag('td', implode(', ', $examinernames));
+
+            $contactperson = \core_user::get_user($date->contactperson);
+            $text .= \html_writer::tag('td',  fullname($contactperson) . ' | ' . $contactperson->email);
             $text .= \html_writer::tag('td', $roomoptions[$date->examroom]);
             $roomsupervisors1 = '';
             if (!empty($date->roomsupervisor1)) {

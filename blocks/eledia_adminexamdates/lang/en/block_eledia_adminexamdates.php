@@ -96,6 +96,7 @@ $string['tablehead_month'] = 'Month';
 $string['tablehead_date'] = 'Date';
 $string['tablehead_examname'] = 'Exam name';
 $string['tablehead_examiner'] = 'Examiner/Lecturer';
+$string['tablehead_contactperson'] = 'Contact person';
 $string['tablehead_examroom'] = 'Exam room';
 $string['tablehead_supervisor1'] = 'Supervisor 1';
 $string['tablehead_supervisor2'] = 'Supervisor 2';

@@ -147,7 +147,7 @@ if (!empty($confirmexamdate)) {
             {
                 extend: "pdfHtml5",
                 exportOptions: {
-                    columns: [  1, 2, 3,4,5,6,7],
+                    columns: [  1, 2, 3,5,6,7],
                     orthogonal: "export",
                     title: "'.$title.'",
                 }
@@ -165,7 +165,6 @@ if (!empty($confirmexamdate)) {
                     data.slice( 33 ) :
                     data;
             }},
-            {"targets": [ 4 ], "searchable": false},
             {"targets": [ 8 ], "searchable": false},
             {"targets": [ 9 ], "searchable": false},
             {"targets": [ 10 ], "searchable": false, "visible": false},

@@ -242,14 +242,14 @@ if (!empty($confirmexamdate)) {
   $("#examdatestable tbody").on("click", "tr", function () {
         var data = table.row( this ).data();
         var editsingleexamdateform = $("#editsingleexamdate");
-        editsingleexamdateform.find("input[name=\'blockid\']").val(data[9]);
+        editsingleexamdateform.find("input[name=\'blockid\']").val(data[10]);
         editsingleexamdateform.find("form").submit();
     } );
 
     $("#examdatestable tbody").on( "click", "button", function (event) {
         event.stopPropagation();
         var data = table.row( $(this).parents("tr") ).data();
-        window.location.href = "' . $checklistlink . '"+data[10];
+        window.location.href = "' . $checklistlink . '"+data[11];
     } );
 
     $("#examdatestable tbody").on( "click", "a", function (event) {

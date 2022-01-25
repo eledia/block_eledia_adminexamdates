@@ -108,6 +108,8 @@ if ($mform->is_cancelled()) {
         }
     if ($hasconfirmexamdatescap) {
         echo $OUTPUT->single_button($statistics, get_string('statistics', 'block_eledia_adminexamdates'), 'post');
+        $urlReport = new moodle_url('/mod/elediachecklist/terminreport.php');
+        echo $OUTPUT->single_button($urlReport, get_string('report_button', 'elediachecklist'), 'get');
     }
         echo \html_writer::end_tag('div');
         echo \html_writer::end_tag('div');
@@ -150,7 +152,7 @@ if ($mform->is_cancelled()) {
 
     $examdateid = block_eledia_adminexamdates\util::saveexamdate($formdata);
     if ($needfreetimeslots) {
-        block_eledia_adminexamdates\util::getfreetimeslots($examdateid, $formdata);
+        block_eledia_adminexamdates\util::getfreetimeslots2($examdateid, $formdata);
         if ($hasconfirmexamdatescap) {
             redirect(new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $examdateid]));
         }

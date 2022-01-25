@@ -66,6 +66,8 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
     echo \html_writer::tag('button', get_string('statistics', 'block_eledia_adminexamdates'),
             array('disabled' => true, 'class' => 'btn '));
+    $urlReport = new moodle_url('/mod/elediachecklist/terminreport.php');
+    echo $OUTPUT->single_button($urlReport, get_string('report_button', 'elediachecklist'), 'get');
     echo \html_writer::end_tag('div');
 
     echo \html_writer::end_tag('div');

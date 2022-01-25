@@ -273,7 +273,7 @@ class util {
      * @param stdClass $formdata of form.
      */
     public
-    static function hasfreetimeslots2($formdata) {
+    static function hasfreetimeslots2($formdata, $bookings) {
         $formdata = (object) $formdata;
         global $DB;
         $sql = "SELECT ar.id, a.id AS examdateid, a.examduration, ab.blocktimestart, ab.blockduration, ar.examroom, ar.blockid
@@ -288,37 +288,152 @@ class util {
         $params = [$beginofday, $endofday];
 
         $datesoftheday = $DB->get_records_sql($sql, $params);
+
         $examrooms = !is_array($formdata->examrooms) ? explode(',', $formdata->examrooms) : $formdata->examrooms;
         $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
         $roomcapacities = [];
-        $roomcapacitysum = 0;
+        //$roomcapacitysum = 0;
         foreach ($rooms as $room) {
             $roomitems = explode('|', $room);
             if (!empty($roomitems[2])) {
                 $roomcapacities[$roomitems[0]] = $roomitems[2];
-                if (in_array($roomitems[0], $examrooms)) {
-                    $roomcapacitysum += $roomitems[2];
-                }
+                //if (in_array($roomitems[0], $examrooms)) {
+                //    $roomcapacitysum += $roomitems[2];
+                //}
             }
         };
-        $blockdates = [];
+        $startexam = $beginofday + (get_config('block_eledia_adminexamdates', 'startexam') * 3600);
+        $endexam = $beginofday + (get_config('block_eledia_adminexamdates', 'endexam') * 3600);
         $breakbetweenblockdates = get_config('block_eledia_adminexamdates', 'breakbetweenblockdates');
         $distancebetweenblockdates = get_config('block_eledia_adminexamdates', 'distancebetweenblockdates');
-        $dateconflict = false;
-        $blockdate = (object) [
-                'blocktimestart' => $formdata->examtimestart,
-                'blockduration' => $formdata->examduration,
-                'timestart' => $formdata->examtimestart - ($distancebetweenblockdates * 60),
-                'timeend' => $formdata->examtimestart + $formdata->examduration + ($distancebetweenblockdates * 60),
-                'rooms' => []];
+
+        // Get from all rooms the free time capacities.
+        // First initialize the last blockend time with day start exam time.
+        $roomfreecapacities = [];
+        foreach ($examrooms as $examroom) {
+            $object = new stdClass();
+            $object->lastblockend = $startexam+($distancebetweenblockdates*60);
+            $object->freecapacities = [];
+            $roomfreecapacities[$examroom] = $object;
+        }
         foreach ($datesoftheday as $date) {
-            if (!((($blockdate->timestart <= $date->blocktimestart) && ($blockdate->timeend <= $date->blocktimestart)) ||
-                    (($blockdate->timestart >= $date->blocktimestart + ($date->blockduration * 60)) &&
-                            ($blockdate->timeend >= $date->blocktimestart + ($date->blockduration * 60))))) {
-                $dateconflict = true;
-                break;
+            if (in_array($date->examroom, $examrooms)) {
+                $lastblockend = $roomfreecapacities[$date->examroom]->lastblockend;
+                $blocktimeend = $date->blocktimestart + (($date->blockduration + $distancebetweenblockdates) * 60);
+                if ($date->blocktimestart <= $lastblockend && $blocktimeend > $lastblockend) {
+                    $roomfreecapacities[$date->examroom]->lastblockend = $blocktimeend;
+                } else if ($date->blocktimestart > $lastblockend && $blocktimeend > $lastblockend) {
+                    if ($blocktimeend < $endexam) {
+                        $object = new stdClass();
+                        $object->blockfreestart = $lastblockend;
+                        $object->blockfreeduration = $date->blocktimestart - $lastblockend;
+                        $roomfreecapacities[$date->examroom]->freecapacities[] = $object;
+                    }
+                    $roomfreecapacities[$date->examroom]->lastblockend = $blocktimeend;
+                }
             }
         }
+        // Last step: get the free time space from the last blockend to the end of day exam time.
+        foreach ($examrooms as $examroom) {
+            $lastblockend = $roomfreecapacities[$examroom]->lastblockend;
+            if ($lastblockend < $endexam) {
+                $object = new stdClass();
+                $object->blockfreestart = $lastblockend;
+                $object->blockfreeduration = $endexam - $lastblockend;
+                $roomfreecapacities[$examroom]->freecapacities[] = $object;
+            }
+        }
+       // print_r('###$datesoftheday:');
+       // print_r($datesoftheday);
+
+       //print_r('###$roomfreecapacities:');
+        //print_r($roomfreecapacities);
+        $numberstudents = $formdata->numberstudents;
+        $bookingrooms = [];
+        $bookdate = $formdata->examtimestart;
+       // $firstbooking = true;
+
+        while ($numberstudents > 0) {
+            //print_r('###WHILE!');
+            $nextfreecapacity = new stdClass();
+            //$timeneedbegin = $firstbooking ? $distancebetweenblockdates : $breakbetweenblockdates;
+            $timeneed = $formdata->examduration * 60;
+            foreach ($examrooms as $examroom) {
+                //print_r('###$examroom!'.$examroom);
+                foreach ($roomfreecapacities[$examroom]->freecapacities as $freecapacity) {
+                    $blockfreeend = $freecapacity->blockfreestart + $freecapacity->blockfreeduration;
+                    $blockfreeduration= $blockfreeend - $bookdate;
+                    //print_r('###$blockfreeend:');
+                    //print_r($blockfreeend);
+                    //print_r('###$timeneedbegin:');
+
+                    //print_r($timeneed);
+                    ///print_r('###$bookdate:');
+                    //print_r($bookdate);
+                    //$freecapacity->blockfreestart <= $bookdate && $bookdate < $blockfreeend &&
+                    if ($freecapacity->blockfreestart <= $bookdate && $bookdate < $blockfreeend && $blockfreeduration >= $timeneed) {
+
+                        //print_r('###IF1!');
+                        if (!isset($nextfreecapacity->blockfreestart) || (isset($nextfreecapacity->blockfreestart) && $nextfreecapacity->blockfreestart > $freecapacity->blockfreestart)) {
+                            //print_r('###IF2!');
+                            $nextfreecapacity->examrooms[] = $examroom;
+                      //      $blockfreestart=($freecapacity->blockfreestart<$bookdate)? $bookdate : $freecapacity->blockfreestart;
+                            $nextfreecapacity->blockfreestart = $bookdate;
+                            //print_r('###$nextfreecapacity:');
+                            //print_r($nextfreecapacity);
+                        }
+                    }
+                }
+            }
+            //print_r('##########$nextfreecapacity:');
+            //print_r($nextfreecapacity);
+            if(isset($nextfreecapacity->blockfreestart)){
+               //$firstbooking = false;
+                //print_r('##########BOOKING!');
+
+                foreach($nextfreecapacity->examrooms as $examroom){
+                    $rest= $numberstudents - $roomcapacities[$examroom];
+                    //print_r('###$rest:');
+                    //print_r($rest);
+                    if($rest>=0 || abs($rest)<$roomcapacities[$examroom]){
+                        $bookingrooms[$nextfreecapacity->blockfreestart][]=$examroom;
+                        $numberstudents = $rest;
+                        //print_r('###$bookingrooms:');
+                        //print_r($bookingrooms);
+                    }
+                }
+                $bookdate = $bookdate + ($formdata->examduration + $breakbetweenblockdates) * 60;
+            } else {
+                return $bookings ? false : get_string('error_examdate_already_taken', 'block_eledia_adminexamdates');
+                //$timeneedbegin = $firstbooking ? $distancebetweenblockdates : $breakbetweenblockdates;
+                //$bookdate = $bookdate +
+               // return false;
+               // exit;
+            }
+        }
+        if($bookings) {return $bookingrooms;};
+        //return $bookingrooms;
+       // print_r('###$bookingrooms:');
+        //print_r($bookingrooms);
+        //exit;
+
+        //$blockdates = [];
+        //
+        //$dateconflict = false;
+        //$blockdate = (object) [
+        //        'blocktimestart' => $formdata->examtimestart,
+        //        'blockduration' => $formdata->examduration,
+        //        'timestart' => $formdata->examtimestart - ($distancebetweenblockdates * 60),
+        //        'timeend' => $formdata->examtimestart + $formdata->examduration + ($distancebetweenblockdates * 60),
+        //        'rooms' => []];
+        //foreach ($datesoftheday as $date) {
+        //    if (!((($blockdate->timestart <= $date->blocktimestart) && ($blockdate->timeend <= $date->blocktimestart)) ||
+        //            (($blockdate->timestart >= $date->blocktimestart + ($date->blockduration * 60)) &&
+        //                    ($blockdate->timeend >= $date->blocktimestart + ($date->blockduration * 60))))) {
+        //        $dateconflict = true;
+        //        break;
+        //    }
+        //}
     }
 
     /**
@@ -404,6 +519,30 @@ class util {
         return false;
     }
 
+    /**
+     * Get free time slots.
+     *
+     * @param stdClass $formdata of form.
+     */
+    public
+    static function getfreetimeslots2($examdateid, $formdata) {
+        global $DB;
+
+        $bookings= self::hasfreetimeslots2($formdata, true);
+        foreach($bookings as $blocktimestart=>$bookingrooms){
+            $blockid = $DB->insert_record('eledia_adminexamdates_blocks',
+                    (object) ['examdateid' => $examdateid,
+                            'blocktimestart' => $blocktimestart,
+                            'blockduration' => $formdata->examduration
+                    ]);
+            foreach ($bookingrooms as $bookingroom){
+                $datesid = $DB->insert_record('eledia_adminexamdates_rooms',
+                        (object) ['blockid' => $blockid,
+                                'examroom' => $bookingroom,
+                        ]);
+            }
+        }
+    }
     /**
      * Get free time slots.
      *
@@ -865,7 +1004,8 @@ class util {
 
         $dates = $DB->get_recordset_sql($sql, $inexamroomsparams);
         $tableheaditems =
-                ['month', 'date', 'examname', 'examiner', 'contactperson', 'examroom', 'supervisor1', 'supervisor2', 'candidates', 'status',
+                ['month', 'date', 'examname', 'examiner', 'contactperson', 'examroom', 'supervisor1', 'supervisor2', 'candidates',
+                        'status',
                         'blockid', 'examid', 'links'];
         $text = \html_writer::start_tag('table',
                 array('id' => 'examdatestable', 'class' => 'table table-striped table-bordered table-hover table-sm',
@@ -902,7 +1042,7 @@ class util {
             $text .= \html_writer::tag('td', implode(', ', $examinernames));
 
             $contactperson = \core_user::get_user($date->contactperson);
-            $text .= \html_writer::tag('td',  fullname($contactperson) . ' | ' . $contactperson->email);
+            $text .= \html_writer::tag('td', fullname($contactperson) . ' | ' . $contactperson->email);
             $text .= \html_writer::tag('td', $roomoptions[$date->examroom]);
             $roomsupervisors1 = '';
             if (!empty($date->roomsupervisor1)) {

@@ -234,7 +234,7 @@ class examdate_form extends \moodleform {
     public function validation($data, $files) {
         global $DB;
         $errors = parent::validation($data, $files);
-        if (!$data->onlynumberstudents && $error = \block_eledia_adminexamdates\util::hasfreetimeslots($data)) {
+        if (!$data->onlynumberstudents && $error = \block_eledia_adminexamdates\util::hasfreetimeslots2($data, false)) {
             $errors['examtimestart'] = $error;
         }
         //        $data = (object)$data;

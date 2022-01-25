@@ -319,7 +319,13 @@ unixTimestamp: $displaydate
         }
       test=0;
       });
+      
+    $('#action-menu-toggle-1').on('click', function(e) {
+      $('#action-menu-1-menu').toggleClass('show'); 
+      e.preventDefault();
     });
+    });
+ 
   </script>";
 
 

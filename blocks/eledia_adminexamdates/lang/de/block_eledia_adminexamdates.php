@@ -144,6 +144,7 @@ $string['eledia_adminexamdates:confirmexamdates'] = 'Bestätigen der E-Klausur T
 $string['delete'] ='Löschen';
 $string['confirm_delete_singleexamdate_msg'] = 'Wollen Sie in der Klausur: \'{$a->name}\' den {$a->index} Teiltermin löschen?';
 $string['error_examdate_already_taken']  = 'Dieser Termin ist bereits vergeben. Bitte suchen Sie nach einem anderen  Termin!';
+$string['error_startexamtime']  = 'Der frühestmögliche Klausur-Termin ist {$a->time} Uhr.';
 $string['autocomplete_placeholder']  = 'Suche oder Eingabe mit Eingabetaste ';
 $string['error_email'] = 'Bitte geben Sie eine gültige E-Mail-Adresse ein!';
 $string['pleasechoose'] = 'Bitte auswählen ...';

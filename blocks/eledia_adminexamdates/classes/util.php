@@ -1652,7 +1652,8 @@ class util {
                     LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
                     WHERE a.examtimestart > {$datestart} AND a.examtimestart < {$dateend} AND a.confirmed = 1
                         AND ( a.category = {$regularexam} OR a.category = {$semestertest}) AND a.department IN ({$department})
-                    ORDER BY ab.blocktimestart DESC";
+                    GROUP BY ar.id 
+                    ORDER BY ab.blocktimestart DESC ";
         $records = $DB->get_records_sql($sql);
 
         $text = '';

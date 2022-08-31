@@ -1644,7 +1644,7 @@ class util {
             $datestart = $formdata->datestart;
             $dateend = strtotime('tomorrow', $formdata->dateend) - 1;
         }
-        $sql = "SELECT ar.id, a.id AS examdateid, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.blockid, ar.roomnumberstudents,
+        $sql = "SELECT ar.id, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.blockid, ar.roomnumberstudents,
        COUNT(DISTINCT a.id) AS examnumber,  COUNT(DISTINCT ab.id) AS blocknumber, 
         SUM(ar.roomnumberstudents)  AS numberstudents
                     FROM {eledia_adminexamdates} a
@@ -1652,7 +1652,7 @@ class util {
                     LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
                     WHERE a.examtimestart > {$datestart} AND a.examtimestart < {$dateend} AND a.confirmed = 1
                         AND ( a.category = {$regularexam} OR a.category = {$semestertest}) AND a.department IN ({$department})
-                    GROUP BY ar.id 
+                    GROUP BY ar.id, a.id,ab.blocktimestart,ab.blockduration
                     ORDER BY ab.blocktimestart DESC ";
         $records = $DB->get_records_sql($sql);
 

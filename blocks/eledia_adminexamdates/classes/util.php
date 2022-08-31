@@ -856,7 +856,7 @@ class util {
         $now = time();
         $confirmedcondition = $confirmed ? "confirmed = 1" : "confirmed != 1 ";
         $conditions = $hasconfirmexamdatescap ? $confirmedcondition :
-                "examtimestart > $now AND $confirmedcondition AND ( userid = $USER->id OR contactperson = $USER->id ) ";
+                "examtimestart > $now AND $confirmedcondition AND ( userid = $USER->id OR contactperson = '$USER->id' ) ";
         $sql = "SELECT *
                   FROM {eledia_adminexamdates} 
                  WHERE $conditions

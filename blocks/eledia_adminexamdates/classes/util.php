@@ -1644,21 +1644,20 @@ class util {
             $datestart = $formdata->datestart;
             $dateend = strtotime('tomorrow', $formdata->dateend) - 1;
         }
-        $sql = "SELECT ar.id, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.blockid, ar.roomnumberstudents,
-       COUNT(DISTINCT a.id) AS examnumber,  COUNT(DISTINCT ab.id) AS blocknumber, 
+        $sql = "SELECT  
+       COUNT(DISTINCT a.id) AS examnumber,  COUNT(DISTINCT ab.id) AS blocknumber,
         SUM(ar.roomnumberstudents)  AS numberstudents
                     FROM {eledia_adminexamdates} a
                     LEFT JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
                     LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
                     WHERE a.examtimestart > {$datestart} AND a.examtimestart < {$dateend} AND a.confirmed = 1
-                        AND ( a.category = {$regularexam} OR a.category = {$semestertest}) AND a.department IN ({$department})
-                    GROUP BY ar.id, a.id,ab.blocktimestart,ab.blockduration
-                    ORDER BY ab.blocktimestart DESC ";
+                        AND ( a.category = {$regularexam} OR a.category = {$semestertest}) AND a.department IN ({$department}) ";
         $records = $DB->get_records_sql($sql);
 
         $text = '';
         if (!empty($records)) {
-            $first = array_values($records)[0];
+		    $records = array_values($records);
+            $first = array_shift($records);
             $text .= \html_writer::start_tag('div', array('class' => 'card'));
             $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
             $text .= \html_writer::tag('h5',

@@ -92,9 +92,9 @@ class util {
                 $DB->update_record('eledia_adminexamdates', $dataobject);
             }
 
-            if ($hasconfirmexamdatescap && (!$dataobject->confirmed || $dataobject->confirmed == 2)) {
-                self::examconfirm($examdateid);
-            }
+           //if ($hasconfirmexamdatescap && (!$dataobject->confirmed || $dataobject->confirmed == 2)) {
+            //    self::examconfirm($examdateid);
+            //}
         }
         return $examdateid;
 
@@ -260,10 +260,10 @@ class util {
             $DB->update_record('eledia_adminexamdates', $dataobject);
         }
 
-        $confirmed = $DB->get_record('eledia_adminexamdates', ['id' => $formdata->examdateid])->confirmed;
-        if (!$confirmed || $confirmed == 2) {
-            self::examconfirm($formdata->examdateid);
-        }
+       // $confirmed = $DB->get_record('eledia_adminexamdates', ['id' => $formdata->examdateid])->confirmed;
+       // if (!$confirmed || $confirmed == 2) {
+        //    self::examconfirm($formdata->examdateid);
+       //}
         return $blockid;
     }
 
@@ -836,6 +836,10 @@ class util {
         if ($hasconfirmexamdatescap || (!$hasconfirmexamdatescap && !$examdate->confirmed)) {
             $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php', ['cancelexamdate' => $examdate->id]);
             $text .= $OUTPUT->single_button($url, get_string('cancelexamdate', 'block_eledia_adminexamdates'), 'post');
+        }
+        if ($hasconfirmexamdatescap && !$examdate->confirmed) {
+            $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php', ['confirmexamdateyes' => $examdate->id]);
+            $text .= $OUTPUT->single_button($url, get_string('confirmexamdate', 'block_eledia_adminexamdates'), 'post');
         }
 
         $text .= \html_writer::end_tag('div');

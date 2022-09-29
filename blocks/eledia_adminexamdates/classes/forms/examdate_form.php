@@ -203,8 +203,8 @@ class examdate_form extends \moodleform {
                     get_string('responsibleperson', 'block_eledia_adminexamdates'),
                     $options);
             $mform->setType('responsibleperson', PARAM_RAW_TRIMMED);
-            $mform->addRule('responsibleperson', get_string('required'), 'required', null, 'client');
-            $mform->addRule('responsibleperson', get_string('required'), 'nonzero', null, 'client');
+            //$mform->addRule('responsibleperson', get_string('required'), 'required', null, 'client');
+            //$mform->addRule('responsibleperson', get_string('required'), 'nonzero', null, 'client');
             $mform->setDefault('responsibleperson', 0);
         } else {
             $mform->addElement('hidden', 'responsibleperson');

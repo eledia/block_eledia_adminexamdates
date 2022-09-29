@@ -249,7 +249,7 @@ echo "       ];
                 format:'dddd DD.MM'
                 },
             timeline: {
-                intervalMinutes: 30,
+                intervalMinutes: 60,
             fromHour: $fromhour,
             toHour: $tohour,
           }

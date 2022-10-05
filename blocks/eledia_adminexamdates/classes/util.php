@@ -536,7 +536,7 @@ class util {
     static function getfreetimeslots2($examdateid, $formdata) {
         global $DB;
 
-        $bookings = self::hasfreetimeslots2($formdata, true);
+        $bookings = self::hasfreetimeslots($formdata);
         foreach ($bookings as $blocktimestart => $bookingrooms) {
             $blockid = $DB->insert_record('eledia_adminexamdates_blocks',
                     (object) ['examdateid' => $examdateid,

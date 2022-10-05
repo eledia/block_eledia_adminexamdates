@@ -137,13 +137,14 @@ foreach ($dates as $date) {
         $buttonhtml .= \html_writer::tag('a', get_string('cancelexamdate', 'block_eledia_adminexamdates'),
                         ['class' => 'btn btn-secondary',
                                 'href' => $url]) . ' ';
-
+        if (!$date->confirmed) {
             $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php',
                     ['confirmexamdate' => $date->examdateid]);
             $url = $url->out();
             $buttonhtml .= \html_writer::tag('a', get_string('confirmexamdate', 'block_eledia_adminexamdates'),
                     ['class' => 'btn btn-secondary',
                             'href' => $url]);
+        }
     }
 
     if (!$hasconfirmexamdatescap && $date->confirmed) {
@@ -310,7 +311,7 @@ unixTimestamp: $displaydate
            
       console.log(event);
      
-      var examtimestart = parseInt(this.getAttribute('data-time')) + ($fromhour*60*60) + (Math.trunc((event.offsetY)/50)*60*30);
+      var examtimestart = parseInt(this.getAttribute('data-time')) + ($fromhour*60*60) + (Math.trunc((event.offsetY)/50)*60*60);
        
        var editexamdateform = $(\"#editexamdate\");
         editexamdateform.find(\"input[name=\'examtimestart\']\").val(examtimestart);

@@ -142,6 +142,7 @@ class examdate_form extends \moodleform {
         $mform->addRule('department', get_string('error_choose', 'block_eledia_adminexamdates'), 'nonzero', null, 'client');
 
         $mform->addElement('text', 'examname', get_string('examname', 'block_eledia_adminexamdates'), array('size' => 50));
+        $mform->addHelpButton('examname','examname','block_eledia_adminexamdates');
         $mform->setType('examname', PARAM_TEXT);
         if (!$onlynumberstudents) {
             $mform->addRule('examname', null, 'required', null, 'client');

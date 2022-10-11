@@ -276,7 +276,7 @@ class util {
     static function hasfreetimeslots2($formdata, $bookings) {
         $formdata = (object) $formdata;
         global $DB;
-        $examdateid=!empty($formdata->editexamdate)? $formdata->editexamdate : false;
+        $examdateid = !empty($formdata->editexamdate) ? $formdata->editexamdate : false;
         $beginofday = strtotime("today", $formdata->examtimestart);
         $endofday = strtotime("tomorrow", $formdata->examtimestart) - 1;
         $startexam = $beginofday + (get_config('block_eledia_adminexamdates', 'startexam_hour') * 3600)
@@ -287,10 +287,11 @@ class util {
         $distancebetweenblockdates = get_config('block_eledia_adminexamdates', 'distancebetweenblockdates');
 
         if (!$bookings && ($formdata->examtimestart < $startexam)) {
-            return get_string('error_startexamtime', 'block_eledia_adminexamdates', ['time' => date('H.i', $startexam)]);
+            return get_string('error_startexamtime', 'block_eledia_adminexamdates',
+                    ['start' => date('H.i', $startexam), 'end' => date('H.i', $endexam)]);
         };
 
-        $params = [$beginofday, $endofday,$examdateid];
+        $params = [$beginofday, $endofday, $examdateid];
 
         $sql = "SELECT ar.id, a.id AS examdateid, a.examduration, ab.blocktimestart, ab.blockduration, ar.examroom, ar.blockid
                     FROM {eledia_adminexamdates_blocks} ab 
@@ -554,6 +555,7 @@ class util {
             }
         }
     }
+
     /**
      * Update free time slots.
      *
@@ -564,7 +566,7 @@ class util {
         global $DB;
 
         $bookings = self::hasfreetimeslots2($formdata, true);
-        if($bookings) {
+        if ($bookings) {
             $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
             if (!empty($examparts)) {
                 $DB->delete_records_list('eledia_adminexamdates_rooms', 'blockid', array_keys($examparts));
@@ -586,6 +588,7 @@ class util {
             }
         }
     }
+
     /**
      * Get free time slots.
      *
@@ -872,7 +875,8 @@ class util {
             $text .= $OUTPUT->single_button($url, get_string('cancelexamdate', 'block_eledia_adminexamdates'), 'post');
         }
         if ($hasconfirmexamdatescap && !$examdate->confirmed) {
-            $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php', ['confirmexamdateyes' => $examdate->id]);
+            $url = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php',
+                    ['confirmexamdateyes' => $examdate->id]);
             $text .= $OUTPUT->single_button($url, get_string('confirmexamdate', 'block_eledia_adminexamdates'), 'post');
         }
 
@@ -1417,7 +1421,6 @@ class util {
         }
     }
 
-
     /**
      * Get sub category list from API
      *
@@ -1436,7 +1439,7 @@ class util {
             $param['addsubcategories'] = 1;
             $results = self::get_data_from_api($criteria, $param);
             if (!empty($results)) {
-                usort($results, function ($x, $y) {
+                usort($results, function($x, $y) {
                     if ($x === $y) {
                         return 0;
                     }
@@ -1608,9 +1611,9 @@ class util {
     public
     static function get_html_checklisttable($examdateid, $examdatename) {
         global $DB;
-        $itemskvb= explode(',',get_config('elediachecklist','erinnerung_kvb_name'));
-        $itemsknb= explode(',',get_config('elediachecklist','erinnerung_knb_name'));
-        $items= implode(',',array_merge($itemskvb, $itemsknb));
+        $itemskvb = explode(',', get_config('elediachecklist', 'erinnerung_kvb_name'));
+        $itemsknb = explode(',', get_config('elediachecklist', 'erinnerung_knb_name'));
+        $items = implode(',', array_merge($itemskvb, $itemsknb));
         //  DATE_FORMAT(DATE_ADD(from_unixtime(floor((SELECT examtimestart from {eledia_adminexamdates} exam
         //        WHERE exam.id = {$examdateid}))), INTERVAL item.duetime DAY),'%d.%m.%Y') as topicdate
         $sql = "SELECT item.id, 

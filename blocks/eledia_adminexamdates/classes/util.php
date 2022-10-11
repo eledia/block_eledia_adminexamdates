@@ -92,7 +92,7 @@ class util {
                 $DB->update_record('eledia_adminexamdates', $dataobject);
             }
 
-           //if ($hasconfirmexamdatescap && (!$dataobject->confirmed || $dataobject->confirmed == 2)) {
+            //if ($hasconfirmexamdatescap && (!$dataobject->confirmed || $dataobject->confirmed == 2)) {
             //    self::examconfirm($examdateid);
             //}
         }
@@ -260,10 +260,10 @@ class util {
             $DB->update_record('eledia_adminexamdates', $dataobject);
         }
 
-       // $confirmed = $DB->get_record('eledia_adminexamdates', ['id' => $formdata->examdateid])->confirmed;
-       // if (!$confirmed || $confirmed == 2) {
+        // $confirmed = $DB->get_record('eledia_adminexamdates', ['id' => $formdata->examdateid])->confirmed;
+        // if (!$confirmed || $confirmed == 2) {
         //    self::examconfirm($formdata->examdateid);
-       //}
+        //}
         return $blockid;
     }
 
@@ -1608,23 +1608,24 @@ class util {
     public
     static function get_html_checklisttable($examdateid, $examdatename) {
         global $DB;
-        $items= get_config('elediachecklist','erinnerung_kvb_name');
+        $itemskvb= explode(',',get_config('elediachecklist','erinnerung_kvb_name'));
+        $itemsknb= explode(',',get_config('elediachecklist','erinnerung_knb_name'));
+        $items= implode(',',array_merge($itemskvb, $itemsknb));
         //  DATE_FORMAT(DATE_ADD(from_unixtime(floor((SELECT examtimestart from {eledia_adminexamdates} exam
         //        WHERE exam.id = {$examdateid}))), INTERVAL item.duetime DAY),'%d.%m.%Y') as topicdate
         $sql = "SELECT item.id, 
        item.displaytext as topic, 
         item.duetime,
-        CASE WHEN ch.id IS NULL
+        CASE WHEN ch.item IS NULL
             THEN 0
             ELSE 1 END AS checked
         FROM {elediachecklist_item} item
-        LEFT JOIN {elediachecklist_check} ch ON item.id = ch.item 
-        LEFT JOIN {elediachecklist_my_check} mych ON (mych.id_item = ch.item AND mych.id_exam = {$examdateid})
-        WHERE (mych.id IS NULL OR mych.id= 0) AND  item.id IN ($items)
+        LEFT JOIN {elediachecklist_check} ch ON item.id = ch.item AND ch.teacherid = {$examdateid}
+        WHERE  item.id IN ($items)
         ORDER BY item.id";
         $examtimestart =
                 floor($DB->get_record('eledia_adminexamdates', ['id' => $examdateid], 'examtimestart', MUST_EXIST)->examtimestart);
- 
+
         $checklistitems = $DB->get_records_sql($sql);
         $text = '';
         if (!empty($checklistitems)) {
@@ -1705,7 +1706,7 @@ class util {
 
         $text = '';
         if (!empty($records)) {
-		    $records = array_values($records);
+            $records = array_values($records);
             $first = array_shift($records);
             $text .= \html_writer::start_tag('div', array('class' => 'card'));
             $text .= \html_writer::start_tag('div', array('class' => 'card-body'));

@@ -276,10 +276,13 @@ class util {
     static function hasfreetimeslots2($formdata, $bookings) {
         $formdata = (object) $formdata;
         global $DB;
+        $examdateid=!empty($formdata->editexamdate)? $formdata->editexamdate : false;
         $beginofday = strtotime("today", $formdata->examtimestart);
         $endofday = strtotime("tomorrow", $formdata->examtimestart) - 1;
-        $startexam = $beginofday + (get_config('block_eledia_adminexamdates', 'startexam') * 3600);
-        $endexam = $beginofday + (get_config('block_eledia_adminexamdates', 'endexam') * 3600);
+        $startexam = $beginofday + (get_config('block_eledia_adminexamdates', 'startexam_hour') * 3600)
+                + (get_config('block_eledia_adminexamdates', 'startexam_minute') * 60);
+        $endexam = $beginofday + (get_config('block_eledia_adminexamdates', 'endexam_hour') * 3600)
+                + (get_config('block_eledia_adminexamdates', 'endexam_minute') * 60);
         $breakbetweenblockdates = get_config('block_eledia_adminexamdates', 'breakbetweenblockdates');
         $distancebetweenblockdates = get_config('block_eledia_adminexamdates', 'distancebetweenblockdates');
 
@@ -287,13 +290,13 @@ class util {
             return get_string('error_startexamtime', 'block_eledia_adminexamdates', ['time' => date('H.i', $startexam)]);
         };
 
-        $params = [$beginofday, $endofday];
+        $params = [$beginofday, $endofday,$examdateid];
 
         $sql = "SELECT ar.id, a.id AS examdateid, a.examduration, ab.blocktimestart, ab.blockduration, ar.examroom, ar.blockid
                     FROM {eledia_adminexamdates_blocks} ab 
                     JOIN {eledia_adminexamdates} a ON ab.examdateid = a.id
                     JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
-                   WHERE ab.blocktimestart > ? AND ab.blocktimestart < ?
+                   WHERE ab.blocktimestart > ? AND ab.blocktimestart < ? AND ab.examdateid != ?
                    ORDER BY ab.blocktimestart";
 
         $datesoftheday = $DB->get_records_sql($sql, $params);
@@ -316,7 +319,7 @@ class util {
         $roomfreecapacities = [];
         foreach ($examrooms as $examroom) {
             $object = new stdClass();
-            $object->lastblockend = $startexam + ($distancebetweenblockdates * 60);
+            $object->lastblockend = $startexam;
             $object->freecapacities = [];
             $roomfreecapacities[$examroom] = $object;
         }
@@ -536,7 +539,7 @@ class util {
     static function getfreetimeslots2($examdateid, $formdata) {
         global $DB;
 
-        $bookings = self::hasfreetimeslots($formdata);
+        $bookings = self::hasfreetimeslots2($formdata, true);
         foreach ($bookings as $blocktimestart => $bookingrooms) {
             $blockid = $DB->insert_record('eledia_adminexamdates_blocks',
                     (object) ['examdateid' => $examdateid,
@@ -551,7 +554,38 @@ class util {
             }
         }
     }
+    /**
+     * Update free time slots.
+     *
+     * @param stdClass $formdata of form.
+     */
+    public
+    static function updatefreetimeslots2($examdateid, $formdata) {
+        global $DB;
 
+        $bookings = self::hasfreetimeslots2($formdata, true);
+        if($bookings) {
+            $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
+            if (!empty($examparts)) {
+                $DB->delete_records_list('eledia_adminexamdates_rooms', 'blockid', array_keys($examparts));
+                $DB->delete_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
+            }
+
+            foreach ($bookings as $blocktimestart => $bookingrooms) {
+                $blockid = $DB->insert_record('eledia_adminexamdates_blocks',
+                        (object) ['examdateid' => $examdateid,
+                                'blocktimestart' => $blocktimestart,
+                                'blockduration' => $formdata->examduration
+                        ]);
+                foreach ($bookingrooms as $bookingroom) {
+                    $datesid = $DB->insert_record('eledia_adminexamdates_rooms',
+                            (object) ['blockid' => $blockid,
+                                    'examroom' => $bookingroom,
+                            ]);
+                }
+            }
+        }
+    }
     /**
      * Get free time slots.
      *
@@ -1383,6 +1417,7 @@ class util {
         }
     }
 
+
     /**
      * Get sub category list from API
      *
@@ -1401,6 +1436,12 @@ class util {
             $param['addsubcategories'] = 1;
             $results = self::get_data_from_api($criteria, $param);
             if (!empty($results)) {
+                usort($results, function ($x, $y) {
+                    if ($x === $y) {
+                        return 0;
+                    }
+                    return $x < $y ? -1 : 1;
+                });
                 $subcategories = [];
                 foreach ($results as $result) {
                     if ($result->parent == $parentcategoryid) {
@@ -1567,19 +1608,23 @@ class util {
     public
     static function get_html_checklisttable($examdateid, $examdatename) {
         global $DB;
+        $items= get_config('elediachecklist','erinnerung_kvb_name');
         //  DATE_FORMAT(DATE_ADD(from_unixtime(floor((SELECT examtimestart from {eledia_adminexamdates} exam
         //        WHERE exam.id = {$examdateid}))), INTERVAL item.duetime DAY),'%d.%m.%Y') as topicdate
         $sql = "SELECT item.id, 
        item.displaytext as topic, 
-        item.duetime 
+        item.duetime,
+        CASE WHEN ch.id IS NULL
+            THEN 0
+            ELSE 1 END AS checked
         FROM {elediachecklist_item} item
         LEFT JOIN {elediachecklist_check} ch ON item.id = ch.item 
         LEFT JOIN {elediachecklist_my_check} mych ON (mych.id_item = ch.item AND mych.id_exam = {$examdateid})
-        WHERE (mych.id IS NULL OR mych.id= 0) AND  item.id IN (3,5,8,9,10,15,17)
+        WHERE (mych.id IS NULL OR mych.id= 0) AND  item.id IN ($items)
         ORDER BY item.id";
         $examtimestart =
                 floor($DB->get_record('eledia_adminexamdates', ['id' => $examdateid], 'examtimestart', MUST_EXIST)->examtimestart);
-
+ 
         $checklistitems = $DB->get_records_sql($sql);
         $text = '';
         if (!empty($checklistitems)) {
@@ -1603,7 +1648,7 @@ class util {
             foreach ($checklistitems as $checklistitem) {
                 $text .= \html_writer::start_tag('tr');
                 $text .= \html_writer::start_tag('td');
-                $text .= $unchecksquareicon;
+                $text .= ($checklistitem->checked) ? $checksquareicon : $unchecksquareicon;
                 $text .= \html_writer::end_tag('td');
                 $text .= \html_writer::tag('td', $checklistitem->topic);
 

@@ -157,6 +157,8 @@ if ($mform->is_cancelled()) {
             redirect(new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $examdateid]));
         }
 
+    } else {
+        block_eledia_adminexamdates\util::updatefreetimeslots2($examdateid, $formdata);
     }
     if ($hasconfirmexamdatescap) {
         redirect(new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php'));

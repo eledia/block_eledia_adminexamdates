@@ -230,8 +230,8 @@ if ($hasconfirmexamdatescap) {
 
     }
 }
-$fromhour = get_config('block_eledia_adminexamdates', 'startexam');
-$tohour = get_config('block_eledia_adminexamdates', 'endexam');
+$fromhour = get_config('block_eledia_adminexamdates', 'startcalendar');
+$tohour = get_config('block_eledia_adminexamdates', 'endcalendar');
 echo "       ];
 
 

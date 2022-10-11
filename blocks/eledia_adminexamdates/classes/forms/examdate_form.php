@@ -153,7 +153,9 @@ class examdate_form extends \moodleform {
         $mform->addRule('numberstudents', null, 'required', null, 'client');
         $mform->addRule('numberstudents', null, 'numeric', null, 'client');
 
-        $mform->addElement('date_time_selector', 'examtimestart', get_string('examtimestart', 'block_eledia_adminexamdates'));
+        $time=date('H.i', strtotime(get_config('block_eledia_adminexamdates', 'startexam_hour').':'.get_config('block_eledia_adminexamdates', 'startexam_minute'))).
+        '&nbsp;-&nbsp;'.date('H.i', strtotime(get_config('block_eledia_adminexamdates', 'endexam_hour').':'.get_config('block_eledia_adminexamdates', 'endexam_minute')));
+        $mform->addElement('date_time_selector', 'examtimestart', get_string('examtimestart', 'block_eledia_adminexamdates',$time));
         $mform->addRule('examtimestart', null, 'required', null, 'client');
 
         $mform->addElement('text', 'examduration', get_string('examduration', 'block_eledia_adminexamdates'));
@@ -234,7 +236,7 @@ class examdate_form extends \moodleform {
     public function validation($data, $files) {
         global $DB;
         $errors = parent::validation($data, $files);
-        if (!$data->onlynumberstudents && $error = \block_eledia_adminexamdates\util::hasfreetimeslots($data)) {
+        if (!$data->onlynumberstudents && $error = \block_eledia_adminexamdates\util::hasfreetimeslots2($data,false)) {
             $errors['examtimestart'] = $error;
         }
         //        $data = (object)$data;

@@ -38,7 +38,7 @@ class examdate_form extends \moodleform {
 
         $mform =& $this->_form;
         $onlynumberstudents =& $this->_customdata['onlynumberstudents'];
-
+        $editexamdate=& $this->_customdata['editexamdate'];
         if ($hasconfirmexamdatescap) {
             $radioarray = array();
             $radioarray[] = $mform->createElement('radio', 'category', '',
@@ -154,11 +154,25 @@ class examdate_form extends \moodleform {
         $mform->addRule('numberstudents', null, 'required', null, 'client');
         $mform->addRule('numberstudents', null, 'numeric', null, 'client');
 
-        $time=date('H.i', strtotime(get_config('block_eledia_adminexamdates', 'startexam_hour').':'.get_config('block_eledia_adminexamdates', 'startexam_minute'))).
-        '&nbsp;-&nbsp;'.date('H.i', strtotime(get_config('block_eledia_adminexamdates', 'endexam_hour').':'.get_config('block_eledia_adminexamdates', 'endexam_minute')));
-        $mform->addElement('date_time_selector', 'examtimestart', get_string('examtimestart', 'block_eledia_adminexamdates',$time));
-        $mform->addRule('examtimestart', null, 'required', null, 'client');
+        $time = date('H.i', strtotime(get_config('block_eledia_adminexamdates', 'startexam_hour') . ':' .
+                        get_config('block_eledia_adminexamdates', 'startexam_minute'))) .
+                '&nbsp;-&nbsp;' . date('H.i', strtotime(get_config('block_eledia_adminexamdates', 'endexam_hour') . ':' .
+                        get_config('block_eledia_adminexamdates', 'endexam_minute')));
 
+        if (!$onlynumberstudents) {
+            $mform->addElement('date_time_selector', 'examtimestart',
+                    get_string('examtimestart', 'block_eledia_adminexamdates', $time));
+            $mform->addRule('examtimestart', null, 'required', null, 'client');
+        } else {
+            if($editexamdate) {
+                $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $editexamdate]);
+                $date = userdate($examdate->examtimestart,'%d. %B %Y %H.%M');
+
+                $mform->addElement('static', 'description', get_string('examtimestart', 'block_eledia_adminexamdates', $time),
+                        $date);
+            }
+            $mform->addElement('hidden', 'examtimestart');
+        }
         $mform->addElement('text', 'examduration', get_string('examduration', 'block_eledia_adminexamdates'));
         $mform->setType('examduration', PARAM_INT);
         if (!$onlynumberstudents) {
@@ -168,6 +182,7 @@ class examdate_form extends \moodleform {
 
         $mform->addElement('autocomplete', 'examiner', get_string('examiner', 'block_eledia_adminexamdates'),
                 $useridlist, $autocompleteoptions);
+        $mform->addHelpButton('examiner','examiner','block_eledia_adminexamdates');
         $mform->setType('examiner', PARAM_RAW_TRIMMED);
         $mform->addRule('examiner', get_string('required'), 'required', null, 'client');
         //$mform->setDefault('examiner', '');
@@ -214,14 +229,17 @@ class examdate_form extends \moodleform {
             $mform->setType('responsibleperson', PARAM_INT);
             $mform->setDefault('responsibleperson', 0);
         }
-        $mform->addElement('textarea', 'annotationtext', get_string('annotationtext', 'block_eledia_adminexamdates'),
-                array('rows' => 10, 'cols' => 80));
-        $mform->setType('annotationtext', PARAM_RAW);
+        if (!$onlynumberstudents) {
+            $mform->addElement('textarea', 'annotationtext', get_string('annotationtext', 'block_eledia_adminexamdates'),
+                    array('rows' => 10, 'cols' => 80));
+            $mform->setType('annotationtext', PARAM_RAW);
+        }
         $mform->addElement('hidden', 'onlynumberstudents');
         $mform->setType('onlynumberstudents', PARAM_INT);
+
         if ($onlynumberstudents) {
             $mform->setDefault('onlynumberstudents', true);
-            $mform->freeze('department,examname,examtimestart,examduration,examiner,contactperson,annotationtext');
+            $mform->freeze('department,examname,examduration,examiner,contactperson');
         }
         $mform->addElement('hidden', 'editexamdate');
         $mform->setType('editexamdate', PARAM_INT);

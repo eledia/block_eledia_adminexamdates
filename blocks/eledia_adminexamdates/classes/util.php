@@ -1395,6 +1395,11 @@ class util {
         $htmlmessagetext = get_string('changerequest_email_body', 'block_eledia_adminexamdates',
                 ['name' => $examdate->examname, 'date' => $date, 'url' => $link, 'changerequest' => $message]);
         $success = email_to_user($emailuser, $USER, $subject, $messagetext, $htmlmessagetext);
+
+        $emailuser = new stdClass();
+        $emailuser->email = \core_user::get_user($examdate->contactperson)->email;
+        $emailuser->id = -99;
+        $success = email_to_user($emailuser, $USER, $subject, $messagetext, $htmlmessagetext);
     }
 
     /**
@@ -1617,7 +1622,7 @@ class util {
         //  DATE_FORMAT(DATE_ADD(from_unixtime(floor((SELECT examtimestart from {eledia_adminexamdates} exam
         //        WHERE exam.id = {$examdateid}))), INTERVAL item.duetime DAY),'%d.%m.%Y') as topicdate
         $sql = "SELECT item.id, 
-       item.displaytext as topic, 
+       item.emailtext as topic, 
         item.duetime,
         CASE WHEN ch.item IS NULL
             THEN 0
@@ -1654,7 +1659,12 @@ class util {
                 $text .= \html_writer::start_tag('td');
                 $text .= ($checklistitem->checked) ? $checksquareicon : $unchecksquareicon;
                 $text .= \html_writer::end_tag('td');
-                $text .= \html_writer::tag('td', $checklistitem->topic);
+
+                //$tp = $examtimestart + (60 * 60 * 24 * $checklistitem->duetime);
+                //$date = date('d.m.Y', $tp);
+                $displaytext = str_replace('{Datum}', '', $checklistitem->topic);
+
+                $text .= \html_writer::tag('td', $displaytext);
 
                 $text .= \html_writer::tag('td',
                         date('d.m.Y', strtotime($checklistitem->duetime . ' day', $examtimestart)),

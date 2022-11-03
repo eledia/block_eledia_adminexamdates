@@ -54,6 +54,7 @@ $string['configure_description'] = 'Here you can configure the exam schedule man
 $string['number_students'] ='Expected number of students';
 $string['department'] ='Department';
 $string['examiner'] ='Examiner';
+$string['examiner_help'] = 'Select one or more instructors from the list. The input of lecturers names that are not in the list will not be accepted.';
 $string['contactperson'] ='Contact person';
 $string['contactpersonemail'] ='Contact person\'s email';
 $string['responsibleperson'] ='SCL responsible person';

@@ -54,6 +54,7 @@ $string['configure_description'] = 'Hier können Sie die Prüfungstermin-Verwalt
 $string['number_students'] ='Erwartete Anzahl der Teilnehmenden';
 $string['department'] ='Fachbereich';
 $string['examiner'] ='Dozent:in/ Prüfer:in';
+$string['examiner_help'] = 'Wählen Sie eine oder mehrere Dozent:innen aus der Liste aus. Die Eingabe von Dozent:innennamen, die nicht in der Liste aufgeführt sind, werden nicht übernommen.';
 $string['contactperson'] ='Ansprechpartner:in';
 $string['contactpersonemail'] ='E-Mail des/der Ansprechpartners/Ansprechpartnerin';
 $string['responsibleperson'] ='SCL Verantwortliche:r';
@@ -215,7 +216,6 @@ $string['period'] = 'Zeitraum';
 $string['numberstudents'] = 'Anzahl Teilnehmende';
 $string['examnumber'] = 'Anzahl Prüfungen';
 $string['blocknumber'] = 'Anzahl Teiltermine';
-
 
 
 

@@ -49,7 +49,7 @@ if ($editexamdate){
     $onlynumberstudents = (!$hasconfirmexamdatescap &&($examdate->confirmed==1 || $examdate->confirmed==2)) ? true : false;
 }
 
-$mform = new \block_eledia_adminexamdates\forms\examdate_form(null, array('onlynumberstudents'=>$onlynumberstudents));
+$mform = new \block_eledia_adminexamdates\forms\examdate_form(null, array('onlynumberstudents'=>$onlynumberstudents, 'editexamdate'=>$editexamdate));
 
 
 // Execute the form.

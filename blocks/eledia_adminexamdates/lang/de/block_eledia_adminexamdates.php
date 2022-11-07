@@ -170,6 +170,14 @@ $string['examconfirm_email_body'] = 'Der Prüfungstermin wurde bestätigt für:
 {$a->url} 
 
 ';
+$string['request_email_subject'] = 'Anfrage Prüfungstermin: {$a->name}';
+$string['request_email_body'] = 'Der Prüfungstermin wurde angefragt für: 
+
+{$a->name}, 
+{$a->date} Uhr,
+{$a->url} 
+
+';
 $string['examcancel_email_subject'] = 'Absage des Prüfungstermins für: {$a->name}';
 $string['examcancel_email_body'] = 'Der Prüfungstermin wurde abgesagt für: 
 

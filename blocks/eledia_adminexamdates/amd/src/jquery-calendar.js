@@ -1120,6 +1120,8 @@ n = this.daynotes.length;
     var self = this;
     this.element.find('.calendar-event').each(function() {
       $(this).click(function(event) {
+        event.preventDefault();
+        event.stopPropagation();
         elem = $(event.target);
         if (elem.prop('nodeName') !== 'LI' && !elem.hasClass('calendar-event')) {
           elem = elem.closest('li.calendar-event');

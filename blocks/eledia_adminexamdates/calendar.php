@@ -45,7 +45,7 @@ echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bo
   <script src="calendar/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
   <script src="calendar/node_modules/moment/min/moment-with-locales.min.js"></script>
   <script src="calendar/node_modules/jquery-touchswipe/jquery.touchSwipe.min.js"></script>
-<script src="amd/build/jquery-calendar.min.js"></script>
+<script src="amd/src/jquery-calendar.js"></script>
 
   <link rel="stylesheet" href="calendar/src/css/jquery-calendar.css">
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fontawesome.css">
@@ -308,7 +308,6 @@ unixTimestamp: $displaydate
       });
   
       $('#calendar').on('click', '.calendar-events-day',function(event){     
-           
       console.log(event);
      
       var examtimestart = parseInt(this.getAttribute('data-time')) + ($fromhour*60*60) + (Math.trunc((event.offsetY)/50)*60*60);
@@ -322,8 +321,9 @@ unixTimestamp: $displaydate
       });
       
     $('#action-menu-toggle-1').on('click', function(e) {
+    e.preventDefault();
       $('#action-menu-1-menu').toggleClass('show'); 
-      e.preventDefault();
+    
     });
     });
  

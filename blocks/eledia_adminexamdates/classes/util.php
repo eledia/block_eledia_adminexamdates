@@ -86,6 +86,27 @@ class util {
                 $dataobject->userid = $USER->id;
                 $dataobject->timecreated = time();
                 $examdateid = $DB->insert_record('eledia_adminexamdates', $dataobject);
+
+                // Send confirmation email to requester if not examdates-admin.
+                if (!$hasconfirmexamdatescap) {
+                    $emailuser = new stdClass();
+                    $emailuser->email = $USER->email;
+                    $emailuser->id = -99;
+
+                    $subject = get_string('request_email_subject', 'block_eledia_adminexamdates',
+                            ['name' => $dataobject->examname]);
+                    $date = date('d.m.Y H.i', $dataobject->examtimestart)
+                            . ' - ' . date('H.i', $dataobject->examtimestart + ($dataobject->examduration * 60));
+                    $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php',
+                            ['editexamdate' => $examdateid]);
+                    $url = $url->out();
+                    $link = \html_writer::tag('a', get_string('edit'), array('href' => $url));
+                    $messagetext = get_string('request_email_body', 'block_eledia_adminexamdates',
+                            ['name' => $dataobject->examname, 'date' => $date, 'url' => $link]);
+
+                    email_to_user($emailuser, $USER, $subject, $messagetext);
+                }
+
             } else {
                 $examdateid = $formdata->editexamdate;
                 $dataobject->id = $formdata->editexamdate;
@@ -286,7 +307,8 @@ class util {
         $breakbetweenblockdates = get_config('block_eledia_adminexamdates', 'breakbetweenblockdates');
         $distancebetweenblockdates = get_config('block_eledia_adminexamdates', 'distancebetweenblockdates');
 
-        if (!$bookings && ($formdata->examtimestart < $startexam)) {
+        if (!$bookings && (($formdata->examtimestart < $startexam) ||
+                        (($formdata->examtimestart + ($formdata->examduration * 60)) > $endexam))) {
             return get_string('error_startexamtime', 'block_eledia_adminexamdates',
                     ['start' => date('H.i', $startexam), 'end' => date('H.i', $endexam)]);
         };

@@ -170,6 +170,14 @@ $string['examconfirm_email_body'] = 'The exam date is confirmed for:
 {$a->url} 
 
 ';
+$string['request_email_subject'] = 'Request exam date: {$a->name}';
+$string['request_email_body'] = 'The exam date was requested for:
+
+{$a->name},
+{$a->date},
+{$a->url}
+
+';
 $string['examcancel_email_subject'] = 'Cancellation of the date for the exam: {$a->name}';
 $string['examcancel_email_body'] = 'The exam date will be canceled for: 
 

@@ -887,7 +887,8 @@ n = this.events.length;
           e.category,
           this.getEventCategoryColor(e.category),
           moment.unix(e.start).format(this.conf.weekday.timeline.format) + ' - ' + moment.unix(e.end).format(this.conf.weekday.timeline.format),
-          ['calendar-event']
+          ['calendar-event'],
+            e.confirmed
         );
       }
     }
@@ -922,13 +923,14 @@ n = this.daynotes.length;
           e.category,
           this.getDaynoteCategoryColor(e.category),
           '',
-          ['calendar-event', 'calendar-daynote']
+          ['calendar-event', 'calendar-daynote'],
+            e.confirmed
         );
       }
     }
   };
 
-  Calendar.prototype.drawEventsOrDaynotes = function(e, index, start, end, title, content, category, color, time_interval, classes) {
+  Calendar.prototype.drawEventsOrDaynotes = function(e, index, start, end, title, content, category, color, time_interval, classes, confirmed) {
     var li = $('<li>'),
 i = classes.length;
     while (i--) {
@@ -941,6 +943,7 @@ i = classes.length;
     li.attr('data-content', content);
     li.attr('data-category', category);
     li.attr('data-color', color);
+    li.attr('data-confirmed', confirmed);
     li.css('background', color);
     a = $('<a>', {
       href: '#'

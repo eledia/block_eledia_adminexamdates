@@ -45,7 +45,7 @@ echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bo
   <script src="calendar/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
   <script src="calendar/node_modules/moment/min/moment-with-locales.min.js"></script>
   <script src="calendar/node_modules/jquery-touchswipe/jquery.touchSwipe.min.js"></script>
-<script src="amd/src/jquery-calendar.js"></script>
+<script src="amd/build/jquery-calendar.min.js"></script>
 
   <link rel="stylesheet" href="calendar/src/css/jquery-calendar.css">
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fontawesome.css">
@@ -175,15 +175,17 @@ foreach ($dates as $date) {
             "</dt><dd>$examinernames</dd><dt>".get_string('contactperson', 'block_eledia_adminexamdates').
             "</dt><dd>$contactperson</dd></dl><div>$buttonhtml</div>" :
             get_string('room_already_occupied', 'block_eledia_adminexamdates',['room'=>$roomnames[$date->examroom]]);
-
+    $myevent = (!$hasconfirmexamdatescap && $myexamdate) ? true : false;
     echo "     
       
         {
-            start: $date->blocktimestart,
+          start: $date->blocktimestart,
           end: $endtime,
           title: '$title',
           content: '$content' ,
-          category:'$roomname'
+          category:'$roomname',
+          confirmed:'$date->confirmed',
+          myevent:'$myevent'
         },
         
          ";
@@ -223,7 +225,9 @@ if ($hasconfirmexamdatescap) {
           end: $endtime,
           title: '$roomname',
           content: '$content' ,
-          category:'$roomname'
+          category:'$roomname',
+          confirmed:'$date->confirmed',
+          myevent:'0'
         },
         
          ";

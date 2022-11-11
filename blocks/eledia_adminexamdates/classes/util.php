@@ -101,8 +101,9 @@ class util {
                             ['editexamdate' => $examdateid]);
                     $url = $url->out();
                     $link = \html_writer::tag('a', get_string('edit'), array('href' => $url));
+
                     $messagetext = get_string('request_email_body', 'block_eledia_adminexamdates',
-                            ['name' => $dataobject->examname, 'date' => $date, 'url' => $link]);
+                            ['name' => $dataobject->examname, 'date' => $date, 'url' => $link, 'annotation' => $dataobject->annotationtext]);
 
                     email_to_user($emailuser, $USER, $subject, $messagetext);
                 }

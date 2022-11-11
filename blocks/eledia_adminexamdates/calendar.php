@@ -158,7 +158,7 @@ foreach ($dates as $date) {
     $buttonhtml .= \html_writer::end_tag('div');
 
     $myexamdate = ($date->userid == $USER->id || $date->contactperson == $USER->id) ? true : false;
-    $title = ($hasconfirmexamdatescap || $myexamdate) ? $date->examname : get_string('room_occupied', 'block_eledia_adminexamdates',['room'=>$roomnames[$date->examroom]]);
+    $title = ($hasconfirmexamdatescap || $myexamdate) ? str_replace("'", '`', $date->examname) : get_string('room_occupied', 'block_eledia_adminexamdates',['room'=>$roomnames[$date->examroom]]);
     $examiners = explode(',', $date->examiner);
     $examinernames = [];
     foreach ($examiners as $examiner) {

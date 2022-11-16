@@ -95,8 +95,8 @@ class util {
 
                     $subject = get_string('request_email_subject', 'block_eledia_adminexamdates',
                             ['name' => $dataobject->examname]);
-                    $date = date('d.m.Y H.i', $dataobject->examtimestart)
-                            . ' - ' . date('H.i', $dataobject->examtimestart + ($dataobject->examduration * 60));
+                    $date = date('d.m.Y, H.i', $dataobject->examtimestart)
+                            . ' - ' . date('H.i', $dataobject->examtimestart + ($dataobject->examduration * 60)). get_string('time', 'block_eledia_adminexamdates');
                     $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php',
                             ['editexamdate' => $examdateid]);
                     $url = $url->out();
@@ -307,6 +307,11 @@ class util {
                 + (get_config('block_eledia_adminexamdates', 'endexam_minute') * 60);
         $breakbetweenblockdates = get_config('block_eledia_adminexamdates', 'breakbetweenblockdates');
         $distancebetweenblockdates = get_config('block_eledia_adminexamdates', 'distancebetweenblockdates');
+        $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
+        if (!$hasconfirmexamdatescap && (($formdata->examtimestart < time()) ||
+                        (($formdata->examtimestart + ($formdata->examduration * 60)) < time()))) {
+            return get_string('error_pastexamtime', 'block_eledia_adminexamdates');
+        };
 
         if (!$bookings && (($formdata->examtimestart < $startexam) ||
                         (($formdata->examtimestart + ($formdata->examduration * 60)) > $endexam))) {
@@ -850,8 +855,8 @@ class util {
         $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php', ['displaydate' => $examdate->examtimestart]);
         $calendarlink = \html_writer::tag('a', $calendaricon, ['href' => $calendarurl]);
         $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates'));
-        $text .= \html_writer::tag('dd', date('d.m.Y H.i', $examdate->examtimestart)
-                . ' - ' . date('H.i', $lastblock->blocktimestart + ($lastblock->blockduration * 60)) . ' ' . $calendarlink);
+        $text .= \html_writer::tag('dd', date('d.m.Y, H.i', $examdate->examtimestart)
+                . ' - ' . date('H.i', $lastblock->blocktimestart + ($lastblock->blockduration * 60)) . get_string('time', 'block_eledia_adminexamdates'). ' ' . $calendarlink);
         $text .= \html_writer::tag('dt', get_string('number_students', 'block_eledia_adminexamdates'));
         $text .= \html_writer::tag('dd', $examdate->numberstudents);
         $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates'));
@@ -885,8 +890,8 @@ class util {
                             'title' => $delstring, 'aria-label' => $delstring));
             $viewtrash = ($hasconfirmexamdatescap && (count($examblocks) > 1)) ? $trash : '';
             $text .= \html_writer::tag('dt', $viewindex . get_string('partialdate', 'block_eledia_adminexamdates'));
-            $text .= \html_writer::tag('dd', date('d.m.Y H.i', $examblock->blocktimestart)
-                    . ' - ' . date('H.i', $examblock->blocktimestart + ($examblock->blockduration * 60)) . ' ' . $viewtrash,
+            $text .= \html_writer::tag('dd', date('d.m.Y, H.i', $examblock->blocktimestart)
+                    . ' - ' . date('H.i', $examblock->blocktimestart + ($examblock->blockduration * 60)). get_string('time', 'block_eledia_adminexamdates') . ' ' . $viewtrash,
                     $acitveblock);
             $index++;
         }
@@ -950,8 +955,8 @@ class util {
                     new \moodle_url('/blocks/eledia_adminexamdates/calendar.php', ['displaydate' => $adminexamdate->examtimestart]);
             $calendarlink = \html_writer::tag('a', $calendaricon, ['href' => $calendarurl]);
             $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates'));
-            $text .= \html_writer::tag('dd', date('d.m.Y H.i', $adminexamdate->examtimestart)
-                    . ' - ' . date('H.i', $lastblock->blocktimestart + ($lastblock->blockduration * 60)) . ' ' .
+            $text .= \html_writer::tag('dd', date('d.m.Y, H.i', $adminexamdate->examtimestart)
+                    . ' - ' . date('H.i', $lastblock->blocktimestart + ($lastblock->blockduration * 60)) . get_string('time', 'block_eledia_adminexamdates'). ' ' .
                     $calendarlink);
             $text .= \html_writer::tag('dt', get_string('number_students', 'block_eledia_adminexamdates'));
             $text .= \html_writer::tag('dd', $adminexamdate->numberstudents);
@@ -975,8 +980,8 @@ class util {
             foreach ($adminexamblocks as $adminexamblock) {
                 $viewindex = (count($adminexamblocks) > 1) ? $index . '. ' : '';
                 $text .= \html_writer::tag('dt', $viewindex . get_string('partialdate', 'block_eledia_adminexamdates'));
-                $text .= \html_writer::tag('dd', date('d.m.Y H.i', $adminexamblock->blocktimestart)
-                        . ' - ' . date('H.i', $adminexamblock->blocktimestart + ($adminexamblock->blockduration * 60)));
+                $text .= \html_writer::tag('dd', date('d.m.Y, H.i', $adminexamblock->blocktimestart)
+                        . ' - ' . date('H.i', $adminexamblock->blocktimestart + ($adminexamblock->blockduration * 60)). get_string('time', 'block_eledia_adminexamdates'));
                 $index++;
             }
             $text .= \html_writer::end_tag('dl');
@@ -1099,8 +1104,8 @@ class util {
             $hiddenmonth = \html_writer::tag('span', date('Ym', $date->examtimestart), array('class' => 'd-none'));
             $text .= \html_writer::tag('td', $hiddenmonth . strftime('%B %Y', date($date->examtimestart)));
             $hiddendate = \html_writer::tag('span', date('YmdHi', $date->examtimestart), array('class' => 'd-none'));
-            $text .= \html_writer::tag('td', $hiddendate . date('d.m.Y H.i', $date->blocktimestart)
-                    . '&nbsp;-&nbsp;' . date('H.i', $date->blocktimestart + ($date->blockduration * 60)));
+            $text .= \html_writer::tag('td', $hiddendate . date('d.m.Y, H.i', $date->blocktimestart)
+                    . '&nbsp;-&nbsp;' . date('H.i', $date->blocktimestart + ($date->blockduration * 60)). get_string('time', 'block_eledia_adminexamdates'));
             $examname = ($date->courseid) ? \html_writer::tag('a', $date->examname,
                     array('href' => get_config('block_eledia_adminexamdates', 'apidomain')
                             . '/course/view.php?id=' . $date->courseid, 'class' => 'examdate-course-link',
@@ -1270,8 +1275,8 @@ class util {
 
             $subject = get_string('examconfirm_email_subject', 'block_eledia_adminexamdates',
                     ['name' => $examdate->examname]);
-            $date = date('d.m.Y H.i', $examdate->examtimestart)
-                    . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60));
+            $date = date('d.m.Y, H.i', $examdate->examtimestart)
+                    . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60)). get_string('time', 'block_eledia_adminexamdates');
             $course = \html_writer::tag('a', get_string('course'),
                     array('href' => get_config('block_eledia_adminexamdates', 'apidomain')
                             . '/course/view.php?id=' . $courseid));
@@ -1318,8 +1323,8 @@ class util {
         $emailexamteam = !empty($emailexamteam) ? $emailexamteam : false;
 
         $subject = get_string('examcancel_email_subject', 'block_eledia_adminexamdates', ['name' => $examdate->examname]);
-        $date = date('d.m.Y H.i', $examdate->examtimestart)
-                . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60));
+        $date = date('d.m.Y, H.i', $examdate->examtimestart)
+                . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60)). get_string('time', 'block_eledia_adminexamdates');
         $messagetext = get_string('examcancel_email_body', 'block_eledia_adminexamdates',
                 ['name' => $examdate->examname, 'date' => $date]);
 
@@ -1411,8 +1416,8 @@ class util {
         $link = \html_writer::tag('a', get_string('edit'), array('href' => $url));
         $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid]);
         $subject = get_string('changerequest_email_subject', 'block_eledia_adminexamdates', ['name' => $examdate->examname]);
-        $date = date('d.m.Y H.i', $examdate->examtimestart)
-                . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60));
+        $date = date('d.m.Y, H.i', $examdate->examtimestart)
+                . ' - ' . date('H.i', $examdate->examtimestart + ($examdate->examduration * 60)). get_string('time', 'block_eledia_adminexamdates');
         $messagetext = get_string('changerequest_email_body', 'block_eledia_adminexamdates',
                 ['name' => $examdate->examname, 'date' => $date, 'url' => $url, 'changerequest' => $message]);
         $htmlmessagetext = get_string('changerequest_email_body', 'block_eledia_adminexamdates',

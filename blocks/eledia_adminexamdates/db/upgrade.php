@@ -107,5 +107,18 @@ function xmldb_block_eledia_adminexamdates_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021112300, 'eledia_adminexamdates');
     }
 
+    if ($oldversion < 2022111500) {
+
+        // Changing nullability of field responsibleperson on table eledia_adminexamdates to null.
+        $table = new xmldb_table('eledia_adminexamdates');
+        $field = new xmldb_field('responsibleperson', XMLDB_TYPE_CHAR, '300', null, null, null, null, 'contactperson');
+
+        // Launch change of nullability for field responsibleperson.
+        $dbman->change_field_notnull($table, $field);
+
+        // Eledia_adminexamdates savepoint reached.
+        upgrade_block_savepoint(true, 2022111500, 'eledia_adminexamdates');
+    }
+
     return true;
 }

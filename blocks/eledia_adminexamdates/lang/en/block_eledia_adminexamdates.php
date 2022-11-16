@@ -228,3 +228,5 @@ $string['period'] = 'Period';
 $string['numberstudents'] = 'Number of students';
 $string['examnumber'] = 'Number of exams';
 $string['blocknumber'] = 'Number of partial dates';
+$string['time'] = '';
+$string['error_pastexamtime'] = 'The exam date must not be in the past.';

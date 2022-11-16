@@ -889,8 +889,8 @@ jQuery(document).ready(function ($) {
                     e.title,
                     e.content,
                     e.category,
-                    e.confirmed,
-                    e.myevent,
+                    e.notconfirmed,
+                    e.notmyevent,
                     this.getEventCategoryColor(e.category),
                     moment.unix(e.start).format(this.conf.weekday.timeline.format) + ' - ' + moment.unix(e.end).format(this.conf.weekday.timeline.format),
                     ['calendar-event']
@@ -926,8 +926,8 @@ jQuery(document).ready(function ($) {
                     e.title,
                     e.content,
                     e.category,
-                    e.confirmed,
-                    e.myevent,
+                    e.notconfirmed,
+                    e.notmyevent,
                     this.getDaynoteCategoryColor(e.category),
                     '',
                     ['calendar-event', 'calendar-daynote']
@@ -936,7 +936,7 @@ jQuery(document).ready(function ($) {
         }
     };
 
-    Calendar.prototype.drawEventsOrDaynotes = function (e, index, start, end, title, content, category, confirmed, myevent, color, time_interval, classes) {
+    Calendar.prototype.drawEventsOrDaynotes = function (e, index, start, end, title, content, category, notconfirmed, notmyevent, color, time_interval, classes) {
 
 
         var li = $('<li>'),
@@ -950,15 +950,12 @@ jQuery(document).ready(function ($) {
         li.attr('data-title', title);
         li.attr('data-content', content);
         li.attr('data-category', category);
-        li.attr('data-confirmed', confirmed);
-        li.attr('data-myevent', myevent);
+        li.attr('data-notconfirmed', notconfirmed);
+        li.attr('data-notmyevent', notmyevent);
         li.attr('data-color', color);
         li.css('background', color);
-        if (confirmed !== '1') {
-            li.css('opacity', '0.6');
-        }
-        if (myevent === '1') {
-            li.css('border', '5px solid darkblue');
+        if (notmyevent === '1' || notconfirmed === '1') {
+            li.css('border', '5px solid #576874');
         }
         a = $('<a>', {
             href: '#'
@@ -1002,8 +999,8 @@ jQuery(document).ready(function ($) {
                     e.title,
                     e.content,
                     e.category,
-                    e.confirmed,
-                    e.myevent,
+                    e.notconfirmed,
+                    e.notmyevent,
                     this.getEventCategoryColor(e.category),
                     moment.unix(e.start).format(this.conf.month.day.format) + ' : ' + moment.unix(e.start).format(this.conf.weekday.timeline.format) + ' - ' + moment.unix(e.end).format(this.conf.weekday.timeline.format),
                     ['calendar-event']
@@ -1034,8 +1031,8 @@ jQuery(document).ready(function ($) {
                     e.title,
                     e.content,
                     e.category,
-                    e.confirmed,
-                    e.myevent,
+                    e.notconfirmed,
+                    e.notmyevent,
                     this.getDaynoteCategoryColor(e.category),
                     moment.unix(e.time).format(this.conf.month.day.format),
                     ['calendar-event', 'calendar-daynote']

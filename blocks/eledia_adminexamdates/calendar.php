@@ -175,7 +175,8 @@ foreach ($dates as $date) {
             "</dt><dd>$examinernames</dd><dt>".get_string('contactperson', 'block_eledia_adminexamdates').
             "</dt><dd>$contactperson</dd></dl><div>$buttonhtml</div>" :
             get_string('room_already_occupied', 'block_eledia_adminexamdates',['room'=>$roomnames[$date->examroom]]);
-    $myevent = (!$hasconfirmexamdatescap && $myexamdate) ? true : false;
+    $notmyevent = (!$hasconfirmexamdatescap && !$myexamdate) ? true : false;
+    $notconfirmed = ($hasconfirmexamdatescap && !$date->confirmed) ? true : false;
     echo "     
       
         {
@@ -184,8 +185,8 @@ foreach ($dates as $date) {
           title: '$title',
           content: '$content' ,
           category:'$roomname',
-          confirmed:'$date->confirmed',
-          myevent:'$myevent'
+          notconfirmed:'$notconfirmed',
+          notmyevent:'$notmyevent'
         },
         
          ";
@@ -217,7 +218,7 @@ if ($hasconfirmexamdatescap) {
         $content = "<dl><dt>" . get_string('annotationtext', 'block_eledia_adminexamdates')
                 . ": </dt><dd>" . $roomannotationtext .
                 "</dd></dl><div>$buttonhtml</div>";
-
+        $notconfirmed = !$date->confirmed;
         echo "     
       
         {
@@ -226,8 +227,8 @@ if ($hasconfirmexamdatescap) {
           title: '$roomname',
           content: '$content' ,
           category:'$roomname',
-          confirmed:'$date->confirmed',
-          myevent:'0'
+          notconfirmed:'$notconfirmed',
+          notmyevent:'0'
         },
         
          ";

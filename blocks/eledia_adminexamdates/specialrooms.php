@@ -67,7 +67,7 @@ if ($mform->is_cancelled()) {
             array_push($roomnames, $roomitems[1]);
         }
     }
-    $date = date('d.m.Y H.i', $block->blocktimestart) . ' - ' . date('H.i', $block->blocktimestart + ($block->blockduration * 60));
+    $date = date('d.m.Y, H.i', $block->blocktimestart) . ' - ' . date('H.i', $block->blocktimestart + ($block->blockduration * 60)). get_string('time', 'block_eledia_adminexamdates');
     $message = get_string('cancelspecialrooms_msg', 'block_eledia_adminexamdates',
             ['date' => $date, 'rooms' => implode(', ', $roomnames)]);
     $formcontinue =

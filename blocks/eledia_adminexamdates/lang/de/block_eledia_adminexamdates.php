@@ -165,7 +165,7 @@ $string['examconfirm_email_subject'] = 'Bestätigung des Prüfungstermins: {$a->
 $string['examconfirm_email_body'] = 'Der Prüfungstermin wurde bestätigt für: 
 
 {$a->name}, 
-{$a->date} Uhr,
+{$a->date},
 {$a->course},
 {$a->url} 
 
@@ -174,7 +174,7 @@ $string['request_email_subject'] = 'Anfrage Prüfungstermin: {$a->name}';
 $string['request_email_body'] = 'Der Prüfungstermin wurde angefragt für: 
 
 {$a->name} 
-{$a->date} Uhr
+{$a->date}
 
 Anmerkungen:
 {$a->annotation} 
@@ -185,13 +185,13 @@ Anmerkungen:
 $string['examcancel_email_subject'] = 'Absage des Prüfungstermins für: {$a->name}';
 $string['examcancel_email_body'] = 'Der Prüfungstermin wurde abgesagt für: 
 
-{$a->name}, {$a->date} Uhr.';
+{$a->name}, {$a->date}.';
 $string['changerequest_email_subject'] = 'Änderungsanfrage an das Prüfungsteam: {$a->name}';
 $string['changerequest_email_body'] = 'Änderungsanfrage an das Prüfungsteam
 
 Prüfung: 
 {$a->name}, 
-{$a->date} Uhr, 
+{$a->date}, 
 {$a->url}  
 
 Anfrage:
@@ -228,7 +228,8 @@ $string['period'] = 'Zeitraum';
 $string['numberstudents'] = 'Anzahl Teilnehmende';
 $string['examnumber'] = 'Anzahl Prüfungen';
 $string['blocknumber'] = 'Anzahl Teiltermine';
-
+$string['time'] = ' Uhr';
+$string['error_pastexamtime'] = 'Das Klausur-Termin darf nicht in der Vergangenheit liegen.';
 
 
 

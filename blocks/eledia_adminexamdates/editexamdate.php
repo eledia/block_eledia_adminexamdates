@@ -58,14 +58,15 @@ if ($mform->is_cancelled()) {
     redirect(new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php'));
 } else if ($hasconfirmexamdatescap && !empty($newexamdate)) {
     $urlspecialrooms = new moodle_url('/blocks/eledia_adminexamdates/specialrooms.php', ['booktimestart' => $examtimestart]);
+    $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php', ['displaydate' => $examtimestart]);
     $message = get_string('chooseroomcategory_msg', 'block_eledia_adminexamdates');
-    $continueexamdate =
-            new single_button(new moodle_url($PAGE->url, ['examtimestart' => $examtimestart]),
-                    get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
-    $bookspecialroom = new single_button($urlspecialrooms, get_string('book_specialrooms', 'block_eledia_adminexamdates'));
     echo $OUTPUT->header();
-    echo $OUTPUT->box_start('generalbox');
-    echo $OUTPUT->confirm($message, $continueexamdate, $bookspecialroom);
+    echo $OUTPUT->box_start('generalbox centerpara boxwidthnormal boxaligncenter');
+    echo "<p>".$message."</p>\n";
+    echo $OUTPUT->single_button(new moodle_url($PAGE->url, ['examtimestart' => $examtimestart]), get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($urlspecialrooms, get_string('book_specialrooms', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($calendarurl, get_string('cancel'), 'post');
+    //echo $OUTPUT->confirm($message, $continueexamdate, $bookspecialroom);
     echo $OUTPUT->box_end();
 } else if (empty($formdata = $mform->get_data())) {
 
@@ -139,6 +140,10 @@ if ($mform->is_cancelled()) {
                 new moodle_url('/blocks/eledia_adminexamdates/specialrooms.php', ['bookingtimestart' => $examtimestart]);
         echo $OUTPUT->single_button($urlspecialrooms, get_string('book_specialrooms', 'block_eledia_adminexamdates'), 'post');
     }
+    $param = (!empty($examtimestart) && is_integer($examtimestart)) ? ['displaydate' => $examtimestart] : null;
+    $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php', $param);
+    echo $OUTPUT->single_button($calendarurl, get_string('cancel'), 'post');
+
     $mform->display();
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');

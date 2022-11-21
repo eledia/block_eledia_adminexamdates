@@ -235,6 +235,7 @@ $string['config_bordercolor_unconfirmed_dates'] = 'Rahmenfarbe für unbestätigt
 $string['setting_bordercolor_unavailable_dates'] = 'Rahmenfarbe 2';
 $string['config_bordercolor_unavailable_dates'] = 'Rahmenfarbe für nicht verfügbare Termine in der Kalenderansicht des Prüfungsterminmanagers.';
 $string['config_holidays'] = 'Jede Zeile konfiguriert einen Feiertag. In jeder Zeile steht zuerst ein Datum (z. B. \'01.05.2023\'), gefolgt vom Namen des Feiertags (z.B. \'Tag der Arbeit\'), getrennt durch einen senkrechten Strich.';
+$string['holidays'] ='Konfiguration der Feiertage';
 $string['modal_title_weekend_not_available'] = 'Wochenende';
 $string['modal_body_weekend_not_available'] ='Wochenendtermine sind nicht möglich. Bitte suchen Sie sich einen anderen Termin!';
 $string['modal_title_holiday_not_available'] = 'Feiertag';

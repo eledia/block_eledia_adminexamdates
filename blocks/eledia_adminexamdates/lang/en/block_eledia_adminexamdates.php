@@ -58,10 +58,10 @@ $string['examiner_help'] = 'Select one or more instructors from the list. The in
 $string['contactperson'] ='Contact person';
 $string['contactpersonemail'] ='Contact person\'s email';
 $string['responsibleperson'] ='SCL responsible person';
-$string['examrooms_default'] = 'PR1|Prüfungsraum 1|100|#E91E63
+$string['examrooms_default'] = 'PR1|Prüfungsraum 1|100|#AF7B84
 PR2|Prüfungsraum 2|100|#3F51B5
-AB|Administrationsbüro|0|#009688
-ER|Endabnahmeraum|0|#6D4C41';
+AB|Administrationsbüro|0|#FA9F37
+ER|Endabnahmeraum|0|#987D71';
 $string['config_examrooms'] = 'Each line configures its own room. In each line there is first a unique room ID (e.g. \'PR1\'), followed by the name of the room (e.g. \'Examination room 1\'), as well as the room capacity, i.e. the maximum number of participants (e.g. \'100\') and the displayed room color (e.g. \'#3F51B5\'), separated by a vertical line.';
 $string['examrooms'] ='Configuration of the examination rooms';
 $string['config_responsiblepersons'] = 'List of the user IDs of those responsible for the SCL, each separated by a comma. (e.g. \'2,4,5,12\')';
@@ -230,3 +230,15 @@ $string['examnumber'] = 'Number of exams';
 $string['blocknumber'] = 'Number of partial dates';
 $string['time'] = '';
 $string['error_pastexamtime'] = 'The exam date must not be in the past.';
+$string['setting_bordercolor_unconfirmed_dates'] = 'Border color 1';
+$string['config_bordercolor_unconfirmed_dates'] = 'Border color value for unconfirmed dates the calendar view of exam dates admins.';
+$string['setting_bordercolor_unavailable_dates'] = 'Border color 2';
+$string['config_bordercolor_unavailable_dates'] = 'Border color value for unavailable dates in the calendar view of exam dates manager.';
+$string['config_holidays'] = 'Each line configures a holiday. In each line there is first a date (e.g. \'01.05.2023\'), followed by the name of the holiday (e.g. \'Tag der Arbeit\'), separated by a vertical line.';
+$string['holidays'] ='Configuration of the holidays';
+$string['modal_title_weekend_not_available'] = 'Weekend: ';
+$string['modal_body_weekend_not_available'] ='Weekend dates are not available. Please look for another date!';
+$string['modal_title_holiday_not_available'] = 'Holiday: ';
+$string['modal_body_holiday_not_available'] ='Dates on a holiday are not available. Please look for another date!';
+$string['modal_title_past_not_available'] = 'Past';
+$string['modal_body_past_not_available'] ='Past dates are not available. Please find another date!';

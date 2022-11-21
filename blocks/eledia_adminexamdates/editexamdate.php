@@ -33,6 +33,7 @@ $newexamdate = optional_param('newexamdate', 0, PARAM_INT);
 $editexamdate = optional_param('editexamdate', 0, PARAM_INT);
 $examtimestart = optional_param('examtimestart', 0, PARAM_INT);
 $chooseroomcategory = optional_param('examtimestart', 0, PARAM_INT);
+$returnurl = optional_param('url', '', PARAM_RAW);
 
 $myurl = new \moodle_url($FULLME);
 

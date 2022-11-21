@@ -25,9 +25,9 @@ if ($ADMIN->fulltree) {
             get_string('setting_apidomain', 'block_eledia_adminexamdates'),
             '', '', PARAM_URL, 60);
 
-    $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/apitoken', get_string('setting_apitoken',
+    $configs[] = new admin_setting_configpasswordunmask('block_eledia_adminexamdates/apitoken', get_string('setting_apitoken',
             'block_eledia_adminexamdates'), get_string('config_apitoken',
-            'block_eledia_adminexamdates'), '', PARAM_RAW);
+            'block_eledia_adminexamdates'), '');
 
     $configs[] = new admin_setting_configtextarea('examrooms',
             new lang_string('examrooms', 'block_eledia_adminexamdates'),
@@ -99,6 +99,21 @@ if ($ADMIN->fulltree) {
             new lang_string('responsiblepersons', 'block_eledia_adminexamdates'),
             new lang_string('config_responsiblepersons', 'block_eledia_adminexamdates'),
             '', PARAM_RAW, '40');
+
+    $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/bordercolor1',
+            get_string('setting_bordercolor_unconfirmed_dates',
+                    'block_eledia_adminexamdates'), get_string('config_bordercolor_unconfirmed_dates',
+                    'block_eledia_adminexamdates'), '#576874', PARAM_RAW, 8);
+
+    $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/bordercolor2',
+            get_string('setting_bordercolor_unavailable_dates',
+                    'block_eledia_adminexamdates'), get_string('config_bordercolor_unavailable_dates',
+                    'block_eledia_adminexamdates'), '#576874', PARAM_RAW, 8);
+
+    $configs[] = new admin_setting_configtextarea('holidays',
+            new lang_string('holidays', 'block_eledia_adminexamdates'),
+            new lang_string('config_holidays', 'block_eledia_adminexamdates'),
+            '', PARAM_RAW, '15', '5');
 
     foreach ($configs as $config) {
         $config->plugin = 'block_eledia_adminexamdates';

@@ -116,7 +116,9 @@ jQuery(document).ready(function ($) {
             colors: {
                 events: (Args.colors) ? (Args.colors.events) ? Args.colors.events : eventColors : eventColors,
                 daynotes: (Args.colors) ? (Args.colors.daynotes) ? Args.colors.daynotes : daynoteColors : daynoteColors,
-                random: (Args.colors) ? (Args.colors.random) ? Args.colors.random : true : true
+                random: (Args.colors) ? (Args.colors.random) ? Args.colors.random : true : true,
+                border1: (Args.colors) ? (Args.colors.border1) ? (Args.colors.border1) : '#576874' : '#576874',
+                border2: (Args.colors) ? (Args.colors.border2) ? (Args.colors.border2) : '#576874' : '#576874'
             },
             categories: {
                 enable: (Args.categories) ? (Args.categories.enable !== undefined) ? Args.categories.enable : true : true,
@@ -437,6 +439,11 @@ jQuery(document).ready(function ($) {
             }
             li.append(div);
             li.attr('data-time', time.startOf('day').format('X'));
+            var date = new Date(time);
+            var dayOfWeek = date.getDay();
+            var isWeekend = (dayOfWeek === 6) || (dayOfWeek  === 0);
+            li.attr('data-weekend', isWeekend);
+
             li.append($('<ul>'));
             li.find('ul').height(((60 / this.conf.weekday.timeline.intervalMinutes) * (this.conf.weekday.timeline.toHour - this.conf.weekday.timeline.fromHour) * this.conf.weekday.timeline.heightPx) + ((60 / this.conf.weekday.timeline.intervalMinutes) * this.conf.weekday.timeline.heightPx));
             ul.append(li);
@@ -954,8 +961,11 @@ jQuery(document).ready(function ($) {
         li.attr('data-notmyevent', notmyevent);
         li.attr('data-color', color);
         li.css('background', color);
-        if (notmyevent === '1' || notconfirmed === '1') {
-            li.css('border', '5px solid #576874');
+        if (notmyevent === '1') {
+            li.css('border', '5px solid '+this.conf.colors.border2);
+        }
+        if (notconfirmed === '1') {
+            li.css('border', '5px solid '+this.conf.colors.border1);
         }
         a = $('<a>', {
             href: '#'

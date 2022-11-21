@@ -148,7 +148,7 @@ $string['eledia_adminexamdates:confirmexamdates'] = 'Bestätigen der E-Klausur T
 $string['delete'] ='Löschen';
 $string['confirm_delete_singleexamdate_msg'] = 'Wollen Sie in der Klausur: \'{$a->name}\' den {$a->index} Teiltermin löschen?';
 $string['error_examdate_already_taken']  = 'Dieser Termin ist bereits vergeben. Bitte suchen Sie nach einem anderen  Termin!';
-$string['error_startexamtime']  = 'Der frühestmögliche Klausur-Termin ist {$a->start} Uhr. Der spätestmögliche Zeitpunkt für die Beendigung einer Klausur ist {$a->end} Uhr.';
+$string['error_startexamtime']  = 'Der frühestmögliche Klausurtermin ist {$a->start} Uhr. Der spätestmögliche Zeitpunkt für die Beendigung einer Klausur ist {$a->end} Uhr.';
 $string['autocomplete_placeholder']  = 'Suche oder Eingabe mit Eingabetaste ';
 $string['error_email'] = 'Bitte geben Sie eine gültige E-Mail-Adresse ein!';
 $string['pleasechoose'] = 'Bitte auswählen ...';
@@ -229,13 +229,15 @@ $string['numberstudents'] = 'Anzahl Teilnehmende';
 $string['examnumber'] = 'Anzahl Prüfungen';
 $string['blocknumber'] = 'Anzahl Teiltermine';
 $string['time'] = ' Uhr';
-$string['error_pastexamtime'] = 'Das Klausur-Termin darf nicht in der Vergangenheit liegen.';
-
-
-
-
-
-
-
-
-
+$string['error_pastexamtime'] = 'Das Klausurtermin darf nicht in der Vergangenheit liegen.';
+$string['setting_bordercolor_unconfirmed_dates'] = 'Rahmenfarbe 1';
+$string['config_bordercolor_unconfirmed_dates'] = 'Rahmenfarbe für unbestätigte Termine in der Kalenderansicht der Prüfungstermin-Admins.';
+$string['setting_bordercolor_unavailable_dates'] = 'Rahmenfarbe 2';
+$string['config_bordercolor_unavailable_dates'] = 'Rahmenfarbe für nicht verfügbare Termine in der Kalenderansicht des Prüfungsterminmanagers.';
+$string['config_holidays'] = 'Jede Zeile konfiguriert einen Feiertag. In jeder Zeile steht zuerst ein Datum (z. B. \'01.05.2023\'), gefolgt vom Namen des Feiertags (z.B. \'Tag der Arbeit\'), getrennt durch einen senkrechten Strich.';
+$string['modal_title_weekend_not_available'] = 'Wochenende';
+$string['modal_body_weekend_not_available'] ='Wochenendtermine sind nicht möglich. Bitte suchen Sie sich einen anderen Termin!';
+$string['modal_title_holiday_not_available'] = 'Feiertag';
+$string['modal_body_holiday_not_available'] ='Termine an Feiertagen sind nicht möglich. Bitte suchen Sie sich einen anderen Termin!';
+$string['modal_title_past_not_available'] = 'Vergangenheit';
+$string['modal_body_past_not_available'] ='Termine in der Vergangenheit sind nicht möglich. Bitte suchen Sie sich einen anderen Termin!';

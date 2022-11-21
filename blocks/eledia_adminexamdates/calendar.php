@@ -59,7 +59,6 @@ $PAGE->set_title(get_string('calendar_btn', 'block_eledia_adminexamdates'));
 //<script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
 $PAGE->set_pagelayout('course');
 
-
 $sql = "SELECT ar.id, a.id AS examdateid, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.examroom, ar.blockid, a.numberstudents, a.examiner,a.responsibleperson, a.contactperson, a.confirmed, a.userid
                     FROM {eledia_adminexamdates} a
                     LEFT JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
@@ -75,7 +74,7 @@ $sqlspecial = "SELECT ar.id, ar.blockid,ab.blocktimestart, ab.blockduration, ar.
 
 $dates = $DB->get_records_sql($sql);
 
-$hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
+$hasconfirmexamdatescap = (has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance())) ? 1 : 0;
 
 if ($hasconfirmexamdatescap) {
     $specialroomdates = $DB->get_records_sql($sqlspecial);
@@ -102,6 +101,15 @@ foreach ($rooms as $room) {
 
 $roomscount = $hasconfirmexamdatescap ? count($roomcategories) : count($roomswithcapacity);
 
+$holidaylines = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'holidays'));
+$holidays = [];
+foreach ($holidaylines as $holidayline) {
+    $holidayitems = explode('|', $holidayline);
+    if (($holidaytime = strtotime($holidayitems[0])) && !empty($holidayitems[1])) {
+        $holidays[$holidaytime] = trim($holidayitems[1]);
+    }
+}
+$holidaysjson = json_encode($holidays);
 //$roomcategorycolors=array_reverse($roomcategorycolors);
 //$roomcategories=array_reverse($roomcategories);
 echo " <script>
@@ -109,13 +117,13 @@ echo " <script>
         moment.locale('de');
         var now = moment();
         
+        var holidays = $holidaysjson;
         /**
          * Many events
          */
          var events= [
         ";
 
-$hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
 foreach ($dates as $date) {
     if (!$hasconfirmexamdatescap && !in_array($date->examroom, $roomswithcapacity)) {
         continue;
@@ -158,7 +166,8 @@ foreach ($dates as $date) {
     $buttonhtml .= \html_writer::end_tag('div');
 
     $myexamdate = ($date->userid == $USER->id || $date->contactperson == $USER->id) ? true : false;
-    $title = ($hasconfirmexamdatescap || $myexamdate) ? str_replace("'", '`', $date->examname) : get_string('room_occupied', 'block_eledia_adminexamdates',['room'=>$roomnames[$date->examroom]]);
+    $title = ($hasconfirmexamdatescap || $myexamdate) ? str_replace("'", '`', $date->examname) :
+            get_string('room_occupied', 'block_eledia_adminexamdates', ['room' => $roomnames[$date->examroom]]);
     $examiners = explode(',', $date->examiner);
     $examinernames = [];
     foreach ($examiners as $examiner) {
@@ -170,11 +179,11 @@ foreach ($dates as $date) {
     $contactperson = \core_user::get_user($date->contactperson);
     $contactperson = fullname($contactperson) . ' | ' . $contactperson->email;
     $content = ($hasconfirmexamdatescap || $myexamdate) ?
-            "<dl><dt>".get_string('number_students', 'block_eledia_adminexamdates').
-            "</dt><dd>$date->numberstudents</dd><dt>".get_string('examiner', 'block_eledia_adminexamdates').
-            "</dt><dd>$examinernames</dd><dt>".get_string('contactperson', 'block_eledia_adminexamdates').
+            "<dl><dt>" . get_string('number_students', 'block_eledia_adminexamdates') .
+            "</dt><dd>$date->numberstudents</dd><dt>" . get_string('examiner', 'block_eledia_adminexamdates') .
+            "</dt><dd>$examinernames</dd><dt>" . get_string('contactperson', 'block_eledia_adminexamdates') .
             "</dt><dd>$contactperson</dd></dl><div>$buttonhtml</div>" :
-            get_string('room_already_occupied', 'block_eledia_adminexamdates',['room'=>$roomnames[$date->examroom]]);
+            get_string('room_already_occupied', 'block_eledia_adminexamdates', ['room' => $roomnames[$date->examroom]]);
     $notmyevent = (!$hasconfirmexamdatescap && !$myexamdate) ? true : false;
     $notconfirmed = ($hasconfirmexamdatescap && !$date->confirmed) ? true : false;
     echo "     
@@ -237,6 +246,9 @@ if ($hasconfirmexamdatescap) {
 }
 $fromhour = get_config('block_eledia_adminexamdates', 'startcalendar');
 $tohour = get_config('block_eledia_adminexamdates', 'endcalendar');
+$bordercolor1 = get_config('block_eledia_adminexamdates', 'bordercolor1');
+$bordercolor2 = get_config('block_eledia_adminexamdates', 'bordercolor2');
+$date = strtotime('today');
 echo "       ];
 
 
@@ -247,6 +259,8 @@ echo "       ];
               colors: {
             random: false,
             events: ['#E91E63', '#3F51B5','#009688', '#6D4C41'],
+            border1: '$bordercolor1',
+            border2: '$bordercolor2',
             },
             rooms: $roomscount,
         locale: 'de',
@@ -314,8 +328,23 @@ unixTimestamp: $displaydate
   
       $('#calendar').on('click', '.calendar-events-day',function(event){     
       console.log(event);
-     
-      var examtimestart = parseInt(this.getAttribute('data-time')) + ($fromhour*60*60) + (Math.trunc((event.offsetY)/50)*60*60);
+      var weekend = (this.getAttribute('data-weekend') === 'true');
+      var day = $(this).find('.weektoday').text();
+       var datatime = parseInt(this.getAttribute('data-time'));
+       if((datatime < $date) && !($hasconfirmexamdatescap)){
+       var modal = $('#calendar-modal-past');
+       modal.find('.modal-title-past').html(' - '+day);
+        modal.modal('show');
+      } else if((datatime in holidays) && !($hasconfirmexamdatescap)){
+       var modal = $('#calendar-modal-holidays');
+       modal.find('.modal-title-holiday').html(' - '+day+', '+holidays[datatime]);
+        modal.modal('show');
+      } else if (weekend && !($hasconfirmexamdatescap)){
+       var modal = $('#calendar-modal-weekend');
+        modal.find('.modal-title-weekend').html(' - '+day);
+        modal.modal('show');
+      } else {
+       var examtimestart = datatime + ($fromhour*60*60) + (Math.trunc((event.offsetY)/50)*60*60);
        
        var editexamdateform = $(\"#editexamdate\");
         editexamdateform.find(\"input[name=\'examtimestart\']\").val(examtimestart);
@@ -323,6 +352,9 @@ unixTimestamp: $displaydate
         editexamdateform.find(\"form\").submit();
         }
       test=0;
+      }
+      
+      
       });
       
     $('#action-menu-toggle-1').on('click', function(e) {
@@ -333,8 +365,6 @@ unixTimestamp: $displaydate
     });
  
   </script>";
-
-
 
 $mform = new \block_eledia_adminexamdates\forms\calendar_form();
 
@@ -380,8 +410,9 @@ echo \html_writer::end_tag('div');
 echo \html_writer::end_tag('div');
 echo \html_writer::end_tag('div');
 
-$urleditexamdate = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1, 'examtimestart' => '']);
-echo $OUTPUT->box($OUTPUT->single_button($urleditexamdate, '', 'post'), 'd-none', 'editexamdate');
+$urleditexamdate = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php',
+        ['newexamdate' => 1, 'examtimestart' => '', 'url' => rawurlencode($myurl)]);
+echo $OUTPUT->box($OUTPUT->single_button($urleditexamdate, ''), 'd-none', 'editexamdate');
 
 $roomcategories = json_encode($roomcategories);
 $roomcategorycolors = json_encode($roomcategorycolors);
@@ -389,6 +420,47 @@ echo \html_writer::tag('div', '',
         ['id' => 'calendar-roomcategories', 'class' => 'd-none', 'data-calendar-roomcategories' => $roomcategories,
                 'data-calendar-roomcolors' => $roomcategorycolors]);
 
+echo '<div class="modal fade" id="calendar-modal-weekend" tabindex="-1" role="dialog">';
+echo '<div class="modal-dialog" role="document">';
+echo '<div class="modal-content">';
+echo '<div class="modal-header">';
+echo '<h3 class="modal-title">' . get_string('modal_title_weekend_not_available', 'block_eledia_adminexamdates') .
+        '<span class="modal-title-weekend"></span></h3>';
+echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"></span></button>';
+echo '</div>';
+echo '<div class="modal-body">' . get_string('modal_body_weekend_not_available', 'block_eledia_adminexamdates');
+echo '</div>';
+echo '</div>';
+echo '</div>';
+echo '</div>';
+
+echo '<div class="modal fade" id="calendar-modal-holidays" tabindex="-1" role="dialog">';
+echo '<div class="modal-dialog" role="document">';
+echo '<div class="modal-content">';
+echo '<div class="modal-header">';
+echo '<h3 class="modal-title">' . get_string('modal_title_holiday_not_available', 'block_eledia_adminexamdates') .
+        '<span class="modal-title-holiday"></span></h3>';
+echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"></span></button>';
+echo '</div>';
+echo '<div class="modal-body">' . get_string('modal_body_holiday_not_available', 'block_eledia_adminexamdates');
+echo '</div>';
+echo '</div>';
+echo '</div>';
+echo '</div>';
+
+echo '<div class="modal fade" id="calendar-modal-past" tabindex="-1" role="dialog">';
+echo '<div class="modal-dialog" role="document">';
+echo '<div class="modal-content">';
+echo '<div class="modal-header">';
+echo '<h3 class="modal-title">' . get_string('modal_title_past_not_available', 'block_eledia_adminexamdates') .
+        '<span class="modal-title-past"></span></h3>';
+echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"></span></button>';
+echo '</div>';
+echo '<div class="modal-body">' . get_string('modal_body_past_not_available', 'block_eledia_adminexamdates');
+echo '</div>';
+echo '</div>';
+echo '</div>';
+echo '</div>';
 echo $OUTPUT->container_end();
 
 echo $OUTPUT->footer();

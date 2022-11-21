@@ -388,6 +388,7 @@ class util {
         $bookingrooms = [];
         $bookdate = $formdata->examtimestart;
         // $firstbooking = true;
+        $firstbookingdate = true;
 
         while ($numberstudents > 0) {
             //print_r('###WHILE!');
@@ -442,12 +443,21 @@ class util {
                 }
                 $bookdate = $bookdate + ($formdata->examduration + $breakbetweenblockdates) * 60;
             } else {
-                return $bookings ? false : get_string('error_examdate_already_taken', 'block_eledia_adminexamdates');
+                if($bookings){
+                    return false;
+                } else if($firstbookingdate){
+                    return get_string('error_examdate_already_taken', 'block_eledia_adminexamdates');
+                } else {
+                    return get_string('error_startexamtime', 'block_eledia_adminexamdates',
+                            ['start' => date('H.i', $startexam), 'end' => date('H.i', $endexam)]);
+                }
+                
                 //$timeneedbegin = $firstbooking ? $distancebetweenblockdates : $breakbetweenblockdates;
                 //$bookdate = $bookdate +
                 // return false;
                 // exit;
             }
+            $firstbookingdate = false;
         }
         if ($bookings) {
             return $bookingrooms;

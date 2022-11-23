@@ -70,6 +70,9 @@ class specialrooms_form extends \moodleform
         $mform->addElement('hidden', 'blockid');
         $mform->setType('blockid', PARAM_INT);
 
+        $mform->addElement('hidden', 'url');
+        $mform->setType('url', PARAM_RAW);
+
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton', get_string('submit'));
         $buttonarray[] = &$mform->createElement('cancel');

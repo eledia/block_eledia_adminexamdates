@@ -39,6 +39,7 @@ class examdate_form extends \moodleform {
         $mform =& $this->_form;
         $onlynumberstudents =& $this->_customdata['onlynumberstudents'];
         $editexamdate=& $this->_customdata['editexamdate'];
+
         if ($hasconfirmexamdatescap) {
             $radioarray = array();
             $radioarray[] = $mform->createElement('radio', 'category', '',
@@ -243,6 +244,9 @@ class examdate_form extends \moodleform {
         }
         $mform->addElement('hidden', 'editexamdate');
         $mform->setType('editexamdate', PARAM_INT);
+
+        $mform->addElement('hidden', 'url');
+        $mform->setType('url', PARAM_RAW);
 
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton', get_string('submit'));

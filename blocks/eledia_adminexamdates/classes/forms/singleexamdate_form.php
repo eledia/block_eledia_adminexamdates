@@ -289,6 +289,8 @@ class singleexamdate_form extends \moodleform
         $mform->setType('blockid', PARAM_INT);
         $mform->addElement('hidden', 'examdateid');
         $mform->setType('examdateid', PARAM_INT);
+        $mform->addElement('hidden', 'url');
+        $mform->setType('url', PARAM_RAW);
 
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton', get_string('submit'));

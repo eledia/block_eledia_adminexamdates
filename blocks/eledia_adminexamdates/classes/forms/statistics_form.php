@@ -107,6 +107,9 @@ class statistics_form extends \moodleform {
         $mform->addRule('department', null, 'required', null, 'client');
         $mform->setDefault('department',  array_keys($options));
 
+        $mform->addElement('hidden', 'url');
+        $mform->setType('url', PARAM_RAW);
+
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton', get_string('choose'));
         $buttonarray[] = &$mform->createElement('cancel');

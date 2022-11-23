@@ -28,14 +28,11 @@ $context = context_system::instance();
 
 require_login();
 
-//$month = optional_param('month', 0, PARAM_INT);
-//$year = optional_param('year', 0, PARAM_INT);
-$displaydate = optional_param('displaydate', 0, PARAM_INT);
-//$monthnow = date('m');
-//$yearnow = date('Y');
-if (is_array($displaydate)) {
-    $displaydate = mktime(0, 0, 0, $displaydate['month'], $displaydate['day'], $displaydate['year']);
-}
+
+$displaydate = optional_param_array('displaydate', null, PARAM_INT);
+
+$displaydate = (is_array($displaydate)) ? mktime(0, 0, 0, $displaydate['month'], $displaydate['day'], $displaydate['year']) : 0;
+
 // <script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
 
 //  <script src="calendar/src/js/jquery-calendar.js"></script>
@@ -266,7 +263,7 @@ echo "       ];
         locale: 'de',
         weekday: {
         dayline: {
-                format:'dddd DD.MM'
+                format:'dddd DD.MM.'
                 },
             timeline: {
                 intervalMinutes: 60,
@@ -372,7 +369,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->container_start();
 
 $url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1]);
-$newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
+$newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
 $urllist = new moodle_url('/blocks/eledia_adminexamdates/examdateslist.php');
 $unconfirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
 $confirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesconfirmed.php');
@@ -386,17 +383,17 @@ echo \html_writer::tag('button', get_string('calendar_btn', 'block_eledia_admine
         array('disabled' => true, 'class' => 'btn '));
 echo \html_writer::end_tag('div');
 if ($hasconfirmexamdatescap) {
-    echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'));
 };
-echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_eledia_adminexamdates'), 'post');
+echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_eledia_adminexamdates'));
 if (!$hasconfirmexamdatescap) {
-    echo $OUTPUT->single_button($confirmed, get_string('confirmed_btn', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($confirmed, get_string('confirmed_btn', 'block_eledia_adminexamdates'));
 }
-echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
+echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
 if ($hasconfirmexamdatescap) {
-    echo $OUTPUT->single_button($statistics, get_string('statistics', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($statistics, get_string('statistics', 'block_eledia_adminexamdates'));
     $urlReport = new moodle_url('/mod/elediachecklist/terminreport.php');
-    echo $OUTPUT->single_button($urlReport, get_string('report_button', 'elediachecklist'), 'get');
+    echo $OUTPUT->single_button($urlReport, get_string('report_button', 'elediachecklist'));
 
 }
 echo \html_writer::end_tag('div');
@@ -411,7 +408,7 @@ echo \html_writer::end_tag('div');
 echo \html_writer::end_tag('div');
 
 $urleditexamdate = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php',
-        ['newexamdate' => 1, 'examtimestart' => '', 'url' => rawurlencode($myurl)]);
+        ['newexamdate' => 1, 'examtimestart' => '']);
 echo $OUTPUT->box($OUTPUT->single_button($urleditexamdate, ''), 'd-none', 'editexamdate');
 
 $roomcategories = json_encode($roomcategories);

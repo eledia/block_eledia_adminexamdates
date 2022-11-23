@@ -36,6 +36,10 @@ $booktimestart = optional_param('booktimestart', 0, PARAM_INT);
 $blockid = optional_param('blockid', 0, PARAM_INT);
 $cancelspecialrooms = optional_param('cancelspecialrooms', 0, PARAM_INT);
 $cancelspecialroomsyes = optional_param('cancelspecialroomsyes', 0, PARAM_INT);
+$returnurl = optional_param('url', '', PARAM_RAW);
+
+$calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php');
+$returnurldecoded = (!empty($returnurl)) ? rawurldecode($returnurl) : $calendarurl;
 
 $myurl = new \moodle_url($FULLME);
 
@@ -49,11 +53,11 @@ $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexa
 
 // Execute the form.
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/blocks/eledia_adminexamdates/calendar.php'));
+    redirect($returnurldecoded);
 
 } else if (!empty($cancelspecialroomsyes)) {
     block_eledia_adminexamdates\util::cancelspecialrooms($cancelspecialroomsyes);
-    redirect(new moodle_url('/blocks/eledia_adminexamdates/calendar.php'));
+    redirect($returnurldecoded);
 
 } else if (!empty($cancelspecialrooms)) {
     $block = $DB->get_record('eledia_adminexamdates_blocks', ['id' => $cancelspecialrooms]);
@@ -67,12 +71,11 @@ if ($mform->is_cancelled()) {
             array_push($roomnames, $roomitems[1]);
         }
     }
-    $date = date('d.m.Y, H.i', $block->blocktimestart) . ' - ' . date('H.i', $block->blocktimestart + ($block->blockduration * 60)). get_string('time', 'block_eledia_adminexamdates');
+    $date = date('d.m.Y, H.i', $block->blocktimestart) . ' - ' . date('H.i', $block->blocktimestart + ($block->blockduration * 60)). get_string('hour', 'block_eledia_adminexamdates');
     $message = get_string('cancelspecialrooms_msg', 'block_eledia_adminexamdates',
             ['date' => $date, 'rooms' => implode(', ', $roomnames)]);
     $formcontinue =
-            new single_button(new moodle_url($PAGE->url, ['cancelspecialroomsyes' => $cancelspecialrooms]), get_string('yes'),
-                    'post');
+            new single_button(new moodle_url($PAGE->url, ['cancelspecialroomsyes' => $cancelspecialrooms]), get_string('yes'));
     $formcancel = new single_button(new moodle_url('/blocks/eledia_adminexamdates/calendar.php'), get_string('no'));
     echo $OUTPUT->header();
     echo $OUTPUT->box_start('generalbox');
@@ -96,9 +99,9 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->footer();
 } else if (!empty($formdata = $mform->get_data())) {
     $examdateid = block_eledia_adminexamdates\util::savespecialrooms($formdata);
-    redirect(new moodle_url('/blocks/eledia_adminexamdates/calendar.php'));
+    redirect($returnurldecoded);
 } else {
-    redirect(new moodle_url('/blocks/eledia_adminexamdates/calendar.php'));
+    redirect($returnurldecoded);
 }
 
 

@@ -54,7 +54,7 @@ if (!empty($confirmexamdate)) {
     $examdatename = $DB->get_record('eledia_adminexamdates', ['id' => $confirmexamdate], 'examname');
     $message = get_string('confirmexamdatemsg', 'block_eledia_adminexamdates', ['name' => $examdatename->examname]);
     $formcontinue =
-            new single_button(new moodle_url($PAGE->url, ['confirmexamdateyes' => $confirmexamdate]), get_string('yes'), 'post');
+            new single_button(new moodle_url($PAGE->url, ['confirmexamdateyes' => $confirmexamdate]), get_string('yes'));
     $formcancel = new single_button(new moodle_url($PAGE->url), get_string('no'));
     echo $OUTPUT->header();
     echo $OUTPUT->box_start('generalbox');
@@ -65,7 +65,7 @@ if (!empty($confirmexamdate)) {
     $examdatename = $DB->get_record('eledia_adminexamdates', ['id' => $cancelexamdate], 'examname');
     $message = get_string('cancelexamdatemsg', 'block_eledia_adminexamdates', ['name' => $examdatename->examname]);
     $formcontinue =
-            new single_button(new moodle_url($PAGE->url, ['cancelexamdateyes' => $cancelexamdate]), get_string('yes'), 'post');
+            new single_button(new moodle_url($PAGE->url, ['cancelexamdateyes' => $cancelexamdate]), get_string('yes'));
     $formcancel = new single_button(new moodle_url($PAGE->url), get_string('no'));
     echo $OUTPUT->header();
     echo $OUTPUT->box_start('generalbox');
@@ -84,23 +84,23 @@ if (!empty($confirmexamdate)) {
     echo '<script type="text/javascript" src="js/datatables/datatables.min.js"></script>';
     echo $OUTPUT->container_start();
 
-    $url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1]);
-    $newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
+    $url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1, 'url' => rawurlencode($myurl)]);
+    $newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
     $urlcalendar = new moodle_url('/blocks/eledia_adminexamdates/calendar.php');
     $unconfirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
-    $statistics = new moodle_url('/blocks/eledia_adminexamdates/statistics.php');
+    $statistics = new moodle_url('/blocks/eledia_adminexamdates/statistics.php', ['url' => rawurlencode($myurl)]);
 
     echo \html_writer::start_tag('div', array('class' => 'container-fluid px-4'));
     echo \html_writer::start_tag('div', array('class' => 'row'));
     echo \html_writer::start_tag('div', array('class' => 'col-md-12'));
-    echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'));
     echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
     echo \html_writer::tag('button', get_string('examdateslist_btn', 'block_eledia_adminexamdates'),
             array('disabled' => true, 'class' => 'btn '));
     echo \html_writer::end_tag('div');
-    echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_eledia_adminexamdates'), 'post');
-    echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'), 'post');
-    echo $OUTPUT->single_button($statistics, get_string('statistics', 'block_eledia_adminexamdates'), 'post');
+    echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_eledia_adminexamdates'));
+    echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
+    echo $OUTPUT->single_button($statistics, get_string('statistics', 'block_eledia_adminexamdates'));
     $urlReport = new moodle_url('/mod/elediachecklist/terminreport.php');
     echo $OUTPUT->single_button($urlReport, get_string('report_button', 'elediachecklist'), 'get');
     echo \html_writer::end_tag('div');
@@ -112,7 +112,7 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::end_tag('p');
 
     $urleditsingleexamdate = new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['blockid' => '']);
-    echo $OUTPUT->box($OUTPUT->single_button($urleditsingleexamdate, '', 'post'), 'd-none', 'editsingleexamdate');
+    echo $OUTPUT->box($OUTPUT->single_button($urleditsingleexamdate, ''), 'd-none', 'editsingleexamdate');
 
     //  echo '<link rel="stylesheet" type="text/css" href="datatables/datatables.min.css"/>';
     echo '<style>

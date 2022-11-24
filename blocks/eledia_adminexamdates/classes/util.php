@@ -1021,8 +1021,8 @@ class util {
             $text .= \html_writer::end_tag('dl');
             $text .= \html_writer::end_tag('p');
             //  if ($hasconfirmexamdatescap || !$adminexamdate->confirmed) {
-            
-            $returnurl = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
+
+            $returnurl = rawurlencode(new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php'));
             $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $adminexamdate->id , 'url' => $returnurl]);
 
             $text .= $OUTPUT->single_button($url, get_string('editexamdate', 'block_eledia_adminexamdates'));

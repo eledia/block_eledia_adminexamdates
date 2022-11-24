@@ -58,9 +58,10 @@ $mform = new \block_eledia_adminexamdates\forms\examdatesconfirmed_form();
     echo \html_writer::start_tag('div',array('class' => 'container-fluid px-4'));
     echo \html_writer::start_tag('div',array('class' => 'row'));
     echo \html_writer::start_tag('div',array('class' => 'col-xs-12'));
+
     echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'));
     echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_eledia_adminexamdates'));
-    echo \html_writer::start_tag('div',array('class' => 'singlebutton'));
+    echo \html_writer::start_tag('div',array('class' => 'singlebutton mb-3'));
     echo \html_writer::tag('button', get_string('confirmed_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
     echo \html_writer::end_tag('div');
     echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
@@ -68,9 +69,19 @@ $mform = new \block_eledia_adminexamdates\forms\examdatesconfirmed_form();
     echo \html_writer::end_tag('div');
     echo \html_writer::start_tag('div',array('class' => 'row mt-3'));
     echo \html_writer::start_tag('div',array('class' => 'col-xs-12'));
-    echo \html_writer::tag('p', '&nbsp;');
+    echo \html_writer::start_tag('div', array('class' => 'card-deck'));
+    echo \html_writer::start_tag('div', array('class' => 'card'));
+    echo \html_writer::start_tag('div', array('class' => 'card-body'));
+    echo \html_writer::start_tag('p', array('class' => 'card-text'));
+
     $mform->display();
     echo block_eledia_adminexamdates\util::getexamdateitems(true,$displaydatefrom, $displaydateto);
+
+    echo \html_writer::end_tag('p');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');

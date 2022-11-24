@@ -187,7 +187,7 @@ $unconfirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirme
 echo \html_writer::start_tag('div',array('class' => 'container-fluid px-4'));
 echo \html_writer::start_tag('div',array('class' => 'row'));
 echo \html_writer::start_tag('div',array('class' => 'col-xs-12'));
-echo \html_writer::start_tag('div',array('class' => 'singlebutton'));
+echo \html_writer::start_tag('div',array('class' => 'singlebutton mb-3'));
 echo \html_writer::tag('button', get_string('calendar_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
 echo \html_writer::end_tag('div');
 echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'));

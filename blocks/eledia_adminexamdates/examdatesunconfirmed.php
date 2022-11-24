@@ -87,7 +87,7 @@ if (!empty($confirmexamdate)) {
     if ($hasconfirmexamdatescap) {
         echo $OUTPUT->single_button($urllist, get_string('examdateslist_btn', 'block_eledia_adminexamdates'));
     }
-    echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
+    echo \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
     echo \html_writer::tag('button', get_string('unconfirmed_btn', 'block_eledia_adminexamdates'),
             array('disabled' => true, 'class' => 'btn '));
     echo \html_writer::end_tag('div');
@@ -105,7 +105,7 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::end_tag('div');
     echo \html_writer::start_tag('div', array('id'=>'examdatesunconfirmed-container'));
     $PAGE->requires->js_call_amd('block_eledia_adminexamdates/examdatesunconfirmed','annotationText');
-    echo \html_writer::start_tag('div', array('class' => 'row mt-3'));
+    echo \html_writer::start_tag('div', array('class' => 'row'));
     echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
     echo block_eledia_adminexamdates\util::getexamdateitems(false);
     echo \html_writer::end_tag('div');

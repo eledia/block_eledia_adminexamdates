@@ -958,8 +958,9 @@ class util {
             $adminexamblocks =
                     $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $adminexamdate->id], 'blocktimestart');
             $lastblock = end($adminexamblocks);
-            $text .= \html_writer::start_tag('div', array('class' => 'row mt-3'));
-            $text .= \html_writer::start_tag('div', array('class' => 'card mr-3'));
+
+            $text .= \html_writer::start_tag('div', array('class' => 'card-deck mt-3'));
+            $text .= \html_writer::start_tag('div', array('class' => 'card'));
             $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
             if ($hasconfirmexamdatescap) {
                 $annotationtextlinkstring = get_string('annotationtext', 'block_eledia_adminexamdates');
@@ -1020,7 +1021,9 @@ class util {
             $text .= \html_writer::end_tag('dl');
             $text .= \html_writer::end_tag('p');
             //  if ($hasconfirmexamdatescap || !$adminexamdate->confirmed) {
-            $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $adminexamdate->id]);
+            
+            $returnurl = new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
+            $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $adminexamdate->id , 'url' => $returnurl]);
 
             $text .= $OUTPUT->single_button($url, get_string('editexamdate', 'block_eledia_adminexamdates'));
             //   }
@@ -1786,6 +1789,8 @@ class util {
         if (!empty($records)) {
             $records = array_values($records);
             $first = array_shift($records);
+
+            $text .= \html_writer::start_tag('div', array('class' => 'card-deck mt-3'));
             $text .= \html_writer::start_tag('div', array('class' => 'card'));
             $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
             $text .= \html_writer::tag('h5',
@@ -1813,9 +1818,9 @@ class util {
 
             $departmentchoices = unserialize(get_config('block_eledia_adminexamdates', 'departmentchoices'));
             $departments = array_intersect_key($departmentchoices, array_flip($formdata->department));
-            sort($departments);
+            //sort($departments);
             $text .= \html_writer::tag('dt', get_string('department', 'block_eledia_adminexamdates'));
-            $text .= \html_writer::tag('dd', implode(', ', $departments));
+            $text .= \html_writer::tag('dd', implode(', <br>', $departments));
             $text .= \html_writer::tag('dt', get_string('numberstudents', 'block_eledia_adminexamdates'));
             $text .= \html_writer::tag('dd', empty($first->numberstudents) ? 0 : $first->numberstudents);
             $text .= \html_writer::tag('dt', get_string('examnumber', 'block_eledia_adminexamdates'));
@@ -1823,6 +1828,7 @@ class util {
             $text .= \html_writer::tag('dt', get_string('blocknumber', 'block_eledia_adminexamdates'));
             $text .= \html_writer::tag('dd', $first->blocknumber);
             $text .= \html_writer::end_tag('dl');
+            $text .= \html_writer::end_tag('div');
             $text .= \html_writer::end_tag('div');
             $text .= \html_writer::end_tag('div');
             $text .= \html_writer::end_tag('div');

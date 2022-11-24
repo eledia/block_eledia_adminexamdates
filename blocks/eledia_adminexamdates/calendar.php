@@ -29,9 +29,9 @@ $context = context_system::instance();
 require_login();
 
 
-$displaydate = optional_param_array('displaydate', null, PARAM_INT);
+$displaydate = optional_param('displaydate', time(), PARAM_INT);
 
-$displaydate = (is_array($displaydate)) ? mktime(0, 0, 0, $displaydate['month'], $displaydate['day'], $displaydate['year']) : 0;
+//$displaydate = (is_array($displaydate)) ? mktime(0, 0, 0, $displaydate['month'], $displaydate['day'], $displaydate['year']) : 0;
 
 // <script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
 
@@ -246,6 +246,12 @@ $tohour = get_config('block_eledia_adminexamdates', 'endcalendar');
 $bordercolor1 = get_config('block_eledia_adminexamdates', 'bordercolor1');
 $bordercolor2 = get_config('block_eledia_adminexamdates', 'bordercolor2');
 $date = strtotime('today');
+$mform = new \block_eledia_adminexamdates\forms\calendar_form();
+if ($formdata = $mform->get_data()) {
+    $displaydate = (!empty($formdata->selectdisplaydate)) ? $formdata->selectdisplaydate : $displaydate;
+}
+
+
 echo "       ];
 
 
@@ -363,7 +369,7 @@ unixTimestamp: $displaydate
  
   </script>";
 
-$mform = new \block_eledia_adminexamdates\forms\calendar_form();
+
 
 echo $OUTPUT->header();
 echo $OUTPUT->container_start();
@@ -378,7 +384,7 @@ $statistics = new moodle_url('/blocks/eledia_adminexamdates/statistics.php');
 echo \html_writer::start_tag('div', array('class' => 'container-fluid px-4'));
 echo \html_writer::start_tag('div', array('class' => 'row'));
 echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
-echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
+echo \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
 echo \html_writer::tag('button', get_string('calendar_btn', 'block_eledia_adminexamdates'),
         array('disabled' => true, 'class' => 'btn '));
 echo \html_writer::end_tag('div');
@@ -398,12 +404,38 @@ if ($hasconfirmexamdatescap) {
 }
 echo \html_writer::end_tag('div');
 echo \html_writer::end_tag('div');
-echo \html_writer::start_tag('div', array('class' => 'row'));
-echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
-echo \html_writer::tag('p', '&nbsp;');
+
+echo \html_writer::start_tag('div',array('class' => 'row'));
+echo \html_writer::start_tag('div',array('class' => 'col-xs-12'));
+echo \html_writer::start_tag('div', array('class' => 'card-deck mt-3'));
+echo \html_writer::start_tag('div', array('class' => 'card'));
+echo \html_writer::start_tag('div', array('class' => 'card-body'));
+echo \html_writer::start_tag('p', array('class' => 'card-text'));
+
+$data = new stdClass();
+$data->selectdisplaydate = (!empty($displaydate)) ? $displaydate : time();
+$mform->set_data($data);
 $mform->display();
-echo \html_writer::tag('div', '', array('id' => 'calendar'));
+
+//echo \html_writer::end_tag('p');
+//echo \html_writer::end_tag('div');
+//echo \html_writer::end_tag('div');
+//echo \html_writer::end_tag('div');
+//
+////echo \html_writer::tag('p','&nbsp;');
+//
+//echo \html_writer::start_tag('div', array('class' => 'card-deck mt-3'));
+//echo \html_writer::start_tag('div', array('class' => 'card'));
+//echo \html_writer::start_tag('div', array('class' => 'card-body'));
+//echo \html_writer::start_tag('p', array('class' => 'card-text'));
+
+echo \html_writer::tag('div', '', array('id' => 'calendar','class' => 'mt-4'));
+
+echo \html_writer::end_tag('p');
 echo \html_writer::end_tag('div');
+echo \html_writer::end_tag('div');
+echo \html_writer::end_tag('div');
+
 echo \html_writer::end_tag('div');
 echo \html_writer::end_tag('div');
 

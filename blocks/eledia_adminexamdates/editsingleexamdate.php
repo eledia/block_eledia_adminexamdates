@@ -115,7 +115,7 @@ if ($mform->is_cancelled()) {
     $editexamdateurl = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $examdateid, 'url' => rawurlencode($myurl)]);
     echo $OUTPUT->single_button($editexamdateurl, get_string('editexamdate_btn', 'block_eledia_adminexamdates'));
     $checklistlink =  new \moodle_url(get_string('checklistlink', 'block_eledia_adminexamdates') . $examdateid);
-    echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
+    echo \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
     echo \html_writer::tag('button', get_string('singleexamdate_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
     echo \html_writer::end_tag('div');
     echo $OUTPUT->single_button($checklistlink, get_string('checklist_btn', 'block_eledia_adminexamdates'));
@@ -123,8 +123,14 @@ if ($mform->is_cancelled()) {
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
 
-    echo \html_writer::start_tag('div', array('class' => 'row mt-4'));
+    echo \html_writer::start_tag('div', array('class' => 'row'));
     echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
+
+    echo \html_writer::start_tag('div', array('class' => 'card-deck mt-3'));
+    echo \html_writer::start_tag('div', array('class' => 'card'));
+    echo \html_writer::start_tag('div', array('class' => 'card-body'));
+    echo \html_writer::start_tag('p', array('class' => 'card-text'));
+
     echo \html_writer::start_tag('div', array('class' => 'row'));
     echo \html_writer::start_tag('div', array('class' => 'col-md-4'));
     echo block_eledia_adminexamdates\util::getexamdateoverview($blockid, $examdateid, $newblock);
@@ -144,14 +150,14 @@ if ($mform->is_cancelled()) {
         if ($blockid != $examblock->id || $newblock) {
             $buttons .= $OUTPUT->single_button($url, $date);
         } else {
-            $buttons .= \html_writer::start_tag('div', array('class' => 'singlebutton'));
+            $buttons .= \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
             $buttons .= \html_writer::tag('button', $date, array('disabled' => true, 'class' => 'btn '));
             $buttons .= \html_writer::end_tag('div');
         }
         $index++;
     }
     if ($newblock) {
-        $buttons .= \html_writer::start_tag('div', array('class' => 'singlebutton'));
+        $buttons .= \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
         $buttons .= \html_writer::tag('button', $index . '. ' . get_string('partialdate', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
         $buttons .= \html_writer::end_tag('div');
     } else {
@@ -165,8 +171,15 @@ if ($mform->is_cancelled()) {
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
+
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
+
+    echo \html_writer::end_tag('p');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+    echo \html_writer::end_tag('div');
+
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     $PAGE->requires->js_call_amd('block_eledia_adminexamdates/editsingleexamdate', 'init');

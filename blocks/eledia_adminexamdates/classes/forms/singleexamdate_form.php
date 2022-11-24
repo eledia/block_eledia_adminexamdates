@@ -221,6 +221,7 @@ class singleexamdate_form extends \moodleform
         foreach ($options as $key => $val) {
 
             //$mform->toHtml('<div id="room' . $key . '" class="container tab-pane"><br>');
+
             $mform->addElement('header', "roomheader[{$key}]", $val);
             $mform->setExpanded("roomheader[{$key}]", true, true);
 

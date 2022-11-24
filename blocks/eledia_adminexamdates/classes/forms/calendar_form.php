@@ -55,9 +55,9 @@ class calendar_form extends \moodleform
         $mform->addElement('select', 'year',
             get_string('config_select_calendar_year', 'block_eledia_adminexamdates'), $years);
         $mform->setDefault('year', $yearnow);*/
-        $mform->addElement('date_selector', 'displaydate', get_string('calendar_date', 'block_eledia_adminexamdates'));
-        $mform->setDefault('displaydate', time());
-        $mform->setType('displaydate', PARAM_INT);
+        $mform->addElement('date_selector', 'selectdisplaydate', get_string('calendar_date', 'block_eledia_adminexamdates'));
+        $mform->setDefault('selectdisplaydate', time());
+        $mform->setType('selectdisplaydate', PARAM_INT);
        // $mform->setDefault('date', $yearnow)
         $buttonarray = array();
         $buttonarray[] = &$mform->createElement('submit', 'submitbutton', get_string('choose'));

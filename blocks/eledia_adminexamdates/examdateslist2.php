@@ -84,7 +84,7 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::start_tag('div',array('class' => 'row'));
     echo \html_writer::start_tag('div',array('class' => 'col-md-12'));
     echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'));
-    echo \html_writer::start_tag('div', array('class' => 'singlebutton'));
+    echo \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
     echo \html_writer::tag('button', get_string('examdateslist_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
     echo \html_writer::end_tag('div');
     echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_eledia_adminexamdates'));

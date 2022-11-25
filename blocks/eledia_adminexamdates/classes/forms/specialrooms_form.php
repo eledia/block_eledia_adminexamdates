@@ -85,9 +85,9 @@ class specialrooms_form extends \moodleform
     {
 
         $errors = parent::validation($data, $files);
-        //if ($error = \block_eledia_adminexamdates\util::hasfreetimeslots($data)) {
-        //    $errors['booktimestart'] = $error;
-        //}
+        if ($error = \block_eledia_adminexamdates\util::istakenspecialrooms($data)) {
+            $errors['booktimestart'] = $error;
+        }
 
         return $errors;
     }

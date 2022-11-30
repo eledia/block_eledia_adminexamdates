@@ -1454,6 +1454,7 @@ class util {
             $param['wstoken'] = $config->apitoken;
             $response = $curl->post($config->apidomain . '/webservice/rest/server.php?moodlewsrestformat=json' . $urlparam, $param);
             $results = json_decode($response);
+
             if (isset($results->message) || isset($results->errorcode)) {
                 $message = get_string('error') . ': ';
                 $message .= isset($results->errorcode) ? $results->errorcode . ' - ' : '';

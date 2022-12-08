@@ -361,9 +361,10 @@ unixTimestamp: $displaydate
       
       });
       
-    $('#user-menu-toggle').on('click', function(e) {
+    $('#action-menu-toggle-1').on('click', function(e) {
     e.preventDefault();
-      $('#user-action-menu').toggleClass('show'); 
+     e.stopPropagation();
+      $('#action-menu-1-menu').toggleClass('show'); 
     
     });
     

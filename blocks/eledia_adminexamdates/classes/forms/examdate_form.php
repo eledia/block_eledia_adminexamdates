@@ -38,8 +38,10 @@ class examdate_form extends \moodleform {
 
         $mform =& $this->_form;
         $onlynumberstudents =& $this->_customdata['onlynumberstudents'];
-        $editexamdate=& $this->_customdata['editexamdate'];
-
+        $editexamdate =& $this->_customdata['editexamdate'];
+        if ($editexamdate) {
+            $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $editexamdate]);
+        }
         if ($hasconfirmexamdatescap) {
             $radioarray = array();
             $radioarray[] = $mform->createElement('radio', 'category', '',
@@ -142,11 +144,15 @@ class examdate_form extends \moodleform {
         $mform->addRule('department', null, 'required', null, 'client');
         $mform->addRule('department', get_string('error_choose', 'block_eledia_adminexamdates'), 'nonzero', null, 'client');
 
-        $mform->addElement('text', 'examname', get_string('examname', 'block_eledia_adminexamdates'), array('size' => 50));
-        $mform->addHelpButton('examname','examname','block_eledia_adminexamdates');
-        $mform->setType('examname', PARAM_TEXT);
         if (!$onlynumberstudents) {
+            $mform->addElement('text', 'examname', get_string('examname', 'block_eledia_adminexamdates'), array('size' => 50));
+            $mform->addHelpButton('examname', 'examname', 'block_eledia_adminexamdates');
+            $mform->setType('examname', PARAM_TEXT);
             $mform->addRule('examname', null, 'required', null, 'client');
+        } else {
+            $mform->addElement('static', 'examnametext', get_string('examname', 'block_eledia_adminexamdates'),
+                    $examdate->examname);
+            $mform->addElement('hidden', 'examname');
         }
 
         $mform->addElement('text', 'numberstudents', get_string('number_students', 'block_eledia_adminexamdates'),
@@ -165,25 +171,32 @@ class examdate_form extends \moodleform {
                     get_string('examtimestart', 'block_eledia_adminexamdates', $time));
             $mform->addRule('examtimestart', null, 'required', null, 'client');
         } else {
-            if($editexamdate) {
-                $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $editexamdate]);
-                $date = userdate($examdate->examtimestart,'%d. %B %Y %H.%M');
+            if ($editexamdate) {
+
+                $date = userdate($examdate->examtimestart, '%d. %B %Y %H.%M');
 
                 $mform->addElement('static', 'description', get_string('examtimestart', 'block_eledia_adminexamdates', $time),
                         $date);
             }
             $mform->addElement('hidden', 'examtimestart');
+            $mform->setType('examtimestart', PARAM_INT);
         }
-        $mform->addElement('text', 'examduration', get_string('examduration', 'block_eledia_adminexamdates'));
-        $mform->setType('examduration', PARAM_INT);
+
         if (!$onlynumberstudents) {
+            $mform->addElement('text', 'examduration', get_string('examduration', 'block_eledia_adminexamdates'));
+            $mform->setType('examduration', PARAM_INT);
             $mform->addRule('examduration', null, 'required', null, 'client');
             $mform->addRule('examduration', null, 'numeric', null, 'client');
+        } else {
+            $mform->addElement('static', 'examdurationtext', get_string('examduration', 'block_eledia_adminexamdates'),
+                    $examdate->examduration);
+            $mform->addElement('hidden', 'examduration');
+            $mform->setType('examduration', PARAM_INT);
         }
 
         $mform->addElement('autocomplete', 'examiner', get_string('examiner', 'block_eledia_adminexamdates'),
                 $useridlist, $autocompleteoptions);
-        $mform->addHelpButton('examiner','examiner','block_eledia_adminexamdates');
+        $mform->addHelpButton('examiner', 'examiner', 'block_eledia_adminexamdates');
         $mform->setType('examiner', PARAM_RAW_TRIMMED);
         $mform->addRule('examiner', get_string('required'), 'required', null, 'client');
         //$mform->setDefault('examiner', '');
@@ -240,7 +253,7 @@ class examdate_form extends \moodleform {
 
         if ($onlynumberstudents) {
             $mform->setDefault('onlynumberstudents', true);
-            $mform->freeze('department,examname,examduration,examiner,contactperson');
+            $mform->freeze('department,examiner,contactperson');
         }
         $mform->addElement('hidden', 'editexamdate');
         $mform->setType('editexamdate', PARAM_INT);
@@ -259,7 +272,7 @@ class examdate_form extends \moodleform {
     public function validation($data, $files) {
         global $DB;
         $errors = parent::validation($data, $files);
-        if (!$data->onlynumberstudents && $error = \block_eledia_adminexamdates\util::hasfreetimeslots2($data,false)) {
+        if (!$data->onlynumberstudents && $error = \block_eledia_adminexamdates\util::hasfreetimeslots2($data, false)) {
             $errors['examtimestart'] = $error;
         }
         //        $data = (object)$data;

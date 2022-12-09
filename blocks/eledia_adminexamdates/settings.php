@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 defined('MOODLE_INTERNAL') || die();
+global $DB;
 if ($ADMIN->fulltree) {
 
     $configs = array();
@@ -99,6 +100,15 @@ if ($ADMIN->fulltree) {
             new lang_string('responsiblepersons', 'block_eledia_adminexamdates'),
             new lang_string('config_responsiblepersons', 'block_eledia_adminexamdates'),
             '', PARAM_RAW, '40');
+
+    $syscontext = context_system::instance();
+    if ($cohorts = $DB->get_records('cohort', ['contextid' => $syscontext->id, 'visible' => 1], 'name')) {
+        $cohorts = array_column($cohorts, 'name', 'id');
+    }
+    $configs[] = new admin_setting_configmultiselect('block_eledia_adminexamdates/examinercohorts',
+            new lang_string('setting_examinercohorts', 'block_eledia_adminexamdates'),
+            new lang_string('config_examinercohorts', 'block_eledia_adminexamdates'),
+            array(), $cohorts);
 
     $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/bordercolor1',
             get_string('setting_bordercolor_unconfirmed_dates',

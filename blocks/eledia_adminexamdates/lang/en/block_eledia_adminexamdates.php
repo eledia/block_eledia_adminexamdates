@@ -244,3 +244,5 @@ $string['modal_title_past_not_available'] = 'Past';
 $string['modal_body_past_not_available'] ='Past dates are not available. Please find another date!';
 $string['exam_dates_confirmed_start_date'] = 'Start Date';
 $string['exam_dates_confirmed_end_date'] = 'End Date';
+$string['setting_examinercohorts'] = 'Cohorts of examiners';
+$string['config_examinercohorts'] = 'Users who are in these cohorts will be available in the examiner selection in the exam date form.';

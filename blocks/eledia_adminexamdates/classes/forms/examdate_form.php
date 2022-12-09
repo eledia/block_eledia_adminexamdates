@@ -57,16 +57,32 @@ class examdate_form extends \moodleform {
             $mform->setDefault('category', 0);
         }
 
+        list($in_sql, $in_params) =
+                $DB->get_in_or_equal(explode(',', get_config('block_eledia_adminexamdates', 'examinercohorts')));
+        $sql = "SELECT DISTINCT u.*
+                  FROM {user} u
+                  LEFT JOIN {cohort_members} cm ON cm.userid = u.id
+                  LEFT JOIN {cohort} c ON c.id = cm.cohortid
+                  WHERE u.deleted = 0 AND c.visible = 1 
+                  AND c.id $in_sql
+                  ORDER BY lastname, firstname ";
+
+        $users = $DB->get_records_sql($sql, $in_params);
+        $examinerlist = [0 => ''];
+        foreach ($users as $id => $user) {
+            $examinerlist[$id] = fullname($user) . ' | ' . $user->email;
+        }
+
         $sql = "SELECT *
                   FROM {user} 
                  WHERE deleted = 0
                   ORDER BY lastname, firstname";
 
         $users = $DB->get_records_sql($sql);
-        $useridlist = [0 => ''];
+        $contactpersonlist = [0 => ''];
         foreach ($users as $id => $user) {
-            if ($user->id > 2 && !is_siteadmin($user)) {
-                $useridlist[$id] = fullname($user) . ' | ' . $user->email;
+            if ($user->id > 2) {
+                $contactpersonlist[$id] = fullname($user) . ' | ' . $user->email;
             }
         }
 
@@ -195,7 +211,7 @@ class examdate_form extends \moodleform {
         }
 
         $mform->addElement('autocomplete', 'examiner', get_string('examiner', 'block_eledia_adminexamdates'),
-                $useridlist, $autocompleteoptions);
+                $examinerlist, $autocompleteoptions);
         $mform->addHelpButton('examiner', 'examiner', 'block_eledia_adminexamdates');
         $mform->setType('examiner', PARAM_RAW_TRIMMED);
         $mform->addRule('examiner', get_string('required'), 'required', null, 'client');
@@ -205,9 +221,9 @@ class examdate_form extends \moodleform {
         $autocompleteoptions = [
                 'multiple' => false
         ];
-        $default = array_key_exists($USER->id, $useridlist) ? $USER->id : '';
+        $default = array_key_exists($USER->id, $contactpersonlist) ? $USER->id : '';
         $mform->addElement('autocomplete', 'contactperson', get_string('contactperson', 'block_eledia_adminexamdates'),
-                $useridlist, $autocompleteoptions);
+                $contactpersonlist, $autocompleteoptions);
         $mform->setType('contactperson', PARAM_RAW_TRIMMED);
         $mform->addRule('contactperson', get_string('required'), 'required', null, 'client');
         $mform->addRule('contactperson', get_string('required'), 'nonzero', null, 'client');

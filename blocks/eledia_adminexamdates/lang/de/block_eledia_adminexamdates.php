@@ -244,3 +244,6 @@ $string['modal_title_past_not_available'] = 'Vergangenheit';
 $string['modal_body_past_not_available'] ='Termine in der Vergangenheit sind nicht möglich. Bitte suchen Sie sich einen anderen Termin!';
 $string['exam_dates_confirmed_start_date'] = 'Startdatum';
 $string['exam_dates_confirmed_end_date'] = 'Enddatum';
+$string['setting_examinercohorts'] = 'Globale Gruppen der Prüfer:in';
+$string['config_examinercohorts'] = 'Nutzer die in diesen Globale Gruppen sind, stehen in der Auswahl der Prüfer:in des Prüfungsterminformulars zur Verfügung.';
+

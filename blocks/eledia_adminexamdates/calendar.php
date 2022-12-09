@@ -55,36 +55,20 @@ $PAGE->set_title(get_string('calendar_btn', 'block_eledia_adminexamdates'));
 //<script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
 $PAGE->set_pagelayout('course');
 
-$sql = "SELECT ar.id, a.id AS examdateid, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.examroom, ar.blockid, a.numberstudents, a.examiner,a.responsibleperson, a.contactperson, a.confirmed, a.userid
-                    FROM {eledia_adminexamdates} a
-                    LEFT JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
-                    LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
-                    ORDER BY ab.blocktimestart, ar.examroom DESC";
-
-$sqlspecial = "SELECT ar.id, ar.blockid,ab.blocktimestart, ab.blockduration, ar.examroom, ar.roomannotationtext 
-                    FROM {eledia_adminexamdates_blocks} ab 
-                    LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
-                    WHERE ab.examdateid IS NULL
-                    ORDER BY ab.blocktimestart, ar.examroom DESC";
-//WHERE ag.blocktimestart > ? AND ag.blocktimestart < ?";
-
-$dates = $DB->get_records_sql($sql);
-
 $hasconfirmexamdatescap = (has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance())) ? 1 : 0;
-
-if ($hasconfirmexamdatescap) {
-    $specialroomdates = $DB->get_records_sql($sqlspecial);
-}
 
 $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
 $roomcategories = [];
 $roomcategorycolors = [];
 $roomswithcapacity = [];
+$specialroomitems = [];
 foreach ($rooms as $room) {
     $roomitems = explode('|', $room);
     //$roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
     if (!empty($roomitems[2])) {
         array_push($roomswithcapacity, $roomitems[0]);
+    } else {
+        array_push($specialroomitems, $roomitems[0]);
     }
     $roomnames[$roomitems[0]] = trim($roomitems[1]);
     $roomcolors[trim($roomitems[1])] = $roomitems[3];
@@ -96,6 +80,35 @@ foreach ($rooms as $room) {
 };
 
 $roomscount = $hasconfirmexamdatescap ? count($roomcategories) : count($roomswithcapacity);
+
+list($in_sql, $in_params) = $DB->get_in_or_equal($specialroomitems);
+
+$sql = "SELECT ar.id, a.id AS examdateid, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.examroom, ar.blockid, a.numberstudents, a.examiner,a.responsibleperson, a.contactperson, a.confirmed, a.userid
+                    FROM {eledia_adminexamdates} a
+                    LEFT JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
+                    LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
+                    WHERE ab.examdateid IS NOT NULL
+                    AND ar.blockid IS NOT NULL 
+                    ORDER BY ab.blocktimestart, ar.examroom DESC";
+
+
+
+$sqlspecial = "SELECT ar.id, ar.blockid,ab.blocktimestart, ab.blockduration, ar.examroom, ar.roomannotationtext 
+                    FROM {eledia_adminexamdates_blocks} ab 
+                    LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
+                    WHERE ar.examroom $in_sql
+                    AND ab.examdateid IS NULL
+                    AND ar.blockid IS NOT NULL
+                    ORDER BY ab.blocktimestart, ar.examroom DESC";
+//WHERE ag.blocktimestart > ? AND ag.blocktimestart < ?";
+
+
+$dates = $DB->get_records_sql($sql,$in_params);
+
+if ($hasconfirmexamdatescap) {
+    $specialroomdates = $DB->get_records_sql($sqlspecial,$in_params);
+}
+
 
 $holidaylines = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'holidays'));
 $holidays = [];
@@ -122,7 +135,7 @@ echo " <script>
 
 foreach ($dates as $date) {
 
-    if (($hasconfirmexamdatescap || in_array($date->examroom, $roomswithcapacity)) && !empty($date->blocktimestart) &&
+    if (!empty($date->blocktimestart) &&
             !empty($date->blockduration) && !empty($date->examdateid)) {
 
         $endtime = $date->blocktimestart + ($date->blockduration * 60);
@@ -201,9 +214,8 @@ foreach ($dates as $date) {
 }
 if ($hasconfirmexamdatescap) {
     foreach ($specialroomdates as $specialroomdate) {
-        if (in_array($specialroomdate->examroom, $roomnames) && !empty($specialroomdate->blocktimestart) &&
+        if (!empty($specialroomdate->blocktimestart) &&
                 !empty($specialroomdate->blockduration) && !empty($specialroomdate->blockid)) {
-
             $endtime = $specialroomdate->blocktimestart + ($specialroomdate->blockduration * 60);
             $roomname = $roomnames[$specialroomdate->examroom];
             $buttonhtml = \html_writer::start_tag('div', ['class' => 'd-inline']);

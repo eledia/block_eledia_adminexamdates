@@ -168,6 +168,7 @@ class examdate_form extends \moodleform {
         } else {
             $mform->addElement('static', 'examnametext', get_string('examname', 'block_eledia_adminexamdates'),
                     $examdate->examname);
+            $mform->setType('examname', PARAM_TEXT);
             $mform->addElement('hidden', 'examname');
         }
 

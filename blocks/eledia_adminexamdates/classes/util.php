@@ -920,107 +920,112 @@ class util {
         $adminexamdates = $DB->get_records_sql($sql);
 
         foreach ($adminexamdates as $adminexamdate) {
-            $examname = ($adminexamdate->courseid) ? \html_writer::tag('a', $adminexamdate->examname,
-                    array('href' => get_config('block_eledia_adminexamdates', 'apidomain')
-                            . '/course/view.php?id=' . $adminexamdate->courseid, 'class' => 'examdate-course-link',
-                            'target' => '_blank')) : $adminexamdate->examname;
-            $adminexamblocks =
-                    $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $adminexamdate->id], 'blocktimestart');
-            $lastblock = end($adminexamblocks);
 
-            $text .= \html_writer::start_tag('div', array('class' => 'card-deck mt-3'));
-            $text .= \html_writer::start_tag('div', array('class' => 'card'));
-            $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
-            if ($hasconfirmexamdatescap) {
-                $annotationtextlinkstring = get_string('annotationtext', 'block_eledia_adminexamdates');
-                $annotationtexticon = \html_writer::tag('i', '',
-                        array('class' => 'icon fa fa-sticky-note', 'title' => $annotationtextlinkstring,
-                                'aria-label' => $annotationtextlinkstring));
-                $examname .= ' ';
-                if ((!empty($adminexamdate->annotationtext))) {
-                    $annotationtext =
-                            json_encode(['examname' => $adminexamdate->examname, 'text' => $adminexamdate->annotationtext]);
-                    $examname .= \html_writer::tag('a', $annotationtexticon,
-                            ['href' => '', 'data-annotation-text' => $annotationtext]);
-                } else {
-                    $examname .= \html_writer::tag('span', $annotationtexticon,
-                            ['class' => 'text-muted']);
+            if ($adminexamblocks =
+                    $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $adminexamdate->id], 'blocktimestart')) {
+                $lastblock = end($adminexamblocks);
+
+                $examname = ($adminexamdate->courseid) ? \html_writer::tag('a', $adminexamdate->examname,
+                        array('href' => get_config('block_eledia_adminexamdates', 'apidomain')
+                                . '/course/view.php?id=' . $adminexamdate->courseid, 'class' => 'examdate-course-link',
+                                'target' => '_blank')) : $adminexamdate->examname;
+
+                $text .= \html_writer::start_tag('div', array('class' => 'card-deck mt-3'));
+                $text .= \html_writer::start_tag('div', array('class' => 'card'));
+                $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
+                if ($hasconfirmexamdatescap) {
+                    $annotationtextlinkstring = get_string('annotationtext', 'block_eledia_adminexamdates');
+                    $annotationtexticon = \html_writer::tag('i', '',
+                            array('class' => 'icon fa fa-sticky-note', 'title' => $annotationtextlinkstring,
+                                    'aria-label' => $annotationtextlinkstring));
+                    $examname .= ' ';
+                    if ((!empty($adminexamdate->annotationtext))) {
+                        $annotationtext =
+                                json_encode(['examname' => $adminexamdate->examname, 'text' => $adminexamdate->annotationtext]);
+                        $examname .= \html_writer::tag('a', $annotationtexticon,
+                                ['href' => '', 'data-annotation-text' => $annotationtext]);
+                    } else {
+                        $examname .= \html_writer::tag('span', $annotationtexticon,
+                                ['class' => 'text-muted']);
+                    }
                 }
-            }
-            $text .= \html_writer::tag('h5', $examname, array('class' => 'card-title'));
-            $text .= \html_writer::start_tag('p', array('class' => 'card-text'));
-            $text .= \html_writer::start_tag('dl');
-            $calendarlinkstring = get_string('calendarlink', 'block_eledia_adminexamdates') . ' ' . $adminexamdate->examname;
-            $calendaricon = \html_writer::tag('i', '',
-                    array('class' => 'icon fa fa-calendar', 'title' => $calendarlinkstring, 'aria-label' => $calendarlinkstring));
-            $calendarurl =
-                    new \moodle_url('/blocks/eledia_adminexamdates/calendar.php', ['displaydate' => $adminexamdate->examtimestart]);
-            $calendarlink = \html_writer::tag('a', $calendaricon, ['href' => $calendarurl]);
-            $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates'));
-            $text .= \html_writer::tag('dd', date('d.m.Y, H.i', $adminexamdate->examtimestart)
-                    . ' - ' . date('H.i', $lastblock->blocktimestart + ($lastblock->blockduration * 60)) .
-                    get_string('hour', 'block_eledia_adminexamdates') . ' ' .
-                    $calendarlink);
-            $text .= \html_writer::tag('dt', get_string('number_students', 'block_eledia_adminexamdates'));
-            $text .= \html_writer::tag('dd', $adminexamdate->numberstudents);
-            $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates'));
-            $examiners = explode(',', $adminexamdate->examiner);
-            $examinernames = [];
-            foreach ($examiners as $examiner) {
-                if ($user = \core_user::get_user($examiner)) {
-                    $examinernames[] = fullname($user);
+                $text .= \html_writer::tag('h5', $examname, array('class' => 'card-title'));
+                $text .= \html_writer::start_tag('p', array('class' => 'card-text'));
+                $text .= \html_writer::start_tag('dl');
+                $calendarlinkstring = get_string('calendarlink', 'block_eledia_adminexamdates') . ' ' . $adminexamdate->examname;
+                $calendaricon = \html_writer::tag('i', '',
+                        array('class' => 'icon fa fa-calendar', 'title' => $calendarlinkstring,
+                                'aria-label' => $calendarlinkstring));
+                $calendarurl =
+                        new \moodle_url('/blocks/eledia_adminexamdates/calendar.php',
+                                ['displaydate' => $adminexamdate->examtimestart]);
+                $calendarlink = \html_writer::tag('a', $calendaricon, ['href' => $calendarurl]);
+                $text .= \html_writer::tag('dt', get_string('time', 'block_eledia_adminexamdates'));
+                $text .= \html_writer::tag('dd', date('d.m.Y, H.i', $adminexamdate->examtimestart)
+                        . ' - ' . date('H.i', $lastblock->blocktimestart + ($lastblock->blockduration * 60)) .
+                        get_string('hour', 'block_eledia_adminexamdates') . ' ' .
+                        $calendarlink);
+                $text .= \html_writer::tag('dt', get_string('number_students', 'block_eledia_adminexamdates'));
+                $text .= \html_writer::tag('dd', $adminexamdate->numberstudents);
+                $text .= \html_writer::tag('dt', get_string('examiner', 'block_eledia_adminexamdates'));
+                $examiners = explode(',', $adminexamdate->examiner);
+                $examinernames = [];
+                foreach ($examiners as $examiner) {
+                    if ($user = \core_user::get_user($examiner)) {
+                        $examinernames[] = fullname($user);
+                    }
                 }
-            }
-            $text .= \html_writer::tag('dd', implode(', ', $examinernames));
-            $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates'));
-            $contactperson = \core_user::get_user($adminexamdate->contactperson);
-            $text .= \html_writer::tag('dd', fullname($contactperson) . ' | ' . $contactperson->email);
-            $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates'));
-            $responsibleperson =
-                    $adminexamdate->responsibleperson ? fullname(\core_user::get_user($adminexamdate->responsibleperson)) : '-';
-            $text .= \html_writer::tag('dd', $responsibleperson);
-            $index = 1;
-            foreach ($adminexamblocks as $adminexamblock) {
-                $viewindex = (count($adminexamblocks) > 1) ? $index . '. ' : '';
-                $text .= \html_writer::tag('dt', $viewindex . get_string('partialdate', 'block_eledia_adminexamdates'));
-                $text .= \html_writer::tag('dd', date('d.m.Y, H.i', $adminexamblock->blocktimestart)
-                        . ' - ' . date('H.i', $adminexamblock->blocktimestart + ($adminexamblock->blockduration * 60)) .
-                        get_string('hour', 'block_eledia_adminexamdates'));
-                $index++;
-            }
-            $text .= \html_writer::end_tag('dl');
-            $text .= \html_writer::end_tag('p');
-            //  if ($hasconfirmexamdatescap || !$adminexamdate->confirmed) {
+                $text .= \html_writer::tag('dd', implode(', ', $examinernames));
+                $text .= \html_writer::tag('dt', get_string('contactperson', 'block_eledia_adminexamdates'));
+                $contactperson = \core_user::get_user($adminexamdate->contactperson);
+                $text .= \html_writer::tag('dd', fullname($contactperson) . ' | ' . $contactperson->email);
+                $text .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates'));
+                $responsibleperson =
+                        $adminexamdate->responsibleperson ? fullname(\core_user::get_user($adminexamdate->responsibleperson)) : '-';
+                $text .= \html_writer::tag('dd', $responsibleperson);
+                $index = 1;
+                foreach ($adminexamblocks as $adminexamblock) {
+                    $viewindex = (count($adminexamblocks) > 1) ? $index . '. ' : '';
+                    $text .= \html_writer::tag('dt', $viewindex . get_string('partialdate', 'block_eledia_adminexamdates'));
+                    $text .= \html_writer::tag('dd', date('d.m.Y, H.i', $adminexamblock->blocktimestart)
+                            . ' - ' . date('H.i', $adminexamblock->blocktimestart + ($adminexamblock->blockduration * 60)) .
+                            get_string('hour', 'block_eledia_adminexamdates'));
+                    $index++;
+                }
+                $text .= \html_writer::end_tag('dl');
+                $text .= \html_writer::end_tag('p');
+                //  if ($hasconfirmexamdatescap || !$adminexamdate->confirmed) {
 
-            $returnurl = rawurlencode(new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php'));
-            $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php',
-                    ['editexamdate' => $adminexamdate->id, 'url' => $returnurl]);
+                $returnurl = rawurlencode(new \moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php'));
+                $url = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php',
+                        ['editexamdate' => $adminexamdate->id, 'url' => $returnurl]);
 
-            $text .= $OUTPUT->single_button($url, get_string('editexamdate', 'block_eledia_adminexamdates'));
-            //   }
-            if ($hasconfirmexamdatescap || ((!$hasconfirmexamdatescap && $adminexamdate->confirmed != 1))) {
-                $url = new \moodle_url($PAGE->url, ['cancelexamdate' => $adminexamdate->id]);
+                $text .= $OUTPUT->single_button($url, get_string('editexamdate', 'block_eledia_adminexamdates'));
+                //   }
+                if ($hasconfirmexamdatescap || ((!$hasconfirmexamdatescap && !$adminexamdate->confirmed))) {
+                    $url = new \moodle_url($PAGE->url, ['cancelexamdate' => $adminexamdate->id]);
 
-                $text .= $OUTPUT->single_button($url, get_string('cancelexamdate', 'block_eledia_adminexamdates'));
-            }
-            if (!$hasconfirmexamdatescap && $adminexamdate->confirmed == 1) {
-                $url = new \moodle_url('/blocks/eledia_adminexamdates/changerequest.php', ['examdateid' => $adminexamdate->id]);
-                $text .= $OUTPUT->single_button($url, get_string('change_request_btn', 'block_eledia_adminexamdates'));
-            }
-            if ($hasconfirmexamdatescap) {
-                $url = new \moodle_url($PAGE->url, ['confirmexamdate' => $adminexamdate->id]);
-                $text .= $OUTPUT->single_button($url, get_string('confirmexamdate', 'block_eledia_adminexamdates'));
+                    $text .= $OUTPUT->single_button($url, get_string('cancelexamdate', 'block_eledia_adminexamdates'));
+                }
+                if (!$hasconfirmexamdatescap && ($adminexamdate->confirmed == 1 || $adminexamdate->confirmed == 2)) {
+                    $url = new \moodle_url('/blocks/eledia_adminexamdates/changerequest.php', ['examdateid' => $adminexamdate->id]);
+                    $text .= $OUTPUT->single_button($url, get_string('change_request_btn', 'block_eledia_adminexamdates'));
+                }
+                if ($hasconfirmexamdatescap) {
+                    $url = new \moodle_url($PAGE->url, ['confirmexamdate' => $adminexamdate->id]);
+                    $text .= $OUTPUT->single_button($url, get_string('confirmexamdate', 'block_eledia_adminexamdates'));
 
-                $url = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php',
-                        ['examdateid' => $adminexamdate->id]);
-                $text .= $OUTPUT->single_button($url, get_string('editsingleexamdate', 'block_eledia_adminexamdates'));
+                    $url = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php',
+                            ['examdateid' => $adminexamdate->id]);
+                    $text .= $OUTPUT->single_button($url, get_string('editsingleexamdate', 'block_eledia_adminexamdates'));
+                }
+                $text .= \html_writer::end_tag('div');
+                $text .= \html_writer::end_tag('div');
+                if (!$hasconfirmexamdatescap && ($adminexamdate->confirmed == 1 || $adminexamdate->confirmed == 2)) {
+                    $text .= self::get_html_checklisttable($adminexamdate->id, $adminexamdate->examname);
+                }
+                $text .= \html_writer::end_tag('div');
             }
-            $text .= \html_writer::end_tag('div');
-            $text .= \html_writer::end_tag('div');
-            if (!$hasconfirmexamdatescap && ($adminexamdate->confirmed == 1 || $adminexamdate->confirmed == 2)) {
-                $text .= self::get_html_checklisttable($adminexamdate->id, $adminexamdate->examname);
-            }
-            $text .= \html_writer::end_tag('div');
         }
         return $text;
     }

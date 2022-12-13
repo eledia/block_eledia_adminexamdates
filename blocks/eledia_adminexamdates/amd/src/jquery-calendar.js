@@ -65,6 +65,7 @@ jQuery(document).ready(function ($) {
             locale: (Args.locale) ? Args.locale : 'fr',
             view: 'week',
             rooms: (Args.rooms !== false) ? Args.rooms : false,
+            roomlist: (Args.roomlist !== false) ? Args.roomlist : false,
             enableKeyboard: (Args.enableKeyboard) ? Args.enableKeyboard : true,
             defaultView: {
                 largeScreen: (Args.defaultView) ? (Args.defaultView.largeScreen) ? (Args.defaultView.largeScreen) : 'week' : 'week',
@@ -441,7 +442,7 @@ jQuery(document).ready(function ($) {
             li.attr('data-time', time.startOf('day').format('X'));
             var date = new Date(time);
             var dayOfWeek = date.getDay();
-            var isWeekend = (dayOfWeek === 6) || (dayOfWeek  === 0);
+            var isWeekend = (dayOfWeek === 6) || (dayOfWeek === 0);
             li.attr('data-weekend', isWeekend);
 
             li.append($('<ul>'));
@@ -829,8 +830,10 @@ jQuery(document).ready(function ($) {
                 }
                 i++;
             }
-            if (self.conf.rooms !== false) {
-                var eventLeft = (String(currentElement.attr('data-positions')).split(',')[0] / self.conf.rooms) * 100;
+            if ((self.conf.rooms !== false) && self.conf.roomlist !== false) {
+                //var eventLeft = (String(currentElement.attr('data-positions')).split(',')[0]
+                var pos = self.conf.roomlist.indexOf(String(currentElement.attr('data-category')));
+                var eventLeft = (String(pos).split(',')[0] / self.conf.rooms) * 100;
                 var eventWidth = 100 / self.conf.rooms;
             } else {
                 var eventWidth = 100 / (parseInt(currentElement.attr('data-divider')) / String(currentElement.attr('data-positions')).split(',').length);
@@ -962,10 +965,10 @@ jQuery(document).ready(function ($) {
         li.attr('data-color', color);
         li.css('background', color);
         if (notmyevent === '1') {
-            li.css('border', '5px solid '+this.conf.colors.border2);
+            li.css('border', '5px solid ' + this.conf.colors.border2);
         }
         if (notconfirmed === '1') {
-            li.css('border', '5px solid '+this.conf.colors.border1);
+            li.css('border', '5px solid ' + this.conf.colors.border1);
         }
         a = $('<a>', {
             href: '#'
@@ -1355,6 +1358,8 @@ jQuery(document).ready(function ($) {
                 categories.push(e.category);
             }
         }
+        var roomlist = this.conf.roomlist;
+        categories = roomlist.filter(v => categories.includes(v));
         return this.miscUniqueArray(categories);
     };
 

@@ -33,7 +33,6 @@ if (!has_capability('block/eledia_adminexamdates:confirmexamdates', $context)) {
     print_error(' only users with rights to confirm admin exam dates allowed');
 }
 
-$save = optional_param('save', 0, PARAM_INT);
 $examdateid = optional_param('examdateid', 0, PARAM_INT);
 $blockid = optional_param('blockid', 0, PARAM_INT);
 $newblock = optional_param('newblock', 0, PARAM_INT);
@@ -72,7 +71,7 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->box_start('generalbox');
     echo $OUTPUT->confirm($message, $formcontinue, $formcancel);
     echo $OUTPUT->box_end();
-} else if (($blockid || $newblock || $deleteyes || empty($formdata = $mform->get_data())) && !$save) {
+} else if ($newblock || $deleteyes || !$mform->is_submitted() || !$mform->is_validated()) {
     if ($deleteyes) {
         $blockid = block_eledia_adminexamdates\util::deletesingleexamdate($blockid, $deleteyes, $examdateid);
     }
@@ -185,8 +184,7 @@ if ($mform->is_cancelled()) {
     $PAGE->requires->js_call_amd('block_eledia_adminexamdates/editsingleexamdate', 'init');
     echo $OUTPUT->container_end();
     echo $OUTPUT->footer();
-} else if ($save) {
-    if (!empty($formdata = $mform->get_data())) {
+} else if ($mform->is_submitted() && $mform->is_validated() && ($formdata = $mform->get_data())) {
         $formcontinue = new single_button(new moodle_url($PAGE->url, ['blockid' => $blockid]), get_string('yes'));
         $blockid = block_eledia_adminexamdates\util::savesingleexamdate($formdata);
 
@@ -202,7 +200,6 @@ if ($mform->is_cancelled()) {
         echo \html_writer::end_tag('div');
         echo $OUTPUT->continue_button(new moodle_url($PAGE->url, ['blockid' => $blockid]));
         echo $OUTPUT->box_end();
-    }
 
 } else {
 

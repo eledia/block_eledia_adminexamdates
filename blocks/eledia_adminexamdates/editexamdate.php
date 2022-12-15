@@ -28,11 +28,22 @@ $context = context_system::instance();
 
 require_login();
 
+//
+//if (!$course) {
+//    print_error('invalidcourseid');
+//}
+//require_login($course);
+//
+//$context = context_course::instance($course->id);
+//// Check basic permission
+//require_capability('block/eledia_courseadmin_fom:view', $context);
+
+
 $newexamdate = optional_param('newexamdate', 0, PARAM_INT);
 //$newexamdateyes = optional_param('newexamdate', 0, PARAM_INT);
 $editexamdate = optional_param('editexamdate', 0, PARAM_INT);
 $examtimestart = optional_param('examtimestart', 0, PARAM_INT);
-$chooseroomcategory = optional_param('examtimestart', 0, PARAM_INT);
+
 $returnurl = optional_param('url', '', PARAM_RAW);
 
 $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php');

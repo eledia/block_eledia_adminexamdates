@@ -541,6 +541,57 @@ class util {
     }
 
     /**
+     * Check in a single exam date if rooms is already taken.
+     *
+     * @param stdClass $formdata of form.
+     */
+    public
+    static function istakensingleexamdaterooms($formdata) {
+        $formdata = (object) $formdata;
+        global $DB;
+        $blockexamrooms = array_keys($formdata->blockexamroomscheck, true);
+
+        $booktimestart = $formdata->blocktimestart;
+        $booktimeend = $formdata->blocktimestart + ($formdata->blockduration * 60);
+        $beginofday = strtotime("today", $formdata->blocktimestart);
+        $endofday = strtotime("tomorrow", $formdata->blocktimestart) - 1;
+        list($qrypart, $params_part) = $DB->get_in_or_equal($blockexamrooms);
+        $sql = "SELECT ar.id, ab.blocktimestart, ab.blockduration, ar.examroom, ar.blockid
+                    FROM {eledia_adminexamdates_blocks} ab 
+                    JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
+                   WHERE ab.blocktimestart > $beginofday AND ab.blocktimestart < $endofday AND ar.examroom $qrypart
+                   AND ab.id != $formdata->blockid
+                   ORDER BY ab.blocktimestart";
+
+        $datesoftheday = $DB->get_records_sql($sql, $params_part);
+
+        $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
+        $roomnames = [];
+        foreach ($rooms as $room) {
+            $roomitems = explode('|', $room);
+            $roomnames[$roomitems[0]] = $roomitems[1];
+        };
+        $alreadytakenroom = [];
+        foreach ($blockexamrooms as $blockexamroom) {
+            foreach ($datesoftheday as $date) {
+                if ($date->examroom == $blockexamroom) {
+                    if (!((($booktimestart <= $date->blocktimestart) && ($booktimeend <= $date->blocktimestart)) ||
+                            (($booktimestart >= $date->blocktimestart + ($date->blockduration * 60)) &&
+                                    ($booktimeend >= $date->blocktimestart + ($date->blockduration * 60))))) {
+                        $alreadytakenroom[] = $roomnames[$blockexamroom];
+                        continue 2;
+                    }
+                }
+            }
+        }
+        if (!empty($alreadytakenroom)) {
+            return get_string('error_examdate_already_taken', 'block_eledia_adminexamdates') . ' (' .
+                    implode(', ', $alreadytakenroom) . ')';
+        }
+        return false;
+    }
+
+    /**
      * Get free time slots.
      *
      * @param stdClass $formdata of form.
@@ -745,17 +796,19 @@ class util {
         $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid]);
         $examblocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdate->id], 'blocktimestart');
         $lastexamblock = end($examblocks);
+        $breakbetweenblockdates = get_config('block_eledia_adminexamdates', 'breakbetweenblockdates');
         //$exampart = array_shift($examparts);
         //print_R($examparts);
         $formdata = new stdClass();
         $formdata->examdateid = $examdateid;
-        $blocktimestart = ($newblock) ? $lastexamblock->blocktimestart : $exampart->blocktimestart;
+        $blocktimestart =
+                ($newblock) ? ($lastexamblock->blocktimestart + (($breakbetweenblockdates + $lastexamblock->blockduration) * 60)) :
+                        $exampart->blocktimestart;
         $formdata->blocktimestart = $blocktimestart;
         $blockduration = ($newblock) ? $lastexamblock->blockduration : $exampart->blockduration;
         $formdata->blockduration = $blockduration;
         $blockid = ($newblock) ? null : $exampart->id;
         $formdata->blockid = $blockid;
-        $formdata->save = true;
 
         //  foreach ($examparts as $index => $exampart) {
         $blockid = ($newblock) ? $lastexamblock->id : $exampart->id;

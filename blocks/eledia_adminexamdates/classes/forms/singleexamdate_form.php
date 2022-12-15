@@ -70,7 +70,7 @@ class singleexamdate_form extends \moodleform {
         //foreach ($blocks as $block) {
         //  $mform->toHtml('<div id="termin' . $index . '" class="container tab-pane ' . $activecssclass . '"><br>');
         $mform->addElement('date_time_selector', "blocktimestart", get_string('block_timestart', 'block_eledia_adminexamdates'));
-        $mform->addRule("blocktimestart", null, 'required');
+        $mform->addRule('blocktimestart', null, 'required', null, 'client');
 
         $mform->addElement('text', "blockduration", get_string('block_duration', 'block_eledia_adminexamdates'),
                 array('size' => 4));
@@ -284,8 +284,6 @@ class singleexamdate_form extends \moodleform {
          $mform->addElement('hidden', 'examdateid');
          $mform->setType('examdateid', PARAM_INT);*/
         // $mform->toHtml('</div></div>');
-        $mform->addElement('hidden', 'save');
-        $mform->setType('save', PARAM_INT);
         $mform->addElement('hidden', 'blockid');
         $mform->setType('blockid', PARAM_INT);
         $mform->addElement('hidden', 'examdateid');
@@ -304,7 +302,9 @@ class singleexamdate_form extends \moodleform {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-
+        if ($error = \block_eledia_adminexamdates\util::istakensingleexamdaterooms($data)) {
+            $errors['blocktimestart'] = $error;
+        }
         return $errors;
     }
 }

@@ -412,8 +412,8 @@ echo $OUTPUT->single_button($unconfirmed, get_string('unconfirmed_btn', 'block_e
 if (!$hasconfirmexamdatescap) {
     echo $OUTPUT->single_button($confirmed, get_string('confirmed_btn', 'block_eledia_adminexamdates'));
 }
-echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
 if ($hasconfirmexamdatescap) {
+echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
     echo $OUTPUT->single_button($statistics, get_string('statistics', 'block_eledia_adminexamdates'));
     $urlReport = new moodle_url('/mod/elediachecklist/terminreport.php');
     echo $OUTPUT->single_button($urlReport, get_string('report_button', 'elediachecklist'));

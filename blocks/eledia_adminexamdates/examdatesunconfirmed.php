@@ -94,8 +94,8 @@ if (!empty($confirmexamdate)) {
     if (!$hasconfirmexamdatescap) {
         echo $OUTPUT->single_button($confirmed, get_string('confirmed_btn', 'block_eledia_adminexamdates'));
     }
-    echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
     if ($hasconfirmexamdatescap) {
+        echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
         echo $OUTPUT->single_button($statistics, get_string('statistics', 'block_eledia_adminexamdates'));
         $urlReport = new moodle_url('/mod/elediachecklist/terminreport.php');
         echo $OUTPUT->single_button($urlReport, get_string('report_button', 'elediachecklist'), 'get');
@@ -103,8 +103,8 @@ if (!empty($confirmexamdate)) {
 
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
-    echo \html_writer::start_tag('div', array('id'=>'examdatesunconfirmed-container'));
-    $PAGE->requires->js_call_amd('block_eledia_adminexamdates/examdatesunconfirmed','annotationText');
+    echo \html_writer::start_tag('div', array('id' => 'examdatesunconfirmed-container'));
+    $PAGE->requires->js_call_amd('block_eledia_adminexamdates/examdatesunconfirmed', 'annotationText');
     echo \html_writer::start_tag('div', array('class' => 'row'));
     echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
     echo block_eledia_adminexamdates\util::getexamdateitems(false);
@@ -112,7 +112,6 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
-
 
     //echo '<div class="modal fade" id="examdatesunconfirmed-modal-annotationtext" tabindex="-1" role="dialog">';
     //echo '<div class="modal-dialog" role="document">';
@@ -127,36 +126,36 @@ if (!empty($confirmexamdate)) {
     //echo '</div>';
     //echo '</div>';
 
- //   echo " <script>
- //   $(document).ready(function(){
- //
- //$('#examdatesunconfirmed-container').on('click', '.annotation-text-link',function(event){
- //     console.log(event);
- //
- //      var modal = $('#modal-annotationtext');
- //      modal.find('.modal-title-exam').html(' - test');
- //       modal.modal('show');
- //       });
- //});
- //
- //
- //       $('a.item-delete').on('click', function(e) {
- //       var clickedLink = $(e.currentTarget);
- //       ModalFactory.create({
- //           type: ModalFactory.types.SAVE_CANCEL,
- //           title: 'Delete item',
- //           body: 'Do you really want to delete?',
- //       })
- //       .then(function(modal) {
- //           modal.setSaveButtonText('Delete');
- //           var root = modal.getRoot();
- //           root.on(ModalEvents.save, function() {
- //               var elementid = clickedLink.data('id');
- //               // Do something to delete item
- //           });
- //           modal.show();
- //   });
- //     </script>  ";
+    //   echo " <script>
+    //   $(document).ready(function(){
+    //
+    //$('#examdatesunconfirmed-container').on('click', '.annotation-text-link',function(event){
+    //     console.log(event);
+    //
+    //      var modal = $('#modal-annotationtext');
+    //      modal.find('.modal-title-exam').html(' - test');
+    //       modal.modal('show');
+    //       });
+    //});
+    //
+    //
+    //       $('a.item-delete').on('click', function(e) {
+    //       var clickedLink = $(e.currentTarget);
+    //       ModalFactory.create({
+    //           type: ModalFactory.types.SAVE_CANCEL,
+    //           title: 'Delete item',
+    //           body: 'Do you really want to delete?',
+    //       })
+    //       .then(function(modal) {
+    //           modal.setSaveButtonText('Delete');
+    //           var root = modal.getRoot();
+    //           root.on(ModalEvents.save, function() {
+    //               var elementid = clickedLink.data('id');
+    //               // Do something to delete item
+    //           });
+    //           modal.show();
+    //   });
+    //     </script>  ";
     echo $OUTPUT->container_end();
 }
 

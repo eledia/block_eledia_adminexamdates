@@ -38,7 +38,6 @@ require_login();
 //// Check basic permission
 //require_capability('block/eledia_courseadmin_fom:view', $context);
 
-
 $newexamdate = optional_param('newexamdate', 0, PARAM_INT);
 //$newexamdateyes = optional_param('newexamdate', 0, PARAM_INT);
 $editexamdate = optional_param('editexamdate', 0, PARAM_INT);
@@ -125,15 +124,15 @@ if ($mform->is_cancelled()) {
     if (!$hasconfirmexamdatescap) {
         echo $OUTPUT->single_button($confirmed, get_string('confirmed_btn', 'block_eledia_adminexamdates'));
     }
-    if (empty($editexamdate)) {
-        echo \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
-        echo \html_writer::tag('button', get_string('newexamdate', 'block_eledia_adminexamdates'),
-                array('disabled' => true, 'class' => 'btn '));
-        echo \html_writer::end_tag('div');
-    } else {
-        echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
-    }
     if ($hasconfirmexamdatescap) {
+        if (empty($editexamdate)) {
+            echo \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
+            echo \html_writer::tag('button', get_string('newexamdate', 'block_eledia_adminexamdates'),
+                    array('disabled' => true, 'class' => 'btn '));
+            echo \html_writer::end_tag('div');
+        } else {
+            echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
+        }
         echo $OUTPUT->single_button($statistics, get_string('statistics', 'block_eledia_adminexamdates'));
         $urlReport = new moodle_url('/mod/elediachecklist/terminreport.php');
         echo $OUTPUT->single_button($urlReport, get_string('report_button', 'elediachecklist'), 'get');
@@ -156,7 +155,12 @@ if ($mform->is_cancelled()) {
         echo \html_writer::end_tag('div');
     }
     echo \html_writer::start_tag('div', array('class' => 'row mt-3'));
-    echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
+    if ($onlynumberstudents){
+        echo \html_writer::start_tag('div', array('class' => 'col-md-12'));
+    } else {
+        echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
+    }
+
 
     if ($hasconfirmexamdatescap && $newexamdate) {
         $urlspecialrooms =

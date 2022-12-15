@@ -50,8 +50,8 @@ $mform = new \block_eledia_adminexamdates\forms\examdatesconfirmed_form();
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
 
-    $url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1, 'url' => rawurlencode($myurl) ]);
-    $newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
+    //$url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1, 'url' => rawurlencode($myurl) ]);
+    //$newexamdatebutton = new single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
     $urlcalendar = new moodle_url('/blocks/eledia_adminexamdates/calendar.php');
     $unconfirmed = new moodle_url('/blocks/eledia_adminexamdates/examdatesunconfirmed.php');
 
@@ -64,7 +64,7 @@ $mform = new \block_eledia_adminexamdates\forms\examdatesconfirmed_form();
     echo \html_writer::start_tag('div',array('class' => 'singlebutton mb-3'));
     echo \html_writer::tag('button', get_string('confirmed_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
     echo \html_writer::end_tag('div');
-    echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
+    //echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     echo \html_writer::start_tag('div',array('class' => 'row mt-3'));

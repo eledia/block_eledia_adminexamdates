@@ -156,7 +156,7 @@ if ($mform->is_cancelled()) {
     }
     echo \html_writer::start_tag('div', array('class' => 'row mt-3'));
     if ($onlynumberstudents){
-        echo \html_writer::start_tag('div', array('class' => 'col-md-12'));
+        echo \html_writer::start_tag('div', array('class' => 'col-sm-6'));
     } else {
         echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
     }

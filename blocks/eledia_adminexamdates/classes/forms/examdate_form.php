@@ -167,9 +167,9 @@ class examdate_form extends \moodleform {
             $mform->addRule('examname', null, 'required', null, 'client');
         } else {
             $mform->addElement('static', 'examnametext', get_string('examname', 'block_eledia_adminexamdates'),
-                    $examdate->examname);
-            $mform->setType('examname', PARAM_TEXT);
+                    \html_writer::tag('div', $examdate->examname, ['class' => 'col-form-label']));
             $mform->addElement('hidden', 'examname');
+            $mform->setType('examname', PARAM_TEXT);
         }
 
         $mform->addElement('text', 'numberstudents', get_string('number_students', 'block_eledia_adminexamdates'),
@@ -190,10 +190,11 @@ class examdate_form extends \moodleform {
         } else {
             if ($editexamdate) {
 
-                $date = userdate($examdate->examtimestart, '%d. %B %Y %H.%M');
+                $date = userdate($examdate->examtimestart, '%d. %B %Y, %H.%M') . ' ' .
+                        get_string('hour', 'block_eledia_adminexamdates');
 
                 $mform->addElement('static', 'description', get_string('examtimestart', 'block_eledia_adminexamdates', $time),
-                        $date);
+                        \html_writer::tag('div', $date, ['class' => 'col-form-label']));
             }
             $mform->addElement('hidden', 'examtimestart');
             $mform->setType('examtimestart', PARAM_INT);
@@ -206,7 +207,7 @@ class examdate_form extends \moodleform {
             $mform->addRule('examduration', null, 'numeric', null, 'client');
         } else {
             $mform->addElement('static', 'examdurationtext', get_string('examduration', 'block_eledia_adminexamdates'),
-                    $examdate->examduration);
+                    \html_writer::tag('div', $examdate->examduration, ['class' => 'col-form-label']));
             $mform->addElement('hidden', 'examduration');
             $mform->setType('examduration', PARAM_INT);
         }

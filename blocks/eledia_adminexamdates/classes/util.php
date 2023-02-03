@@ -358,10 +358,9 @@ class util {
             if (in_array($date->examroom, $examrooms)) {
                 $lastblockend = $roomfreecapacities[$date->examroom]->lastblockend;
                 $blocktimeend = $date->blocktimestart + (($date->blockduration + $distancebetweenblockdates) * 60);
-                if ($date->blocktimestart <= $lastblockend && $blocktimeend > $lastblockend) {
-                    $roomfreecapacities[$date->examroom]->lastblockend = $blocktimeend;
-                } else if ($date->blocktimestart > $lastblockend && $blocktimeend > $lastblockend) {
-                    if ($blocktimeend < $endexam) {
+                if ($blocktimeend > $lastblockend) {
+                    if ($date->blocktimestart < $endexam && $date->blocktimestart > $startexam &&
+                            (($date->blocktimestart - $lastblockend) > 0)) {
                         $object = new stdClass();
                         $object->blockfreestart = $lastblockend;
                         $object->blockfreeduration = $date->blocktimestart - $lastblockend;
@@ -381,69 +380,42 @@ class util {
                 $roomfreecapacities[$examroom]->freecapacities[] = $object;
             }
         }
-        // print_r('###$datesoftheday:');
-        // print_r($datesoftheday);
-
-        //print_r('###$roomfreecapacities:');
-        //print_r($roomfreecapacities);
         $numberstudents = $formdata->numberstudents;
         $bookingrooms = [];
         $bookdate = $formdata->examtimestart;
         // $firstbooking = true;
         $firstbookingdate = true;
-
+        //print_r($roomfreecapacities); exit;
         while ($numberstudents > 0) {
-            //print_r('###WHILE!');
             $nextfreecapacity = new stdClass();
             //$timeneedbegin = $firstbooking ? $distancebetweenblockdates : $breakbetweenblockdates;
             $timeneed = $formdata->examduration * 60;
             foreach ($examrooms as $examroom) {
-                //print_r('###$examroom!'.$examroom);
-                foreach ($roomfreecapacities[$examroom]->freecapacities as $freecapacity) {
+                $lastkey = array_search(end($roomfreecapacities[$examroom]->freecapacities),
+                        $roomfreecapacities[$examroom]->freecapacities);
+                foreach ($roomfreecapacities[$examroom]->freecapacities as $key => $freecapacity) {
                     $blockfreeend = $freecapacity->blockfreestart + $freecapacity->blockfreeduration;
                     $blockfreeduration = $blockfreeend - $bookdate;
-                    //print_r('###$blockfreeend:');
-                    //print_r($blockfreeend);
-                    //print_r('###$timeneedbegin:');
-
-                    //print_r($timeneed);
-                    ///print_r('###$bookdate:');
-                    //print_r($bookdate);
-                    //$freecapacity->blockfreestart <= $bookdate && $bookdate < $blockfreeend &&
+                    //$blockfreeduration = (($lastkey == $key) && ($blockfreeend==$timeneed)) ? $blockfreeduration  :  $blockfreeduration - ($distancebetweenblockdates * 60);
                     if ($freecapacity->blockfreestart <= $bookdate && $bookdate < $blockfreeend &&
                             $blockfreeduration >= $timeneed) {
-
-                        //print_r('###IF1!');
                         if (!isset($nextfreecapacity->blockfreestart) || (isset($nextfreecapacity->blockfreestart) &&
                                         $nextfreecapacity->blockfreestart > $freecapacity->blockfreestart)) {
-                            //print_r('###IF2!');
                             $nextfreecapacity->examrooms[] = $examroom;
-                            //      $blockfreestart=($freecapacity->blockfreestart<$bookdate)? $bookdate : $freecapacity->blockfreestart;
                             $nextfreecapacity->blockfreestart = $bookdate;
-                            //print_r('###$nextfreecapacity:');
-                            //print_r($nextfreecapacity);
                         }
                     }
                 }
             }
-            //print_r('##########$nextfreecapacity:');
-            //print_r($nextfreecapacity);
             if (isset($nextfreecapacity->blockfreestart)) {
-                //$firstbooking = false;
-                //print_r('##########BOOKING!');
-
                 foreach ($nextfreecapacity->examrooms as $examroom) {
                     $rest = $numberstudents - $roomcapacities[$examroom];
-                    //print_r('###$rest:');
-                    //print_r($rest);
                     if ($rest >= 0 || abs($rest) < $roomcapacities[$examroom]) {
                         $bookingrooms[$nextfreecapacity->blockfreestart][] = $examroom;
                         $numberstudents = $rest;
-                        //print_r('###$bookingrooms:');
-                        //print_r($bookingrooms);
                     }
                 }
-                $bookdate = $bookdate + ($formdata->examduration + $breakbetweenblockdates) * 60;
+                $bookdate = $bookdate + (($formdata->examduration + $breakbetweenblockdates) * 60);
             } else {
                 if ($bookings) {
                     return false;
@@ -453,39 +425,12 @@ class util {
                     return get_string('error_startexamtime', 'block_eledia_adminexamdates',
                             ['start' => date('H.i', $startexam), 'end' => date('H.i', $endexam)]);
                 }
-
-                //$timeneedbegin = $firstbooking ? $distancebetweenblockdates : $breakbetweenblockdates;
-                //$bookdate = $bookdate +
-                // return false;
-                // exit;
             }
             $firstbookingdate = false;
         }
         if ($bookings) {
             return $bookingrooms;
         };
-        //return $bookingrooms;
-        // print_r('###$bookingrooms:');
-        //print_r($bookingrooms);
-        //exit;
-
-        //$blockdates = [];
-        //
-        //$dateconflict = false;
-        //$blockdate = (object) [
-        //        'blocktimestart' => $formdata->examtimestart,
-        //        'blockduration' => $formdata->examduration,
-        //        'timestart' => $formdata->examtimestart - ($distancebetweenblockdates * 60),
-        //        'timeend' => $formdata->examtimestart + $formdata->examduration + ($distancebetweenblockdates * 60),
-        //        'rooms' => []];
-        //foreach ($datesoftheday as $date) {
-        //    if (!((($blockdate->timestart <= $date->blocktimestart) && ($blockdate->timeend <= $date->blocktimestart)) ||
-        //            (($blockdate->timestart >= $date->blocktimestart + ($date->blockduration * 60)) &&
-        //                    ($blockdate->timeend >= $date->blocktimestart + ($date->blockduration * 60))))) {
-        //        $dateconflict = true;
-        //        break;
-        //    }
-        //}
     }
 
     /**

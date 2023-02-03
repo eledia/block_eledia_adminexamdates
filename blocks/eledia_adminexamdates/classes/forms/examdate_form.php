@@ -264,7 +264,7 @@ class examdate_form extends \moodleform {
         if (!$onlynumberstudents) {
             $mform->addElement('textarea', 'annotationtext', get_string('annotationtext', 'block_eledia_adminexamdates'),
                     array('rows' => 10, 'cols' => 80));
-            $mform->setType('annotationtext', PARAM_RAW);
+            $mform->setType('annotationtext', PARAM_TEXT);
         }
         $mform->addElement('hidden', 'onlynumberstudents');
         $mform->setType('onlynumberstudents', PARAM_INT);

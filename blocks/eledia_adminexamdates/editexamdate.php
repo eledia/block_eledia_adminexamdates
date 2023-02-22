@@ -198,15 +198,19 @@ if ($mform->is_cancelled()) {
     if ($needfreetimeslots) {
         block_eledia_adminexamdates\util::getfreetimeslots2($examdateid, $formdata);
 
-        if ($hasconfirmexamdatescap) {
-            redirect(new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $examdateid]));
-        }
+        //if ($hasconfirmexamdatescap) {
+        //    redirect(new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $examdateid]));
+        //}
 
     } else {
         if (($examdate->examtimestart != $formdata->examtimestart) || ($examdate->examduration != $formdata->examduration)
                 || ($examdate->numberstudents != $formdata->numberstudents)) {
             block_eledia_adminexamdates\util::updatefreetimeslots2($examdateid, $formdata);
         }
+    }
+
+    if ($hasconfirmexamdatescap) {
+        redirect(new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $examdateid]));
     }
     $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php');
     if ($formdata = $mform->get_data()) {

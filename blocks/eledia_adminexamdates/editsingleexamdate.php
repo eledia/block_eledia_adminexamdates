@@ -24,7 +24,6 @@ require('../../config.php');
 
 global $USER, $CFG, $PAGE, $OUTPUT, $DB;
 
-
 $context = context_system::instance();
 
 require_login();
@@ -40,12 +39,12 @@ $delete = optional_param('delete', 0, PARAM_INT);
 $deleteyes = optional_param('deleteyes', 0, PARAM_INT);
 
 $myurl = new \moodle_url($FULLME);
-$titlestring = get_string('examdate_header', 'block_eledia_adminexamdates') . ': ' . get_string('singleexamdate_header', 'block_eledia_adminexamdates');
+$titlestring = get_string('examdate_header', 'block_eledia_adminexamdates') . ': ' .
+        get_string('singleexamdate_header', 'block_eledia_adminexamdates');
 $PAGE->set_url($myurl);
 $PAGE->set_context($context);
 $PAGE->set_title($titlestring);
 $PAGE->set_pagelayout('standard');
-
 
 if (!empty($blockid)) {
     $examdateid = $DB->get_record('eledia_adminexamdates_blocks', ['id' => $blockid])->examdateid;
@@ -54,7 +53,13 @@ if (!empty($blockid)) {
     $blockid = array_shift($blocks)->id;
 }
 
-$mform = new \block_eledia_adminexamdates\forms\singleexamdate_form(null, array('blockid' => $blockid, 'examdateid' => $examdateid));
+if (empty($examdateid) && empty($blockid) && empty($newblock)) {
+    $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php');
+    redirect($calendarurl);
+}
+
+$mform =
+        new \block_eledia_adminexamdates\forms\singleexamdate_form(null, array('blockid' => $blockid, 'examdateid' => $examdateid));
 
 // Execute the form.
 if ($mform->is_cancelled()) {
@@ -64,8 +69,10 @@ if ($mform->is_cancelled()) {
     $blocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'blocktimestart');
     $pos = array_search($delete, array_keys($blocks)) + 1;
     $posstring = count($blocks) > 1 ? $pos . '. ' : '';
-    $message = get_string('confirm_delete_singleexamdate_msg', 'block_eledia_adminexamdates', ['index' => $posstring, 'name' => $examdatename]);
-    $formcontinue = new single_button(new moodle_url($PAGE->url, ['blockid' => $blockid, 'deleteyes' => $delete]), get_string('yes'));
+    $message = get_string('confirm_delete_singleexamdate_msg', 'block_eledia_adminexamdates',
+            ['index' => $posstring, 'name' => $examdatename]);
+    $formcontinue =
+            new single_button(new moodle_url($PAGE->url, ['blockid' => $blockid, 'deleteyes' => $delete]), get_string('yes'));
     $formcancel = new single_button(new moodle_url($PAGE->url, ['blockid' => $blockid]), get_string('no'));
     echo $OUTPUT->header();
     echo $OUTPUT->box_start('generalbox');
@@ -77,16 +84,16 @@ if ($mform->is_cancelled()) {
     }
     $data = block_eledia_adminexamdates\util::editsingleexamdate($blockid, $examdateid, $newblock);
     $mform->set_data($data);
-//    echo " <script>
-//    $(document).ready(function(){
-//        $('.form-check-input').change(function() {
-//        if($(this).is(\":checked\")) {
-//            confirm($(this));
-//        };
-//        });
-//    });
-//    </script>
-//    ";
+    //    echo " <script>
+    //    $(document).ready(function(){
+    //        $('.form-check-input').change(function() {
+    //        if($(this).is(\":checked\")) {
+    //            confirm($(this));
+    //        };
+    //        });
+    //    });
+    //    </script>
+    //    ";
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
     $url = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['newexamdate' => 1, 'url' => rawurlencode($myurl)]);
@@ -111,11 +118,13 @@ if ($mform->is_cancelled()) {
 
     echo \html_writer::start_tag('div', array('class' => 'row mt-3'));
     echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
-    $editexamdateurl = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php', ['editexamdate' => $examdateid, 'url' => rawurlencode($myurl)]);
+    $editexamdateurl = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php',
+            ['editexamdate' => $examdateid, 'url' => rawurlencode($myurl)]);
     echo $OUTPUT->single_button($editexamdateurl, get_string('editexamdate_btn', 'block_eledia_adminexamdates'));
-    $checklistlink =  new \moodle_url(get_string('checklistlink', 'block_eledia_adminexamdates') . $examdateid);
+    $checklistlink = new \moodle_url(get_string('checklistlink', 'block_eledia_adminexamdates') . $examdateid);
     echo \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
-    echo \html_writer::tag('button', get_string('singleexamdate_btn', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
+    echo \html_writer::tag('button', get_string('singleexamdate_btn', 'block_eledia_adminexamdates'),
+            array('disabled' => true, 'class' => 'btn '));
     echo \html_writer::end_tag('div');
     echo $OUTPUT->single_button($checklistlink, get_string('checklist_btn', 'block_eledia_adminexamdates'));
 
@@ -157,11 +166,12 @@ if ($mform->is_cancelled()) {
     }
     if ($newblock) {
         $buttons .= \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
-        $buttons .= \html_writer::tag('button', $index . '. ' . get_string('partialdate', 'block_eledia_adminexamdates'), array('disabled' => true, 'class' => 'btn '));
+        $buttons .= \html_writer::tag('button', $index . '. ' . get_string('partialdate', 'block_eledia_adminexamdates'),
+                array('disabled' => true, 'class' => 'btn '));
         $buttons .= \html_writer::end_tag('div');
     } else {
         $newpartialdateurl = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php',
-            ['examdateid' => $examdateid, 'newblock' => 1]);
+                ['examdateid' => $examdateid, 'newblock' => 1]);
         $buttons .= $OUTPUT->single_button($newpartialdateurl, get_string('newpartialdate', 'block_eledia_adminexamdates'));
     }
     echo $buttons;
@@ -185,21 +195,22 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->container_end();
     echo $OUTPUT->footer();
 } else if ($mform->is_submitted() && $mform->is_validated() && ($formdata = $mform->get_data())) {
-        $formcontinue = new single_button(new moodle_url($PAGE->url, ['blockid' => $blockid]), get_string('yes'));
-        $blockid = block_eledia_adminexamdates\util::savesingleexamdate($formdata);
+    $formcontinue = new single_button(new moodle_url($PAGE->url, ['blockid' => $blockid]), get_string('yes'));
+    $blockid = block_eledia_adminexamdates\util::savesingleexamdate($formdata);
 
-        $examdatename = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid])->examname;
-        $blocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'blocktimestart');
-        $pos = array_search($blockid, array_keys($blocks)) + 1;
-        $posstring = count($blocks) > 1 ? $pos . '. ' : '';
+    $examdatename = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid])->examname;
+    $blocks = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'blocktimestart');
+    $pos = array_search($blockid, array_keys($blocks)) + 1;
+    $posstring = count($blocks) > 1 ? $pos . '. ' : '';
 
-        echo $OUTPUT->header();
-        echo $OUTPUT->box_start('generalbox', 'notice');
-        echo \html_writer::start_tag('div', ['class' => 'text-center mb-3']);
-        echo get_string('confirm_save_singleexamdate_msg', 'block_eledia_adminexamdates', ['name' => "$examdatename", 'index' => $posstring]);
-        echo \html_writer::end_tag('div');
-        echo $OUTPUT->continue_button(new moodle_url($PAGE->url, ['blockid' => $blockid]));
-        echo $OUTPUT->box_end();
+    echo $OUTPUT->header();
+    echo $OUTPUT->box_start('generalbox', 'notice');
+    echo \html_writer::start_tag('div', ['class' => 'text-center mb-3']);
+    echo get_string('confirm_save_singleexamdate_msg', 'block_eledia_adminexamdates',
+            ['name' => "$examdatename", 'index' => $posstring]);
+    echo \html_writer::end_tag('div');
+    echo $OUTPUT->continue_button(new moodle_url($PAGE->url, ['blockid' => $blockid]));
+    echo $OUTPUT->box_end();
 
 } else {
 

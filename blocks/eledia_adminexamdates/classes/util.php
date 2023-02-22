@@ -1230,46 +1230,66 @@ class util {
                     $semestercategoryid = $results[0]->id;
                 }
 
-                // Duplicate the sample course for the exam.
-                $param = [
-                        'wsfunction' => 'core_course_duplicate_course',
-                        'courseid' => $templatecourseid,
-                        'fullname' => $examdate->examname,
-                        'shortname' => $examdate->examname,
-                        'categoryid' => $semestercategoryid,
-                        'visible' => 0
-                ];
-                $results = self::get_data_from_api('', $param);
-
-                // Get the duplicated course section data and look for the date replacement string in the names and replace.
-                if (isset($results->id)) {
-                    $courseid = $results->id;
-                    $DB->update_record('eledia_adminexamdates', (object) ['id' => $examdateid,
-                            'courseid' => $courseid]);
+                // If a course with this shortname already exists, then add examtimestart to the string.
+                $shortnamenotexist = false;
+                $shortenexamname = shorten_text($examdate->examname, 40);
+                for ($i = 0; $i < 10 && !$shortnamenotexist ; $i++) {
                     $param = [
-                            'wsfunction' => 'core_course_get_contents',
-                            'courseid' => $courseid
+                            'wsfunction' => 'core_course_get_courses_by_field',
+                            'field' => 'shortname',
+                            'value' => $shortenexamname
                     ];
-                    $options = '&options[0][name]=excludemodules&options[0][value]=1';
-                    $results = self::get_data_from_api($options, $param);
-                    if (!empty($results)) {
-                        $stringtoreplace = 'TT.MM.JJJJ';
-                        foreach ($results as $sectiondata) {
-                            if (strpos($sectiondata->name, $stringtoreplace)) {
-                                $param = [
-                                        'wsfunction' => 'core_update_inplace_editable',
-                                        'component' => 'format_topics',
-                                        'itemtype' => 'sectionname',
-                                        'itemid' => $sectiondata->id,
-                                        'value' => str_replace($stringtoreplace,
-                                                date('d.m.Y', $examdate->examtimestart),
-                                                $sectiondata->name)
-                                ];
-                                self::get_data_from_api('', $param);
-                                break;
+                    $results = self::get_data_from_api('', $param);
+                    if (!isset($results->courses[0]->id)) {
+                        $shortnamenotexist = true;
+                    } else if ($i == 0) {
+                        $shortenexamname .= ' ' . date('H.i', $examdate->examtimestart);
+                    } else {
+                        $shortenexamname .= random_string(3);
+                    }
+                }
+
+                if ($shortnamenotexist) {
+                    // Duplicate the sample course for the exam.
+                    $param = [
+                            'wsfunction' => 'core_course_duplicate_course',
+                            'courseid' => $templatecourseid,
+                            'fullname' => $examdate->examname,
+                            'shortname' => $shortenexamname,
+                            'categoryid' => $semestercategoryid,
+                            'visible' => 0
+                    ];
+                    $results = self::get_data_from_api('', $param);
+
+                    // Get the duplicated course section data and look for the date replacement string in the names and replace.
+                    if (isset($results->id)) {
+                        $courseid = $results->id;
+                        $DB->update_record('eledia_adminexamdates', (object) ['id' => $examdateid,
+                                'courseid' => $courseid]);
+                        $param = [
+                                'wsfunction' => 'core_course_get_contents',
+                                'courseid' => $courseid
+                        ];
+                        $options = '&options[0][name]=excludemodules&options[0][value]=1';
+                        $results = self::get_data_from_api($options, $param);
+                        if (!empty($results)) {
+                            $stringtoreplace = 'TT.MM.JJJJ';
+                            foreach ($results as $sectiondata) {
+                                if (strpos($sectiondata->name, $stringtoreplace)) {
+                                    $param = [
+                                            'wsfunction' => 'core_update_inplace_editable',
+                                            'component' => 'format_topics',
+                                            'itemtype' => 'sectionname',
+                                            'itemid' => $sectiondata->id,
+                                            'value' => str_replace($stringtoreplace,
+                                                    date('d.m.Y', $examdate->examtimestart),
+                                                    $sectiondata->name)
+                                    ];
+                                    self::get_data_from_api('', $param);
+                                    break;
+                                }
                             }
                         }
-
                     }
                 }
             }

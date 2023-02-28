@@ -119,7 +119,7 @@
         <INDEX NAME="checklist_item_user" UNIQUE="true" FIELDS="itemid, userid" COMMENT="Will usually want to find the comment by both itemid and userid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="eledia_adminexamdates_my_chk">
+    <TABLE NAME="eledia_adminexamdates_my_chk" COMMENT="Checked items for quality management an final acceptance">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="id_item" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
@@ -130,7 +130,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="eledia_adminexamdates_my_itm">
+    <TABLE NAME="eledia_adminexamdates_my_itm" COMMENT="Items for quality management an final acceptance">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="displaytext" TYPE="char" LENGTH="250" NOTNULL="false" SEQUENCE="false"/>
@@ -141,7 +141,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="eledia_adminexamdates_itm_d">
+    <TABLE NAME="eledia_adminexamdates_itm_d" COMMENT="Date for final acceptance">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="examid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>

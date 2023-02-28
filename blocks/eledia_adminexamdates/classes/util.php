@@ -1690,8 +1690,8 @@ class util {
         CASE WHEN ch.item IS NULL
             THEN 0
             ELSE 1 END AS checked
-        FROM {elediachecklist_item} item
-        LEFT JOIN {elediachecklist_check} ch ON item.id = ch.item AND ch.teacherid = {$examdateid}
+        FROM {eledia_adminexamdates_itm} item
+        LEFT JOIN {eledia_adminexamdates_chk} ch ON item.id = ch.item AND ch.teacherid = {$examdateid}
         WHERE  item.id IN ($items)
         ORDER BY item.id";
         $examtimestart =

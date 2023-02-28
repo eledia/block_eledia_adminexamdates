@@ -118,7 +118,7 @@ class examdate_form extends \moodleform {
         for ($i = 1; $i < 5; $i++) {
             $years[] = date('Y', strtotime('+' . $i . ' year'));
         }
-        $options = [];
+        $options[0] = get_string('pleasechoose', 'block_eledia_adminexamdates');
         foreach ($years as $key => $year) {
             $options[$year . '1'] = get_string('summersemester', 'block_eledia_adminexamdates') . ' ' . $year;
             if (array_key_exists($key + 1, $years)) {
@@ -217,8 +217,7 @@ class examdate_form extends \moodleform {
         $mform->addHelpButton('examiner', 'examiner', 'block_eledia_adminexamdates');
         $mform->setType('examiner', PARAM_RAW_TRIMMED);
         $mform->addRule('examiner', get_string('required'), 'required', null, 'client');
-        //$mform->setDefault('examiner', '');
-        //$mform->addRule('examiner', get_string('error_choose_or_enter', 'block_eledia_adminexamdates'), 'nonzero', null, 'client');
+        //$mform->addRule('examiner', get_string('required'), 'nonzero', null, 'client');
 
         $autocompleteoptions = [
                 'multiple' => false
@@ -290,6 +289,9 @@ class examdate_form extends \moodleform {
     public function validation($data, $files) {
         global $DB;
         $errors = parent::validation($data, $files);
+        //if (empty($data->examiner)) {
+        //            $errors['examiner'] = get_string('error_choose', 'block_eledia_adminexamdates');
+        //        }
         if (!$data->onlynumberstudents && $error = \block_eledia_adminexamdates\util::hasfreetimeslots2($data, false)) {
             $errors['examtimestart'] = $error;
         }

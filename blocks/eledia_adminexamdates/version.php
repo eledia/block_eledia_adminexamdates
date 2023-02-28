@@ -18,13 +18,14 @@
  * Plugin version and other meta-data are defined here.
  *
  * @package     block_eledia_adminexamdates
- * @copyright   2021 René Hansen <support@eledia.de>
+ * @copyright   2023 René Hansen <support@eledia.de>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->version   = 2023020201;
+$plugin->version   = 2023022700;
 $plugin->requires  = 2014051200;
 $plugin->component = 'block_eledia_adminexamdates';
-$plugin->maturity  = MATURITY_STABLE;
-
+$plugin->dependencies = array(
+        'mod_elediachecklist' => 2023021500
+);

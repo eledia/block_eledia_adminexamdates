@@ -262,5 +262,19 @@ function xmldb_block_eledia_adminexamdates_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2023022700, 'eledia_adminexamdates');
     }
 
+    if ($oldversion < 2023022800) {
+
+        // Define field checklistcomment to be added to eledia_adminexamdates.
+        $table = new xmldb_table('eledia_adminexamdates');
+        $field = new xmldb_field('checklistcomment', XMLDB_TYPE_TEXT, null, null, null, null, null, 'confirmed');
+
+        // Conditionally launch add field checklistcomment.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Eledia_adminexamdates savepoint reached.
+        upgrade_block_savepoint(true, 2023022800, 'eledia_adminexamdates');
+    }
     return true;
 }

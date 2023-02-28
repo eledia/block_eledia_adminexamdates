@@ -23,7 +23,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->version   = 2023022700;
+$plugin->version   = 2023022800;
 $plugin->requires  = 2014051200;
 $plugin->component = 'block_eledia_adminexamdates';
 $plugin->dependencies = array(

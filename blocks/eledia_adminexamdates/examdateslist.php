@@ -153,7 +153,7 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::end_tag('div');
 
 
-    $checklistlink = get_string('checklistlink', 'block_eledia_adminexamdates');
+    $checklistlink = new moodle_url(get_string('checklistlink', 'block_eledia_adminexamdates'));
     echo '<script type="text/javascript">';
     $title = get_string('examdateslist_btn', 'block_eledia_adminexamdates');
     echo '$(document).ready(function() {
@@ -272,7 +272,7 @@ if (!empty($confirmexamdate)) {
     $("#examdatestable tbody").on( "click", "button", function (event) {
         event.stopPropagation();
         var data = table.row( $(this).parents("tr") ).data();
-        window.location.href = "' . $checklistlink . '"+data[11];
+        window.location = "' . $checklistlink . '"+data[11];
     } );
 
     $("#examdatestable tbody").on( "click", "a", function (event) {

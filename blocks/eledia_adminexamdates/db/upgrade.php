@@ -258,6 +258,8 @@ function xmldb_block_eledia_adminexamdates_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
+        // Eledia_adminexamdates savepoint reached.
+        upgrade_block_savepoint(true, 2023022700, 'eledia_adminexamdates');
     }
 
     return true;

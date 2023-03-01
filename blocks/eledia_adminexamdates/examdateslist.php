@@ -120,9 +120,9 @@ if (!empty($confirmexamdate)) {
     echo $OUTPUT->box($OUTPUT->single_button($urleditsingleexamdate, ''), 'd-none', 'editsingleexamdate');
 
     //  echo '<link rel="stylesheet" type="text/css" href="datatables/datatables.min.css"/>';
-//    echo '<style>
-//
-//</style>';
+    //    echo '<style>
+    //
+    //</style>';
 
     echo \html_writer::start_tag('div', array('class' => 'mb-1'));
     echo \html_writer::start_tag('div', array('class' => 'row'));
@@ -137,15 +137,15 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
 
-/*    echo \html_writer::end_tag('p');
-    echo \html_writer::end_tag('div');
-    echo \html_writer::end_tag('div');
-    echo \html_writer::end_tag('div');
+    /*    echo \html_writer::end_tag('p');
+        echo \html_writer::end_tag('div');
+        echo \html_writer::end_tag('div');
+        echo \html_writer::end_tag('div');
 
-    echo \html_writer::start_tag('div', array('class' => 'card-deck mt-3'));
-    echo \html_writer::start_tag('div', array('class' => 'card'));
-    echo \html_writer::start_tag('div', array('class' => 'card-body'));
-    echo \html_writer::start_tag('p', array('class' => 'card-text'));*/
+        echo \html_writer::start_tag('div', array('class' => 'card-deck mt-3'));
+        echo \html_writer::start_tag('div', array('class' => 'card'));
+        echo \html_writer::start_tag('div', array('class' => 'card-body'));
+        echo \html_writer::start_tag('p', array('class' => 'card-text'));*/
     echo block_eledia_adminexamdates\util::getexamdatetable($semester,$frommonth, $fromyear,$tomonth,$toyear);
     echo \html_writer::end_tag('p');
     echo \html_writer::end_tag('div');
@@ -153,7 +153,7 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::end_tag('div');
 
     $checklistcmid = get_config('block_eledia_adminexamdates', 'instanceofmodelediachecklist');
-    $checklistlink = new \moodle_url('/mod/elediachecklist/tabtermin.php', ['id' => $checklistcmid, 'examid' =>'']);
+    $checklistlink = new \moodle_url('/mod/elediachecklist/tabtermin.php', ['id' => $checklistcmid ]);
     echo '<script type="text/javascript">';
     $title = get_string('examdateslist_btn', 'block_eledia_adminexamdates');
     echo '$(document).ready(function() {
@@ -272,7 +272,7 @@ if (!empty($confirmexamdate)) {
     $("#examdatestable tbody").on( "click", "button", function (event) {
         event.stopPropagation();
         var data = table.row( $(this).parents("tr") ).data();
-        window.location = "' . $checklistlink . '"+data[11];
+        window.location = "' . $checklistlink . '&examid="+data[11];
     } );
 
     $("#examdatestable tbody").on( "click", "a", function (event) {
@@ -288,7 +288,7 @@ if (!empty($confirmexamdate)) {
 
 } );
     </script>';
-   // echo \html_writer::end_tag('div');
+    // echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     echo $OUTPUT->container_end();

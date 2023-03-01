@@ -121,7 +121,8 @@ if ($mform->is_cancelled()) {
     $editexamdateurl = new \moodle_url('/blocks/eledia_adminexamdates/editexamdate.php',
             ['editexamdate' => $examdateid, 'url' => rawurlencode($myurl)]);
     echo $OUTPUT->single_button($editexamdateurl, get_string('editexamdate_btn', 'block_eledia_adminexamdates'));
-    $checklistlink = new \moodle_url(get_string('checklistlink', 'block_eledia_adminexamdates') . $examdateid);
+    $checklistcmid = get_config('block_eledia_adminexamdates', 'instanceofmodelediachecklist');
+    $checklistlink = new \moodle_url('/mod/elediachecklist/tabtermin.php', ['id' => $checklistcmid, 'examid' =>$examdateid]);
     echo \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
     echo \html_writer::tag('button', get_string('singleexamdate_btn', 'block_eledia_adminexamdates'),
             array('disabled' => true, 'class' => 'btn '));

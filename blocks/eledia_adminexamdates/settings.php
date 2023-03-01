@@ -125,6 +125,43 @@ if ($ADMIN->fulltree) {
             new lang_string('config_holidays', 'block_eledia_adminexamdates'),
             '', PARAM_RAW, '15', '5');
 
+    $options = [];
+    $options[0] = get_string('choose');
+    $sql = "SELECT cm.id, cl.name 
+                FROM {elediachecklist} cl
+                JOIN {course_modules} cm ON cm.instance = cl.id
+                JOIN {modules} m ON m.id = cm.module AND m.name = :mname                                     
+                WHERE m.visible = 1";
+    $params = array('mname' => 'elediachecklist');
+
+    if ($cminstances = $DB->get_records_sql($sql, $params)) {
+        $options += array_column($cminstances, 'name', 'id');
+    }
+    $configs[] = new admin_setting_configselect('block_eledia_adminexamdates/instanceofmodelediachecklist',
+            get_string('setting_instanceofmodelediachecklist', 'block_eledia_adminexamdates'),
+            get_string('config_instanceofmodelediachecklist', 'block_eledia_adminexamdates'),
+            '',
+            $options);
+    //
+    //$options = [];
+    //$options[0] = get_string('choose');
+    //$sql = "SELECT cm.id, d.name
+    //            FROM {data} d
+    //            JOIN {course_modules} cm ON cm.instance = d.id
+    //            JOIN {modules} m ON m.id = cm.module AND m.name = :mname
+    //            WHERE m.visible = 1";
+    //$params = array('mname' => 'data');
+    //
+    //if ($cminstances = $DB->get_records_sql($sql, $params)) {
+    //    $options += array_column($cminstances, 'name', 'id');
+    //}
+    //
+    //$configs[] = new admin_setting_configselect('block_eledia_adminexamdates/instanceofproblemdb',
+    //        get_string('setting_instanceofmodproblemdb', 'block_eledia_adminexamdates'),
+    //        get_string('config_instanceofmodproblemdb', 'block_eledia_adminexamdates'),
+    //        'showboth',
+    //        $options);
+
     foreach ($configs as $config) {
         $config->plugin = 'block_eledia_adminexamdates';
         $settings->add($config);

@@ -131,7 +131,6 @@ $string['block_duration'] = 'Klausur-Schreibzeit (Minuten)';
 $string['room_number_students'] = 'Anzahl der Teilnehmenden (Raum)';
 $string['room_supervisor'] = 'Betreuer:in (Raum)';
 $string['room_supervision'] = 'Klausuraufsicht (Raum)';
-$string['checklistlink'] = '/mod/elediachecklist/tabtermin.php?id=271052&examid=';
 $string['partialdate'] = 'Teiltermin';
 $string['examdateedit'] = 'Prüfungstermin bearbeiten';
 $string['status_confirmed'] = 'Bestätigt';
@@ -246,4 +245,7 @@ $string['exam_dates_confirmed_start_date'] = 'Startdatum';
 $string['exam_dates_confirmed_end_date'] = 'Enddatum';
 $string['setting_examinercohorts'] = 'Globale Gruppen der Prüfer:in';
 $string['config_examinercohorts'] = 'Nutzer die in diesen Globale Gruppen sind, stehen in der Auswahl der Prüfer:in des Prüfungsterminformulars zur Verfügung.';
-
+$string['setting_instanceofmodelediachecklist'] = 'Aktivität eLeDia Checklist';
+$string['config_instanceofmodelediachecklist'] = 'Auswahl einer Instanz der Aktivität eLeDia Checklist, die als Checkliste verlinkt ist.';
+$string['setting_instanceofmodproblemdb'] = 'Aktivität Problemdatenbank';
+$string['config_instanceofmodproblemdb'] = 'Auswahl einer Instanz der Aktivität Datenbank, die als Problemdatenbank verlinkt ist.';

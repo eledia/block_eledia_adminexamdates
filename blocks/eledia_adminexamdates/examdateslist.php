@@ -152,8 +152,8 @@ if (!empty($confirmexamdate)) {
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
 
-
-    $checklistlink = new moodle_url(get_string('checklistlink', 'block_eledia_adminexamdates'));
+    $checklistcmid = get_config('block_eledia_adminexamdates', 'instanceofmodelediachecklist');
+    $checklistlink = new \moodle_url('/mod/elediachecklist/tabtermin.php', ['id' => $checklistcmid, 'examid' =>'']);
     echo '<script type="text/javascript">';
     $title = get_string('examdateslist_btn', 'block_eledia_adminexamdates');
     echo '$(document).ready(function() {

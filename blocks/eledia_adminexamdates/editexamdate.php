@@ -146,7 +146,8 @@ if ($mform->is_cancelled()) {
         echo \html_writer::tag('button', get_string('editexamdate_btn', 'block_eledia_adminexamdates'),
                 array('disabled' => true, 'class' => 'btn '));
         echo \html_writer::end_tag('div');
-        $checklistlink = get_string('checklistlink', 'block_eledia_adminexamdates') . $editexamdate;
+        $checklistcmid = get_config('block_eledia_adminexamdates', 'instanceofmodelediachecklist');
+        $checklistlink = new \moodle_url('/mod/elediachecklist/tabtermin.php', ['id' => $checklistcmid, 'examid' => $editexamdate]);
         $editsingleexamdateurl =
                 new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $editexamdate]);
         echo $OUTPUT->single_button($editsingleexamdateurl, get_string('singleexamdate_btn', 'block_eledia_adminexamdates'));
@@ -177,6 +178,40 @@ if ($mform->is_cancelled()) {
     echo \html_writer::start_tag('p', array('class' => 'card-text'));
 
     $mform->display();
+
+
+    //echo ' <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>';
+    //echo \html_writer::tag('script',
+    //        "
+    //         $(document).ready(function () {
+    //            $('#id_examtimestart_month').on('change',function () {
+    //                year=$( '#id_examtimestart_year').val();
+    //                month=$(this).val();
+    //                if(month <= 3){
+    //                    semester=(year-1)+'2';
+    //                } else if(month <=9){
+    //                    semester=(year)+'1';
+    //                } else {
+    //                 semester=(year)+'2';
+    //                }
+    //                $( '#id_semester').val(semester);
+    //            });
+    //             $('#id_examtimestart_year').on('change',function () {
+    //                 month=$( '#id_examtimestart_month').val();
+    //                year=$(this).val();
+    //                 if(month <= 3){
+    //                    semester=(year-1)+'2';
+    //                } else if(month <=9){
+    //                    semester=(year)+'1';
+    //                } else {
+    //                 semester=(year)+'2';
+    //                }
+    //                 $( '#id_semester').val(semester);
+    //            });
+    //
+    //
+    //        });
+    //       ");
 
     echo \html_writer::end_tag('p');
     echo \html_writer::end_tag('div');

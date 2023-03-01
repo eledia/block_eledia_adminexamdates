@@ -1232,7 +1232,7 @@ class util {
 
                 // If a course with this shortname already exists, then add examtimestart to the string.
                 $shortnamenotexist = false;
-                $shortenexamname = shorten_text($examdate->examname, 40);
+                $shortenexamname = shorten_text($examdate->examname, 40, true);
                 for ($i = 0; $i < 10 && !$shortnamenotexist ; $i++) {
                     $param = [
                             'wsfunction' => 'core_course_get_courses_by_field',

@@ -187,6 +187,7 @@ class examdate_form extends \moodleform {
             $mform->addElement('date_time_selector', 'examtimestart',
                     get_string('examtimestart', 'block_eledia_adminexamdates', $time));
             $mform->addRule('examtimestart', null, 'required', null, 'client');
+
         } else {
             if ($editexamdate) {
 

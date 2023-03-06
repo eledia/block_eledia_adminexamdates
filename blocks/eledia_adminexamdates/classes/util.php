@@ -25,10 +25,10 @@
 
 namespace block_eledia_adminexamdates;
 
+defined('MOODLE_INTERNAL') || die();
 use core_course\search\course;
 use stdClass;
-
-defined('MOODLE_INTERNAL') || die();
+global $CFG;
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/calendar/lib.php');
 
@@ -1191,14 +1191,17 @@ class util {
      * @return array
      */
     public
-    static function examconfirm($examdateid) {
+    static function examconfirm($examdateid, $progressbar) {
         global $DB, $USER;
-
+        $stringcoursecreate = get_string('progressbar_confirmed_course_create', 'block_eledia_adminexamdates');
         $config = get_config('block_eledia_adminexamdates');
         $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
         $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'blocktimestart');
+        $courseid= (isset($examdate->courseid) && !empty($examdate->courseid)) ? $examdate->courseid : 0;
         // Get the template's course ID using the course idnumber.
         if (!empty($config->examcoursetemplateidnumber) && (!isset($examdate->courseid) || !$examdate->courseid)) {
+
+            $progressbar->update_full(10, $stringcoursecreate);
             $param = [
                     'wsfunction' => 'core_course_get_courses_by_field',
                     'field' => 'idnumber',
@@ -1223,6 +1226,7 @@ class util {
 
                 // Create the semester category if it is not in the sub-category list.
                 if (empty($subcategories) || !($semestercategoryid = array_search($semesterstr, $subcategories))) {
+                    $progressbar->update_full(30, $stringcoursecreate);
                     $param = ['wsfunction' => 'core_course_create_categories'];
                     $categories = '&categories[0][name]=' . urlencode($semesterstr)
                             . '&categories[0][parent]=' . $examdate->department;
@@ -1233,6 +1237,7 @@ class util {
                 // If a course with this shortname already exists, then add examtimestart to the string.
                 $shortnamenotexist = false;
                 $shortenexamname = shorten_text($examdate->examname, 40, true);
+                $progressbar->update_full(50, $stringcoursecreate);
                 for ($i = 0; $i < 10 && !$shortnamenotexist ; $i++) {
                     $param = [
                             'wsfunction' => 'core_course_get_courses_by_field',
@@ -1250,6 +1255,7 @@ class util {
                 }
 
                 if ($shortnamenotexist) {
+                    $progressbar->update_full(70, $stringcoursecreate);
                     // Duplicate the sample course for the exam.
                     $param = [
                             'wsfunction' => 'core_course_duplicate_course',
@@ -1263,6 +1269,7 @@ class util {
 
                     // Get the duplicated course section data and look for the date replacement string in the names and replace.
                     if (isset($results->id)) {
+                        $progressbar->update_full(80, $stringcoursecreate);
                         $courseid = $results->id;
                         $DB->update_record('eledia_adminexamdates', (object) ['id' => $examdateid,
                                 'courseid' => $courseid]);
@@ -1296,9 +1303,10 @@ class util {
         }
         if ($examdate->confirmed != 1) {
             // Send confirmation email to contactperson and the exam team.
-
+            $progressbar->update_full(90, get_string('progressbar_confirmed_email', 'block_eledia_adminexamdates'));
+            $contactpersonmail = \core_user::get_user($examdate->contactperson)->email;
             $emailuser = new stdClass();
-            $emailuser->email = \core_user::get_user($examdate->contactperson)->email;
+            $emailuser->email = $contactpersonmail;
             $emailuser->id = -99;
 
             $emailexamteam = get_config('block_eledia_adminexamdates', 'emailexamteam');
@@ -1319,9 +1327,11 @@ class util {
             $messagetext = get_string('examconfirm_email_body', 'block_eledia_adminexamdates',
                     ['name' => $examdate->examname, 'date' => $date, 'course' => $course, 'url' => $link]);
 
-            email_to_user($emailuser, $USER, $subject, $messagetext);
+            if(validate_email($contactpersonmail)){
+                email_to_user($emailuser, $USER, $subject, $messagetext);
+            }
 
-            if ($emailexamteam) {
+            if (!empty($emailexamteam) && validate_email($emailexamteam)) {
                 $emailuser->email = $emailexamteam;
                 email_to_user($emailuser, $USER, $subject, $messagetext);
             }
@@ -1338,7 +1348,7 @@ class util {
      * @return array
      */
     public
-    static function examcancel($examdateid) {
+    static function examcancel($examdateid, $progressbar){
         global $DB, $USER;
         $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
         $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
@@ -1589,7 +1599,8 @@ class util {
     static function get_html_select_month($frommonth, $fromyear, $tomonth, $toyear) {
         $optionsmonths = [];
         for ($i = 1; $i <= 12; $i++) {
-            $optionsmonths[$i] = utf8_encode(strftime('%B', mktime(0, 0, 0, $i)));
+            $m = userdate(mktime(0, 0, 0, $i) , '%B');
+            $optionsmonths[$i] = $m;
         }
         $optionsyears = [];
         for ($i = date('Y', strtotime('- 2 years')); $i <= date('Y', strtotime('+ 5 years')); $i++) {

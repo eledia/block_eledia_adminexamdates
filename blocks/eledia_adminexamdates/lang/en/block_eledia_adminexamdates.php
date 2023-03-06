@@ -249,3 +249,7 @@ $string['setting_instanceofmodelediachecklist'] = 'Activity eLeDia Checklist';
 $string['config_instanceofmodelediachecklist'] = 'Selection of an instance of the eLeDia Checklist activity linked as a checklist.';
 $string['setting_instanceofmodproblemdb'] = 'Problem database activity';
 $string['config_instanceofmodproblemdb'] = 'Select an instance of activity database linked as problem database.';
+$string['progressbar_confirmed_course_create'] = 'Creation of a course for the exam date on the exam system.';
+$string['progressbar_confirmed_email'] = 'Confirmation of exam date - email sent to contact person and exam team.';
+$string['progressbar_confirmed_finished'] = 'Confirmation of the exam date has been completed.';
+$string['progressbar_cancelled_finished'] = 'Exam date cancellation has been completed.';

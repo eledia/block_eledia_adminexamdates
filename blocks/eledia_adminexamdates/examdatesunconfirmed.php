@@ -20,13 +20,24 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+define('NO_OUTPUT_BUFFERING', true); // Required for progress bar to work.
+
 require('../../config.php');
 
 global $USER, $CFG, $PAGE, $OUTPUT, $DB;
 
-$context = context_system::instance();
-
 require_login();
+
+// Get course
+$courseid = $DB->get_field('course_modules', 'course',
+        array('id' => get_config('block_eledia_adminexamdates', 'instanceofmodelediachecklist')));
+$course = $DB->get_record('course', array('id' => $courseid));
+if (!$course) {
+    print_error('invalidcourseid');
+}
+require_login($course);
+
+$context = context_course::instance($course->id);
 
 $confirmexamdate = optional_param('confirmexamdate', 0, PARAM_INT);
 $cancelexamdate = optional_param('cancelexamdate', 0, PARAM_INT);
@@ -36,7 +47,7 @@ $cancelexamdateyes = optional_param('cancelexamdateyes', 0, PARAM_INT);
 $myurl = new \moodle_url($FULLME);
 
 $PAGE->set_url($myurl);
-$PAGE->set_context($context);
+$PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
 $PAGE->set_pagelayout('course');
 
@@ -62,13 +73,23 @@ if (!empty($confirmexamdate)) {
     echo $OUTPUT->confirm($message, $formcontinue, $formcancel);
     echo $OUTPUT->box_end();
 
-} else {
+} else if (!empty($confirmexamdateyes) || !empty($cancelexamdateyes)) {
+    echo $OUTPUT->header();
+    $progressbar = new progress_bar();
+    $progressbar->create();
+
     if (!empty($confirmexamdateyes)) {
-        block_eledia_adminexamdates\util::examconfirm($confirmexamdateyes);
+        block_eledia_adminexamdates\util::examconfirm($confirmexamdateyes, $progressbar);
+        $progressbar->update_full(100, get_string('progressbar_confirmed_finished', 'block_eledia_adminexamdates'));
     }
     if (!empty($cancelexamdateyes)) {
-        block_eledia_adminexamdates\util::examcancel($cancelexamdateyes);
+        block_eledia_adminexamdates\util::examcancel($cancelexamdateyes, $progressbar);
+        $progressbar->update_full(100, get_string('progressbar_cancelled_finished', 'block_eledia_adminexamdates'));
     }
+    echo $OUTPUT->continue_button(new moodle_url($PAGE->url), 'get');
+    echo $OUTPUT->footer();
+    exit;
+} else {
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
 

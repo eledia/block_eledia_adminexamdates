@@ -24,9 +24,18 @@ require('../../config.php');
 
 global $USER, $CFG, $PAGE, $OUTPUT, $DB;
 
-$context = context_system::instance();
-
 require_login();
+
+// Get course
+$courseid = $DB->get_field('course_modules', 'course',
+        array('id' => get_config('block_eledia_adminexamdates', 'instanceofmodelediachecklist')));
+$course = $DB->get_record('course', array('id' => $courseid));
+if (!$course) {
+    print_error('invalidcourseid');
+}
+require_login($course);
+
+$context = context_course::instance($course->id);
 
 //
 //if (!$course) {
@@ -41,8 +50,7 @@ require_login();
 $newexamdate = optional_param('newexamdate', 0, PARAM_INT);
 //$newexamdateyes = optional_param('newexamdate', 0, PARAM_INT);
 $editexamdate = optional_param('editexamdate', 0, PARAM_INT);
-$examtimestart = optional_param('examtimestart', 0, PARAM_INT);
-
+$examtimestart = optional_param('examtime', 0, PARAM_INT);
 $returnurl = optional_param('url', '', PARAM_RAW);
 
 $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php');
@@ -50,7 +58,7 @@ $returnurldecoded = (!empty($returnurl)) ? rawurldecode($returnurl) : $calendaru
 $myurl = new \moodle_url($FULLME);
 
 $PAGE->set_url($myurl);
-$PAGE->set_context($context);
+$PAGE->set_context(context_system::instance());
 $title = (empty($editexamdate)) ? get_string('newexamdate', 'block_eledia_adminexamdates') :
         get_string('editexamdate_btn', 'block_eledia_adminexamdates');
 $PAGE->set_title($title);
@@ -75,12 +83,12 @@ if ($mform->is_cancelled()) {
     redirect($returnurldecoded);
 } else if ($hasconfirmexamdatescap && !empty($newexamdate)) {
     $urlspecialrooms = new moodle_url('/blocks/eledia_adminexamdates/specialrooms.php',
-            ['booktimestart' => $examtimestart, 'url' => $returnurl]);
+            ['timestart' => $examtimestart, 'url' => $returnurl]);
     $message = get_string('chooseroomcategory_msg', 'block_eledia_adminexamdates');
     echo $OUTPUT->header();
     echo $OUTPUT->box_start('generalbox centerpara boxwidthnormal boxaligncenter');
     echo "<p>" . $message . "</p>\n";
-    echo $OUTPUT->single_button(new moodle_url($PAGE->url, ['examtimestart' => $examtimestart, 'url' => $returnurl]),
+    echo $OUTPUT->single_button(new moodle_url($PAGE->url, ['examtime' => $examtimestart, 'url' => $returnurl]),
             get_string('newexamdate', 'block_eledia_adminexamdates'));
     echo $OUTPUT->single_button($urlspecialrooms, get_string('book_specialrooms', 'block_eledia_adminexamdates'));
     echo $OUTPUT->single_button($returnurldecoded, get_string('cancel'));
@@ -97,6 +105,12 @@ if ($mform->is_cancelled()) {
         $data->url = (!empty($returnurl)) ? $returnurl : '';
         $mform->set_data($data);
     } else {
+        $beginofday = strtotime("today", $examtimestart);
+        $startexam = $beginofday + (get_config('block_eledia_adminexamdates', 'startexam_hour') * 3600)
+                + (get_config('block_eledia_adminexamdates', 'startexam_minute') * 60);
+        if ($examtimestart < $startexam) {
+            $examtimestart = $startexam;
+        }
         $data = new stdClass();
         $data->examtimestart = $examtimestart;
         $data->contactpersonemail = $USER->email;
@@ -156,16 +170,15 @@ if ($mform->is_cancelled()) {
         echo \html_writer::end_tag('div');
     }
     echo \html_writer::start_tag('div', array('class' => 'row mt-3'));
-    if ($onlynumberstudents){
+    if ($onlynumberstudents) {
         echo \html_writer::start_tag('div', array('class' => 'col-sm-6'));
     } else {
         echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
     }
 
-
     if ($hasconfirmexamdatescap && $newexamdate) {
         $urlspecialrooms =
-                new moodle_url('/blocks/eledia_adminexamdates/specialrooms.php', ['bookingtimestart' => $examtimestart]);
+                new moodle_url('/blocks/eledia_adminexamdates/specialrooms.php', ['timestart' => $examtimestart]);
         echo $OUTPUT->single_button($urlspecialrooms, get_string('book_specialrooms', 'block_eledia_adminexamdates'));
     }
     $param = (!empty($examtimestart) && is_integer($examtimestart)) ? ['displaydate' => $examtimestart] : null;
@@ -178,7 +191,6 @@ if ($mform->is_cancelled()) {
     echo \html_writer::start_tag('p', array('class' => 'card-text'));
 
     $mform->display();
-
 
     //echo ' <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>';
     //echo \html_writer::tag('script',

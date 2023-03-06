@@ -293,7 +293,7 @@ class examdate_form extends \moodleform {
         //if (empty($data->examiner)) {
         //            $errors['examiner'] = get_string('error_choose', 'block_eledia_adminexamdates');
         //        }
-        if (!$data->onlynumberstudents && $error = \block_eledia_adminexamdates\util::hasfreetimeslots2($data, false)) {
+        if (isset($data->onlynumberstudents) && !$data->onlynumberstudents && $error = \block_eledia_adminexamdates\util::hasfreetimeslots2($data, false)) {
             $errors['examtimestart'] = $error;
         }
         //        $data = (object)$data;

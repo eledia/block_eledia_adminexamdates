@@ -249,3 +249,7 @@ $string['setting_instanceofmodelediachecklist'] = 'Aktivität eLeDia Checklist';
 $string['config_instanceofmodelediachecklist'] = 'Auswahl einer Instanz der Aktivität eLeDia Checklist, die als Checkliste verlinkt ist.';
 $string['setting_instanceofmodproblemdb'] = 'Aktivität Problemdatenbank';
 $string['config_instanceofmodproblemdb'] = 'Auswahl einer Instanz der Aktivität Datenbank, die als Problemdatenbank verlinkt ist.';
+$string['progressbar_confirmed_course_create'] = 'Bestätigung des Prüfungstermins - Erstellung eines Kurses auf dem Prüfungssystem.';
+$string['progressbar_confirmed_email'] = 'Bestätigung des Prüfungstermins - Versand E-Mail an den Ansprechpartner und das Prüfungsteam.';
+$string['progressbar_confirmed_finished'] = 'Bestätigung des Prüfungstermins wurde abgeschlossen.';
+$string['progressbar_cancelled_finished'] = 'Stornierung des Prüfungstermins wurde abgeschlossen.';

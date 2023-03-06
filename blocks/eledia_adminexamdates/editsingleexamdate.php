@@ -24,9 +24,18 @@ require('../../config.php');
 
 global $USER, $CFG, $PAGE, $OUTPUT, $DB;
 
-$context = context_system::instance();
-
 require_login();
+
+// Get course
+$courseid = $DB->get_field('course_modules', 'course', array('id' => get_config('block_eledia_adminexamdates', 'instanceofmodelediachecklist')));
+$course = $DB->get_record('course', array('id' => $courseid));
+if (!$course) {
+    print_error('invalidcourseid');
+}
+require_login($course);
+
+$context = context_course::instance($course->id);
+
 
 if (!has_capability('block/eledia_adminexamdates:confirmexamdates', $context)) {
     print_error(' only users with rights to confirm admin exam dates allowed');
@@ -42,9 +51,9 @@ $myurl = new \moodle_url($FULLME);
 $titlestring = get_string('examdate_header', 'block_eledia_adminexamdates') . ': ' .
         get_string('singleexamdate_header', 'block_eledia_adminexamdates');
 $PAGE->set_url($myurl);
-$PAGE->set_context($context);
+$PAGE->set_context(context_system::instance());
 $PAGE->set_title($titlestring);
-$PAGE->set_pagelayout('standard');
+$PAGE->set_pagelayout('course');
 
 if (!empty($blockid)) {
     $examdateid = $DB->get_record('eledia_adminexamdates_blocks', ['id' => $blockid])->examdateid;

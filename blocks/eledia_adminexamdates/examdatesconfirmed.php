@@ -25,9 +25,18 @@ require('../../config.php');
 global $USER, $CFG, $PAGE, $OUTPUT, $DB;
 
 
-$context = context_system::instance();
-
 require_login();
+
+// Get course
+$courseid = $DB->get_field('course_modules', 'course', array('id' => get_config('block_eledia_adminexamdates', 'instanceofmodelediachecklist')));
+$course = $DB->get_record('course', array('id' => $courseid));
+if (!$course) {
+    print_error('invalidcourseid');
+}
+require_login($course);
+
+$context = context_course::instance($course->id);
+
 $displaydatefrom = optional_param_array('displaydatefrom', null, PARAM_INT);
 $displaydateto = optional_param_array('displaydateto', null, PARAM_INT);
 
@@ -41,7 +50,7 @@ if (is_array($displaydateto)) {
 $myurl = new \moodle_url($FULLME);
 
 $PAGE->set_url($myurl);
-$PAGE->set_context($context);
+$PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('examdaterequest', 'block_eledia_adminexamdates'));
 $PAGE->set_pagelayout('course');
 

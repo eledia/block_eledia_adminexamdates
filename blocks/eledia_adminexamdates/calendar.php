@@ -24,9 +24,18 @@ require('../../config.php');
 
 global $USER, $CFG, $PAGE, $OUTPUT, $DB;
 
-$context = context_system::instance();
-
 require_login();
+
+// Get course
+$courseid = $DB->get_field('course_modules', 'course', array('id' => get_config('block_eledia_adminexamdates', 'instanceofmodelediachecklist')));
+$course = $DB->get_record('course', array('id' => $courseid));
+if (!$course) {
+    print_error('invalidcourseid');
+}
+require_login($course);
+
+$context = context_course::instance($course->id);
+
 
 $displaydate = optional_param('displaydate', time(), PARAM_INT);
 
@@ -51,7 +60,7 @@ echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bo
 $myurl = new \moodle_url($FULLME);
 
 $PAGE->set_url($myurl);
-$PAGE->set_context($context);
+$PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('calendar_btn', 'block_eledia_adminexamdates'));
 
 //<script src="calendar/node_modules/jquery/dist/jquery.min.js"></script>
@@ -366,7 +375,7 @@ unixTimestamp: $displaydate
        var examtimestart = datatime + ($fromhour*60*60) + (Math.trunc((event.offsetY)/50)*60*60);
        
        var editexamdateform = $(\"#editexamdate\");
-        editexamdateform.find(\"input[name=\'examtimestart\']\").val(examtimestart);
+        editexamdateform.find(\"input[name=\'examtime\']\").val(examtimestart);
         if(!test){
         editexamdateform.find(\"form\").submit();
         }
@@ -457,7 +466,7 @@ echo \html_writer::end_tag('div');
 echo \html_writer::end_tag('div');
 
 $urleditexamdate = new moodle_url('/blocks/eledia_adminexamdates/editexamdate.php',
-        ['newexamdate' => 1, 'examtimestart' => '']);
+        ['newexamdate' => 1, 'examtime' => '']);
 echo $OUTPUT->box($OUTPUT->single_button($urleditexamdate, ''), 'd-none', 'editexamdate');
 
 $roomcategories = json_encode($roomcategories);

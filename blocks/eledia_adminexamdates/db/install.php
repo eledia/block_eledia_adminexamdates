@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Extra installation steps.
  */
-function xmldb_eledia_adminexamdates_install() {
+function xmldb_block_eledia_adminexamdates_install() {
     global $CFG, $DB;
 
     // This version includes the extended privacy API only found in M3.4.6, M3.5.3 and M3.6+.

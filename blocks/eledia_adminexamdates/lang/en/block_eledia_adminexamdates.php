@@ -157,7 +157,7 @@ $string['error_wrong_userid'] = 'Please enter names and no numbers!';
 $string['config_select_calendar_month'] = 'Month';
 $string['config_select_calendar_year'] = 'Year';
 $string['calendar_date'] = 'Selection of a date';
-$string['confirm_save_singleexamdate_msg'] = 'The {$ a-> index} single exam date of the exam: \' {$ a-> name} \' has been saved.';
+$string['confirm_save_singleexamdate_msg'] = 'The {$a->index} single exam date of the exam: \' {$a->name} \' has been saved.';
 $string['error_wrong_email'] = 'Please enter a correct e-mail address with the Enter key - or search in selection!';
 $string['error_wrong_userid_email'] = 'Please enter a correct e-mail address and no numbers!';
 $string['examconfirm_email_subject'] = 'Confirmation of the exam date: {$a->name}';
@@ -189,7 +189,7 @@ $string['changerequest_email_subject'] = 'Change request to the exam team for: {
 $string['changerequest_email_body'] = 'Change request to the exam team
 
 Exam: 
-{$ a-> name}, 
+{$a->name}, 
 {$a->date} o\'clock, 
 {$a->url} 
 

@@ -158,6 +158,7 @@ $string['config_select_calendar_month'] = 'Monat';
 $string['config_select_calendar_year'] = 'Jahr';
 $string['calendar_date'] = 'Auswahl eines Datums';
 $string['confirm_save_singleexamdate_msg'] = 'Der {$a->index} Teiltermin der Klausur: \'{$a->name}\' wurde gespeichert.';
+$string['confirm_save_examdate_msg'] = 'Die Klausur: \'{$a->name}\' wurde gespeichert.';
 $string['error_wrong_email'] = 'Bitte geben Sie eine korrekte E-Mail-Adresse mit der Eingabetaste ein - oder suchen Sie in der Auswahl!';
 $string['error_wrong_userid_email'] = 'Bitte eine korrekte E-Mail-Adresse und keine Zahlen eingeben!';
 $string['examconfirm_email_subject'] = 'Bestätigung des Prüfungstermins: {$a->name}';

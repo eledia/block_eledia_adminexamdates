@@ -59,7 +59,18 @@ class util {
             $dataobject->department = $formdata->department;
             $dataobject->category = $formdata->category;
             $dataobject->examname = $formdata->examname;
-            $dataobject->semester = $formdata->semester;
+
+            $date = $formdata->examtimestart;
+            $lastyear = date('Y', strtotime('-1 year', $date));
+            $year = date('Y', $date);
+            if ($date < strtotime("1 April", $date)) {
+                $semester = $lastyear . '2';
+            } else if ($date < strtotime("1 October", $date)) {
+                $semester = $year . '1';
+            } else {
+                $semester = $year . '2';
+            }
+            $dataobject->semester = $semester;
             $dataobject->numberstudents = $formdata->numberstudents;
             $dataobject->examiner = implode(',', $formdata->examiner);
             $dataobject->contactperson = $formdata->contactperson;
@@ -281,6 +292,17 @@ class util {
             $dataobject = new \stdClass();
             $dataobject->id = $formdata->examdateid;
             $dataobject->examtimestart = $blocktimestart;
+            $date = $blocktimestart;
+            $lastyear = date('Y', strtotime('-1 year', $date));
+            $year = date('Y', $date);
+            if ($date < strtotime("1 April", $date)) {
+                $semester = $lastyear . '2';
+            } else if ($date < strtotime("1 October", $date)) {
+                $semester = $year . '1';
+            } else {
+                $semester = $year . '2';
+            }
+            $dataobject->semester = $semester;
             $DB->update_record('eledia_adminexamdates', $dataobject);
         }
 

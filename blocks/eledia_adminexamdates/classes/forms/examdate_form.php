@@ -112,7 +112,7 @@ class examdate_form extends \moodleform {
         $mform->setType('examrooms', PARAM_RAW);
         $mform->setDefault('examrooms', implode(',', $defaultrooms));
 
-        $years = [];
+      /*  $years = [];
         $years[] = date('Y', strtotime('-1 year'));
         $years[] = date('Y');
         for ($i = 1; $i < 5; $i++) {
@@ -127,7 +127,7 @@ class examdate_form extends \moodleform {
             }
         }
 
-        $time = time();
+        $time = ($editexamdate) ? $examdate->examtimestart : time();
         if ($time < strtotime("1 April")) {
             $defaultsemester = $years[0] . '2';
         } else if ($time < strtotime("1 October")) {
@@ -143,7 +143,7 @@ class examdate_form extends \moodleform {
             $mform->addElement('hidden', 'semester');
         }
         $mform->setType('semester', PARAM_INT);
-        $mform->setDefault('semester', $defaultsemester);
+        $mform->setDefault('semester', $defaultsemester);*/
 
         $options = [];
         $options[0] = get_string('pleasechoose', 'block_eledia_adminexamdates');

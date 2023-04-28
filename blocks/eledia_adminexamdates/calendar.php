@@ -52,7 +52,7 @@ echo '  <link rel="stylesheet" href="calendar/node_modules/bootstrap/dist/css/bo
   <script src="calendar/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
   <script src="calendar/node_modules/moment/min/moment-with-locales.min.js"></script>
   <script src="calendar/node_modules/jquery-touchswipe/jquery.touchSwipe.min.js"></script>
-<script src="amd/build/jquery-calendar.min.js"></script>
+<script src="amd/build/jquery-calendar-2804202301.min.js"></script>
 
   <link rel="stylesheet" href="calendar/src/css/jquery-calendar.css">
   <link rel="stylesheet" href="calendar/node_modules/@fortawesome/fontawesome-free-webfonts/css/fontawesome.css">

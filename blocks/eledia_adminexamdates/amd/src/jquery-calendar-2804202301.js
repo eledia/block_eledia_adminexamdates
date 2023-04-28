@@ -970,8 +970,10 @@ jQuery(document).ready(function ($) {
         if (notconfirmed === '1') {
             li.css('border', '5px solid ' + this.conf.colors.border1);
         }
+        var url = new URL(window.location.href);
+        url.searchParams.set('displaydate', start);
         a = $('<a>', {
-            href: '#'
+            href: url.href
         });
         a.append($('<em>', {
             "class": 'event-name'

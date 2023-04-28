@@ -192,39 +192,6 @@ if ($mform->is_cancelled()) {
 
     $mform->display();
 
-    //echo ' <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>';
-    //echo \html_writer::tag('script',
-    //        "
-    //         $(document).ready(function () {
-    //            $('#id_examtimestart_month').on('change',function () {
-    //                year=$( '#id_examtimestart_year').val();
-    //                month=$(this).val();
-    //                if(month <= 3){
-    //                    semester=(year-1)+'2';
-    //                } else if(month <=9){
-    //                    semester=(year)+'1';
-    //                } else {
-    //                 semester=(year)+'2';
-    //                }
-    //                $( '#id_semester').val(semester);
-    //            });
-    //             $('#id_examtimestart_year').on('change',function () {
-    //                 month=$( '#id_examtimestart_month').val();
-    //                year=$(this).val();
-    //                 if(month <= 3){
-    //                    semester=(year-1)+'2';
-    //                } else if(month <=9){
-    //                    semester=(year)+'1';
-    //                } else {
-    //                 semester=(year)+'2';
-    //                }
-    //                 $( '#id_semester').val(semester);
-    //            });
-    //
-    //
-    //        });
-    //       ");
-
     echo \html_writer::end_tag('p');
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
@@ -257,13 +224,22 @@ if ($mform->is_cancelled()) {
     }
 
     if ($hasconfirmexamdatescap) {
-        redirect(new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $examdateid]));
+        echo $OUTPUT->header();
+        echo $OUTPUT->box_start('generalbox', 'notice');
+        echo \html_writer::start_tag('div', ['class' => 'text-center mb-3']);
+        echo get_string('confirm_save_examdate_msg', 'block_eledia_adminexamdates',
+                ['name' => "$examdate->examname"]);
+        echo \html_writer::end_tag('div');
+        echo $OUTPUT->continue_button(new moodle_url($PAGE->url, ['editexamdate' =>$examdateid]));
+        echo $OUTPUT->box_end();
+        //redirect(new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $examdateid]));
+    } else {
+        $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php');
+        if ($formdata = $mform->get_data()) {
+            $returnurldecoded = (!empty($formdata->url)) ? rawurldecode($formdata->url) : $calendarurl;
+        }
+        redirect($returnurldecoded);
     }
-    $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php');
-    if ($formdata = $mform->get_data()) {
-        $returnurldecoded = (!empty($formdata->url)) ? rawurldecode($formdata->url) : $calendarurl;
-    }
-    redirect($returnurldecoded);
 }
 
 

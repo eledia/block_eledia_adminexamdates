@@ -34,7 +34,6 @@ foreach ($rooms as $room) {
     $roomnames[$roomitems[0]] = trim($roomitems[1]);
 };
 
-
 $timestart = strtotime("- $month month", time());
 $timeend = strtotime("+ $month month", time());
 
@@ -73,13 +72,13 @@ foreach ($dates as $date) {
     $roomname = $roomnames[$date->examroom];
 
     $events[] = (object) [
-            'id' => $date->roomid,
+            'id' => $date->id . '_' . $date->blockid . '_' . $date->roomid,
             'name' => $title,
             'description' => $content,
             'format' => 1,
             'location' => $roomname,
             'courseid' => 0,
-        'userid' => $admin->id,
+            'userid' => $admin->id,
             'eventtype' => 'user',
             'timestart' => $date->blocktimestart,
             'timeduration' => $date->blockduration * 60,
@@ -116,7 +115,7 @@ if ($special) {
                     "</dd></dl>";
 
             $events[] = (object) [
-                    'id' => $specialroomdate->roomid,
+                    'id' => $specialroomdate->blockid . '_' . $specialroomdate->roomid,
                     'name' => $title,
                     'description' => $content,
                     'format' => 1,

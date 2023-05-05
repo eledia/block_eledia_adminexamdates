@@ -6,7 +6,7 @@ require_once($CFG->dirroot . '/calendar/lib.php');
 require_once($CFG->libdir . '/bennu/bennu.inc.php');
 
 $authtoken = required_param('authtoken', PARAM_ALPHANUM);
-$semester = optional_param('semester', '20231', PARAM_INT);
+$month = optional_param('month', '12', PARAM_INT);
 $special = optional_param('special', '1', PARAM_INT);
 
 if ($authtoken != '780de70e32a98172d4e00324dc7bc2a58de718be') {
@@ -34,15 +34,9 @@ foreach ($rooms as $room) {
     $roomnames[$roomitems[0]] = trim($roomitems[1]);
 };
 
-$year = substr($semester, 0, 4);
-if (substr($semester, -1) == 1) {
-    $timestart = strtotime("1 April $year");
-    $timeend = strtotime("1 October $year") - 1;
-} else {
-    $timestart = strtotime("1 October $year");
-    $year++;
-    $timeend = strtotime("1 April $year") - 1;
-}
+
+$timestart = strtotime("- $month month", time());
+$timeend = strtotime("+ $month month", time());
 
 $sql = "SELECT a.*, ab.blockduration,ar.roomnumberstudents,ar.id as roomid,
        ab.blocktimestart, ar.examroom, ar.blockid, ar.roomnumberstudents, ar.roomsupervisor1,
@@ -56,6 +50,9 @@ $sql = "SELECT a.*, ab.blockduration,ar.roomnumberstudents,ar.id as roomid,
 $dates = $DB->get_recordset_sql($sql);
 
 $events = [];
+$admins = get_admins();
+$admin = reset($admins);
+
 foreach ($dates as $date) {
 
     $title = str_replace("'", '`', $date->examname);
@@ -82,6 +79,7 @@ foreach ($dates as $date) {
             'format' => 1,
             'location' => $roomname,
             'courseid' => 0,
+        'userid' => $admin->id,
             'eventtype' => 'user',
             'timestart' => $date->blocktimestart,
             'timeduration' => $date->blockduration * 60,
@@ -124,6 +122,7 @@ if ($special) {
                     'format' => 1,
                     'location' => $roomname,
                     'courseid' => 0,
+                    'userid' => 2,
                     'eventtype' => 'user',
                     'timestart' => $specialroomdate->blocktimestart,
                     'timeduration' => $specialroomdate->blockduration * 60,

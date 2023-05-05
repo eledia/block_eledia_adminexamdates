@@ -39,7 +39,7 @@ $timeend = strtotime("+ $month month", time());
 
 $sql = "SELECT a.*, ab.blockduration,ar.roomnumberstudents,ar.id as roomid,
        ab.blocktimestart, ar.examroom, ar.blockid, ar.roomnumberstudents, ar.roomsupervisor1,
-        ar.roomsupervisor2
+        ar.roomsupervisor2, ar.roomannotationtext
                 FROM {eledia_adminexamdates} a
                 JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
                 JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
@@ -68,7 +68,55 @@ foreach ($dates as $date) {
     $content = "<dl><dt>" . get_string('number_students', 'block_eledia_adminexamdates') .
             "</dt><dd>$date->numberstudents</dd><dt>" . get_string('examiner', 'block_eledia_adminexamdates') .
             "</dt><dd>$examinernames</dd><dt>" . get_string('contactperson', 'block_eledia_adminexamdates') .
-            "</dt><dd>$contactperson</dd></dl>";
+            "</dt><dd>$contactperson</dd>";
+
+    $content .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates'));
+    $responsibleperson = $date->responsibleperson ? fullname(\core_user::get_user($date->responsibleperson)) : '-';
+    $content .= \html_writer::tag('dd', $responsibleperson);
+
+    $string['tablehead_supervisor1'] = 'Betreuer:in 1';
+    $string['tablehead_supervisor2'] = 'Betreuer:in 2';
+
+    $roomsupervisors1 = '';
+    if (!empty($date->roomsupervisor1)) {
+        $roomsupervisors1 = (array) unserialize($date->roomsupervisor1);
+        foreach ($roomsupervisors1 as $index => $roomsupervisor1) {
+            if (intval($roomsupervisor1)) {
+                $roomsupervisors1[$index] =
+                        fullname($DB->get_record('user', array('id' => $roomsupervisor1), '*', MUST_EXIST));
+            }
+        }
+        $roomsupervisors1 = implode(', ', $roomsupervisors1);
+    }
+    $roomsupervisors2 = '';
+    if (!empty($date->roomsupervisor2)) {
+        $roomsupervisors2 = (array) unserialize($date->roomsupervisor2);
+        foreach ($roomsupervisors2 as $index => $roomsupervisor2) {
+            if (intval($roomsupervisor2)) {
+                $roomsupervisors2[$index] =
+                        fullname($DB->get_record('user', array('id' => $roomsupervisor2), '*', MUST_EXIST));
+            }
+        }
+        $roomsupervisors2 = implode(', ', $roomsupervisors2);
+    }
+
+    if (!empty($roomsupervisors1)) {
+        $content .= \html_writer::tag('dt', get_string('tablehead_supervisor1', 'block_eledia_adminexamdates'));
+        $content .= \html_writer::tag('dd', $roomsupervisors1);
+    }
+
+    if (!empty($roomsupervisors2)) {
+        $content .= \html_writer::tag('dt', get_string('tablehead_supervisor2', 'block_eledia_adminexamdates'));
+        $content .= \html_writer::tag('dd', $roomsupervisors2);
+    }
+    
+
+    if (!empty($date->roomannotationtext)) {
+        $content .= \html_writer::tag('dt', get_string('annotationtext', 'block_eledia_adminexamdates'));
+        $content .= \html_writer::tag('dd', $date->roomannotationtext);
+    }
+
+    $content .= "</dl>";
     $roomname = $roomnames[$date->examroom];
 
     $events[] = (object) [

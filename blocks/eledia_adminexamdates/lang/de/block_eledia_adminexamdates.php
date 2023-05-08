@@ -261,3 +261,5 @@ bietet einen dynamischen Link zum Importieren von Terminen in andere Kalender. <
 Alle neuen, geänderten oder gelöschten Prüfungstermine spiegeln sich in den anderen Kalendern wider. <br/>
 Der Wert des "month"-Parameters z.B.: "month=12" steuert den Zeitraum der aktualisierten Termine - das ist also die Anzahl der Monate vor und nach dem aktuellen Datum. <br/>
 Mit dem optionalen Parameter „&special=0“ werden Termine der Sonderräume nicht exportiert.';
+$string['exam_course_link'] = 'Link zum Klausurkurs';
+$string['exam_booking_link'] = 'Link zum Buchungstool';

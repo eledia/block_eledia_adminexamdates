@@ -261,3 +261,5 @@ provides a dynamic link for importing exam dates into other calendars. <br/>
 All new, changed or deleted exam dates are reflected in the other calendars. <br/>
 The value of the month-parameter e.g.: "&month=12" controls the period of the exported exam dates, this is the number of months before and after the current date.<br/>
 With the optional parameter "&special=0" exam dates of the special rooms are not exported.';
+$string['exam_course_link'] = 'Exam course link';
+$string['exam_booking_link'] = 'Exam booking link';

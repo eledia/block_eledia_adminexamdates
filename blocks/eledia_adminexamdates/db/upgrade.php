@@ -276,5 +276,38 @@ function xmldb_block_eledia_adminexamdates_upgrade($oldversion) {
         // Eledia_adminexamdates savepoint reached.
         upgrade_block_savepoint(true, 2023022800, 'eledia_adminexamdates');
     }
+
+    if ($oldversion < 2023050500) {
+
+        // Define field timemodified to be added to eledia_adminexamdates.
+        $table = new xmldb_table('eledia_adminexamdates');
+        $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'checklistcomment');
+
+        // Conditionally launch add field timemodified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field timemodified to be added to eledia_adminexamdates_blocks.
+        $table = new xmldb_table('eledia_adminexamdates_blocks');
+        $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'blockduration');
+
+        // Conditionally launch add field timemodified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field timemodified to be added to eledia_adminexamdates_rooms.
+        $table = new xmldb_table('eledia_adminexamdates_rooms');
+        $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'examroom');
+
+        // Conditionally launch add field timemodified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Eledia_adminexamdates savepoint reached.
+        upgrade_block_savepoint(true, 2023050500, 'eledia_adminexamdates');
+    }
     return true;
 }

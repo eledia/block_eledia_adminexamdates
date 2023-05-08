@@ -254,3 +254,10 @@ $string['progressbar_confirmed_course_create'] = 'Creation of a course for the e
 $string['progressbar_confirmed_email'] = 'Confirmation of exam date - email sent to contact person and exam team.';
 $string['progressbar_confirmed_finished'] = 'Confirmation of the exam date has been completed.';
 $string['progressbar_cancelled_finished'] = 'Exam date cancellation has been completed.';
+$string['setting_icalexporttoken'] = 'iCal Calendar Export Token';
+$string['config_icalexporttoken'] = 'In this field configure a token for the export of exam dates as URL. <br/>
+This iCal exam calendar URL <br/>{$a->url} <br/>
+provides a dynamic link for importing exam dates into other calendars. <br/>
+All new, changed or deleted exam dates are reflected in the other calendars. <br/>
+The value of the month-parameter e.g.: "&month=12" controls the period of the exported exam dates, this is the number of months before and after the current date.<br/>
+With the optional parameter "&special=0" exam dates of the special rooms are not exported.';

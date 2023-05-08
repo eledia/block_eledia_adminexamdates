@@ -142,6 +142,13 @@ if ($ADMIN->fulltree) {
             get_string('config_instanceofmodelediachecklist', 'block_eledia_adminexamdates'),
             '',
             $options);
+
+    $urlicalexport = new moodle_url('/blocks/eledia_adminexamdates/icalexport.php',
+            ['authtoken' => get_config('block_eledia_adminexamdates', 'icalexporttoken'), 'month' => 12]);
+    $configs[] = new admin_setting_configpasswordunmask('block_eledia_adminexamdates/icalexporttoken',
+            get_string('setting_icalexporttoken',
+                    'block_eledia_adminexamdates'), get_string('config_icalexporttoken',
+                    'block_eledia_adminexamdates', ['url' => $urlicalexport->out()]), '');
     //
     //$options = [];
     //$options[0] = get_string('choose');

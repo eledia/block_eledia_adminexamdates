@@ -9,7 +9,7 @@ $authtoken = required_param('authtoken', PARAM_ALPHANUM);
 $month = optional_param('month', '12', PARAM_INT);
 $special = optional_param('special', '1', PARAM_INT);
 
-if ($authtoken != '780de70e32a98172d4e00324dc7bc2a58de718be') {
+if ($authtoken != trim(get_config('block_eledia_adminexamdates', 'icalexporttoken'))) {
     die('Invalid authentication');
 }
 
@@ -39,7 +39,7 @@ $timeend = strtotime("+ $month month", time());
 
 $sql = "SELECT a.*, ab.blockduration,ar.roomnumberstudents,ar.id as roomid,
        ab.blocktimestart, ar.examroom, ar.blockid, ar.roomnumberstudents, ar.roomsupervisor1,
-        ar.roomsupervisor2, ar.roomannotationtext
+        ar.roomsupervisor2, ar.roomannotationtext, ab.timemodified as blocktimemodified, ar.timemodified as roomtimemodified
                 FROM {eledia_adminexamdates} a
                 JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
                 JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
@@ -73,6 +73,11 @@ foreach ($dates as $date) {
     $content .= \html_writer::tag('dt', get_string('responsibleperson', 'block_eledia_adminexamdates'));
     $responsibleperson = $date->responsibleperson ? fullname(\core_user::get_user($date->responsibleperson)) : '-';
     $content .= \html_writer::tag('dd', $responsibleperson);
+
+    if (!empty($date->annotationtext)) {
+        $content .= \html_writer::tag('dt', get_string('annotationtext', 'block_eledia_adminexamdates'));
+        $content .= \html_writer::tag('dd', $date->annotationtext);
+    }
 
     $string['tablehead_supervisor1'] = 'Betreuer:in 1';
     $string['tablehead_supervisor2'] = 'Betreuer:in 2';
@@ -109,15 +114,27 @@ foreach ($dates as $date) {
         $content .= \html_writer::tag('dt', get_string('tablehead_supervisor2', 'block_eledia_adminexamdates'));
         $content .= \html_writer::tag('dd', $roomsupervisors2);
     }
-    
 
     if (!empty($date->roomannotationtext)) {
         $content .= \html_writer::tag('dt', get_string('annotationtext', 'block_eledia_adminexamdates'));
         $content .= \html_writer::tag('dd', $date->roomannotationtext);
     }
 
+    $examurl = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php',
+            ['blockid' => $date->blockid]);
+
+    $content .= \html_writer::tag('a', get_string('exam_booking_link', 'block_eledia_adminexamdates'),
+            array('href' => $examurl));
+
+    if (!empty($date->courseid)) {
+        $content .= \html_writer::tag('a', get_string('exam_course_link', 'block_eledia_adminexamdates'),
+                array('href' => get_config('block_eledia_adminexamdates', 'apidomain')
+                        . '/course/view.php?id=' . $date->courseid));
+    }
+
     $content .= "</dl>";
     $roomname = $roomnames[$date->examroom];
+    $timemodified = max($date->timecreated, $date->timemodified, $date->blocktimemodified, $date->roomtimemodified);
 
     $events[] = (object) [
             'id' => $date->id . '_' . $date->blockid . '_' . $date->roomid,
@@ -133,7 +150,7 @@ foreach ($dates as $date) {
             'timesort' => $date->blocktimestart,
             'timeusermidnight' => 0,
             'visible' => 1,
-            'timemodified' => time(),
+            'timemodified' => $timemodified,
             'sequence' => 1,
     ];
 }
@@ -141,7 +158,8 @@ foreach ($dates as $date) {
 if ($special) {
     list($in_sql, $in_params) = $DB->get_in_or_equal($specialroomitems);
 
-    $sqlspecial = "SELECT ar.id, ar.blockid,ab.blocktimestart, ab.blockduration, ar.examroom, ar.roomannotationtext,ar.id as roomid 
+    $sqlspecial = "SELECT ar.id, ar.blockid,ab.blocktimestart, ab.blockduration, ar.examroom, ar.roomannotationtext,ar.id as roomid,
+       ab.timemodified as blocktimemodified, ar.timemodified as roomtimemodified
                     FROM {eledia_adminexamdates_blocks} ab 
                     LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
                     WHERE ab.blocktimestart > {$timestart} AND ab.blocktimestart < {$timeend} AND  ar.examroom $in_sql
@@ -160,8 +178,15 @@ if ($special) {
 
             $content = "<dl><dt>" . get_string('annotationtext', 'block_eledia_adminexamdates')
                     . ": </dt><dd>" . $roomannotationtext .
-                    "</dd></dl>";
+                    "</dd>";
+            $examurl = new \moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php',
+                    ['blockid' => $specialroomdate->blockid]);
 
+            $content .= \html_writer::tag('a', get_string('exam_booking_link', 'block_eledia_adminexamdates'),
+                    array('href' => $examurl));
+            $content .= "</dl>";
+
+            $timemodified = max($specialroomdate->blocktimemodified, $specialroomdate->roomtimemodified);
             $events[] = (object) [
                     'id' => $specialroomdate->blockid . '_' . $specialroomdate->roomid,
                     'name' => $title,
@@ -176,7 +201,7 @@ if ($special) {
                     'timesort' => $specialroomdate->blocktimestart,
                     'timeusermidnight' => 0,
                     'visible' => 1,
-                    'timemodified' => time(),
+                    'timemodified' => $timemodified,
                     'sequence' => 1,
             ];
         }

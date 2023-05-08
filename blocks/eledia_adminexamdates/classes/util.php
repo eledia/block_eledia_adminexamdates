@@ -43,6 +43,7 @@ class util {
         global $DB, $USER;
         $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
         $dataobject = new \stdClass();
+        $dataobject->timemodified = time();
 
         if ($formdata->onlynumberstudents) {
 
@@ -146,6 +147,7 @@ class util {
         $dataobject = new \stdClass();
         $dataobject->blocktimestart = $formdata->booktimestart;
         $dataobject->blockduration = $formdata->bookduration;
+        $dataobject->timemodified = time();
 
         $specialrooms = (array) $formdata->specialrooms;
 
@@ -156,6 +158,7 @@ class util {
                 $roomdataobject->roomannotationtext = $formdata->annotationtext;
                 $roomdataobject->blockid = $blockid;
                 $roomdataobject->examroom = $specialroom;
+                $roomdataobject->timemodified = time();
                 $DB->insert_record('eledia_adminexamdates_rooms', $roomdataobject);
             }
         } else {
@@ -165,6 +168,7 @@ class util {
             foreach ($specialrooms as $specialroom) {
                 $roomdataobject = new \stdClass();
                 $roomdataobject->roomannotationtext = $formdata->annotationtext;
+                $roomdataobject->timemodified = time();
                 unset($deleterooms[$specialroom]);
                 if (isset($idrooms[$specialroom])) {
                     $roomdataobject->id = $idrooms[$specialroom];
@@ -220,6 +224,7 @@ class util {
         $dataobject = new \stdClass();
         $dataobject->blocktimestart = $formdata->blocktimestart;
         $dataobject->blockduration = $formdata->blockduration;
+        $dataobject->timemodified = time();
 
         $checkedrooms = $formdata->blockexamroomscheck;
 
@@ -228,6 +233,7 @@ class util {
             $blockid = $DB->insert_record('eledia_adminexamdates_blocks', $dataobject);
             foreach ($checkedrooms as $roomid => $checkedroom) {
                 $roomdataobject = new \stdClass();
+                $roomdataobject->timemodified = time();
                 if (!isset($formdata->roomannotationtext[$roomid])) {
                     $roomdataobject->roomnumberstudents = (!empty($formdata->roomnumberstudents[$roomid]))
                             ? $formdata->roomnumberstudents[$roomid] : null;
@@ -252,6 +258,7 @@ class util {
             $deleterooms = $idrooms;
             foreach ($checkedrooms as $roomid => $checkedroom) {
                 $roomdataobject = new \stdClass();
+                $roomdataobject->timemodified = time();
                 if (!isset($formdata->roomannotationtext[$roomid])) {
                     $roomdataobject->roomnumberstudents = (!empty($formdata->roomnumberstudents[$roomid]))
                             ? $formdata->roomnumberstudents[$roomid] : null;
@@ -292,6 +299,7 @@ class util {
             $dataobject = new \stdClass();
             $dataobject->id = $formdata->examdateid;
             $dataobject->examtimestart = $blocktimestart;
+            $dataobject->timemodified = time();
             $date = $blocktimestart;
             $lastyear = date('Y', strtotime('-1 year', $date));
             $year = date('Y', $date);
@@ -572,12 +580,14 @@ class util {
             $blockid = $DB->insert_record('eledia_adminexamdates_blocks',
                     (object) ['examdateid' => $examdateid,
                             'blocktimestart' => $blocktimestart,
-                            'blockduration' => $formdata->examduration
+                            'blockduration' => $formdata->examduration,
+                            'timemodified' => time()
                     ]);
             foreach ($bookingrooms as $bookingroom) {
                 $datesid = $DB->insert_record('eledia_adminexamdates_rooms',
                         (object) ['blockid' => $blockid,
                                 'examroom' => $bookingroom,
+                                'timemodified' => time()
                         ]);
             }
         }
@@ -604,12 +614,14 @@ class util {
                 $blockid = $DB->insert_record('eledia_adminexamdates_blocks',
                         (object) ['examdateid' => $examdateid,
                                 'blocktimestart' => $blocktimestart,
-                                'blockduration' => $formdata->examduration
+                                'blockduration' => $formdata->examduration,
+                                'timemodified' => time()
                         ]);
                 foreach ($bookingrooms as $bookingroom) {
                     $datesid = $DB->insert_record('eledia_adminexamdates_rooms',
                             (object) ['blockid' => $blockid,
                                     'examroom' => $bookingroom,
+                                    'timemodified' => time()
                             ]);
                 }
             }
@@ -658,7 +670,8 @@ class util {
             $blockid = $DB->insert_record('eledia_adminexamdates_blocks',
                     (object) ['examdateid' => $examdateid,
                             'blocktimestart' => $blocktimestart,
-                            'blockduration' => $formdata->examduration
+                            'blockduration' => $formdata->examduration,
+                            'timemodified' => time()
                     ]);
             if (!empty($blockid)) {
                 $sumroomcapacity = 0;
@@ -670,6 +683,7 @@ class util {
                         $datesid = $DB->insert_record('eledia_adminexamdates_rooms',
                                 (object) ['blockid' => $blockid,
                                         'examroom' => $roomid,
+                                        'timemodified' => time()
                                 ]);
                         if ($isrestnumberstudents) {
                             break;
@@ -1294,7 +1308,7 @@ class util {
                         $progressbar->update_full(80, $stringcoursecreate);
                         $courseid = $results->id;
                         $DB->update_record('eledia_adminexamdates', (object) ['id' => $examdateid,
-                                'courseid' => $courseid]);
+                                'courseid' => $courseid, 'timemodified' => time()]);
                         $param = [
                                 'wsfunction' => 'core_course_get_contents',
                                 'courseid' => $courseid
@@ -1360,7 +1374,7 @@ class util {
 
             // Set the 'confirmed' state and course ID to this exam date.
             $DB->update_record('eledia_adminexamdates', (object) ['id' => $examdateid,
-                    'confirmed' => 1]);
+                    'confirmed' => 1, 'timemodified' => time()]);
         }
     }
 
@@ -1453,6 +1467,7 @@ class util {
                 $dataobject = new \stdClass();
                 $dataobject->id = $examdateid;
                 $dataobject->examtimestart = $blocktimestart;
+                $dataobject->timemodified = time();
                 $DB->update_record('eledia_adminexamdates', $dataobject);
             }
         }

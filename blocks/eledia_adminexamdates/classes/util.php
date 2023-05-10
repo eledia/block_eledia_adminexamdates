@@ -1917,10 +1917,17 @@ class util {
         //$stringcourseupdate = get_string('progressbar_update_course', 'block_eledia_adminexamdates');
         $config = get_config('block_eledia_adminexamdates');
         $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $dataobject->id], '*', MUST_EXIST);
-        //$examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $dataobject->id], 'blocktimestart');
+        $oldexamtimestart = date('Ymd', $examdate->examtimestart);
+        $newexamtimestart = date('Ymd', $dataobject->examtimestart);
+        if ($oldexamtimestart != $newexamtimestart) {
+            $dataobject->examname = str_replace($oldexamtimestart,
+                    $newexamtimestart,
+                    $dataobject->examname);
+        }
+
         $courseid = (isset($examdate->courseid) && !empty($examdate->courseid)) ? $examdate->courseid : 0;
         // Get the template's course ID using the course idnumber.
-        if (!empty($config->examcoursetemplateidnumber) && !empty($courseid)) {
+        if (!empty($courseid)) {
 
             //$progressbar->update_full(10, $stringcourseupdate);
             $param = [
@@ -1963,15 +1970,14 @@ class util {
                     $semestercategoryid = $results[0]->id;
                 }
 
-                if($examcourse->categoryid != $semestercategoryid){
+                if ($examcourse->categoryid != $semestercategoryid) {
                     $param = ['wsfunction' => 'core_course_update_courses'];
                     $paramcourse = "&courses[0][id]=$courseid&courses[0][categoryid]=$semestercategoryid";
                     $results = self::get_data_from_api($paramcourse, $param);
                 }
-
-                $oldexamtimestart = date('d.m.Y',$examdate->examtimestart);
-                $newexamtimestart = date('d.m.Y',$dataobject->examtimestart);
-                if($oldexamtimestart != $newexamtimestart) {
+                $oldexamtimestart = date('d.m.Y', $examdate->examtimestart);
+                $newexamtimestart = date('d.m.Y', $dataobject->examtimestart);
+                if ($oldexamtimestart != $newexamtimestart) {
                     $param = [
                             'wsfunction' => 'core_course_get_contents',
                             'courseid' => $courseid
@@ -1996,13 +2002,10 @@ class util {
                             }
                         }
                     }
-                    $dataobject->examname = str_replace(date('Ymd',$examdate->examtimestart),
-                            date('Ymd',$dataobject->examtimestart),
-                            $dataobject->examname);
                 }
-                if($examcourse->fullname != $dataobject->examname){
+                if ($examcourse->fullname != $dataobject->examname) {
                     $param = ['wsfunction' => 'core_course_update_courses'];
-                    $paramcourse = "&courses[0][id]=$courseid&courses[0][fullname]=". urlencode($dataobject->examname);
+                    $paramcourse = "&courses[0][id]=$courseid&courses[0][fullname]=" . urlencode($dataobject->examname);
                     $results = self::get_data_from_api($paramcourse, $param);
 
                     // If a course with this shortname already exists, then add examtimestart to the string.
@@ -2026,7 +2029,7 @@ class util {
 
                     if ($shortnamenotexist) {
                         $param = ['wsfunction' => 'core_course_update_courses'];
-                        $paramcourse = "&courses[0][id]=$courseid&courses[0][shortname]=". urlencode($shortenexamname);
+                        $paramcourse = "&courses[0][id]=$courseid&courses[0][shortname]=" . urlencode($shortenexamname);
                         $results = self::get_data_from_api($paramcourse, $param);
                     }
                 }

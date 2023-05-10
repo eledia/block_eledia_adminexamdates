@@ -76,6 +76,9 @@ if ($mform->is_cancelled()) {
     $roomnames = [];
     foreach ($rooms as $room) {
         $roomitems = explode('|', $room);
+        if (count($roomitems) != 4) {
+            continue;
+        }
         if (in_array($roomitems[0], $specialrooms)) {
             array_push($roomnames, $roomitems[1]);
         }

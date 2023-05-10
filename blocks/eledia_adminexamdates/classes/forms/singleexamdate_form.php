@@ -46,6 +46,9 @@ class singleexamdate_form extends \moodleform {
         $roomcapacity = [];
         foreach ($rooms as $room) {
             $roomitems = explode('|', $room);
+            if (count($roomitems) != 4) {
+                continue;
+            }
             if (!empty($roomitems[2])) {
                 array_push($roomcapacity, $roomitems[0]);
             }

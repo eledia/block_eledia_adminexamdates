@@ -27,7 +27,8 @@ global $USER, $CFG, $PAGE, $OUTPUT, $DB;
 require_login();
 
 // Get course
-$courseid = $DB->get_field('course_modules', 'course', array('id' => get_config('block_eledia_adminexamdates', 'instanceofmodelediachecklist')));
+$courseid = $DB->get_field('course_modules', 'course',
+        array('id' => get_config('block_eledia_adminexamdates', 'instanceofmodelediachecklist')));
 $course = $DB->get_record('course', array('id' => $courseid));
 if (!$course) {
     print_error('invalidcourseid');
@@ -35,7 +36,6 @@ if (!$course) {
 require_login($course);
 
 $context = context_course::instance($course->id);
-
 
 $displaydate = optional_param('displaydate', time(), PARAM_INT);
 
@@ -68,13 +68,16 @@ $PAGE->set_pagelayout('course');
 
 $hasconfirmexamdatescap = (has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance())) ? 1 : 0;
 
-$rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
+$rooms = preg_split('/\r\n|\r|\n/', trim(get_config('block_eledia_adminexamdates', 'examrooms')));
 $roomcategories = [];
 $roomcategorycolors = [];
 $roomswithcapacity = [];
 $specialroomitems = [];
 foreach ($rooms as $room) {
     $roomitems = explode('|', $room);
+    if (count($roomitems) != 4) {
+        continue;
+    }
     //$roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
     if (!empty($roomitems[2])) {
         array_push($roomswithcapacity, $roomitems[0]);
@@ -92,8 +95,6 @@ foreach ($rooms as $room) {
 
 $roomscount = $hasconfirmexamdatescap ? count($roomcategories) : count($roomswithcapacity);
 
-list($in_sql, $in_params) = $DB->get_in_or_equal($specialroomitems);
-
 $sql = "SELECT ar.id, a.id AS examdateid, a.id AS examdateid, a.examname, ab.blocktimestart,ab.blockduration, ar.examroom, ar.blockid, a.numberstudents, a.examiner,a.responsibleperson, a.contactperson, a.confirmed, a.userid
                     FROM {eledia_adminexamdates} a
                     LEFT JOIN {eledia_adminexamdates_blocks} ab ON ab.examdateid = a.id
@@ -101,21 +102,23 @@ $sql = "SELECT ar.id, a.id AS examdateid, a.id AS examdateid, a.examname, ab.blo
                     WHERE ab.examdateid IS NOT NULL
                     AND ar.blockid IS NOT NULL 
                     ORDER BY ab.blocktimestart, ar.examroom DESC";
+$dates = $DB->get_records_sql($sql);
 
-$sqlspecial = "SELECT ar.id, ar.blockid,ab.blocktimestart, ab.blockduration, ar.examroom, ar.roomannotationtext 
+$specialroomdates = [];
+if ($hasconfirmexamdatescap && !empty($specialroomitems)) {
+    list($in_sql, $in_params) = $DB->get_in_or_equal($specialroomitems);
+
+    $sqlspecial = "SELECT ar.id, ar.blockid,ab.blocktimestart, ab.blockduration, ar.examroom, ar.roomannotationtext 
                     FROM {eledia_adminexamdates_blocks} ab 
                     LEFT JOIN {eledia_adminexamdates_rooms} ar ON ar.blockid = ab.id
                     WHERE ar.examroom $in_sql
                     AND ab.examdateid IS NULL
                     AND ar.blockid IS NOT NULL
                     ORDER BY ab.blocktimestart, ar.examroom DESC";
-//WHERE ag.blocktimestart > ? AND ag.blocktimestart < ?";
-
-$dates = $DB->get_records_sql($sql, $in_params);
-
-if ($hasconfirmexamdatescap) {
     $specialroomdates = $DB->get_records_sql($sqlspecial, $in_params);
 }
+//WHERE ag.blocktimestart > ? AND ag.blocktimestart < ?";
+
 
 $holidaylines = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'holidays'));
 $holidays = [];
@@ -143,7 +146,7 @@ echo " <script>
 foreach ($dates as $date) {
 
     if (!empty($date->blocktimestart) &&
-            !empty($date->blockduration) && !empty($date->examdateid)) {
+            !empty($date->blockduration) && !empty($date->examdateid) && array_key_exists($date->examroom, $roomnames)) {
 
         $endtime = $date->blocktimestart + ($date->blockduration * 60);
         $roomname = $roomnames[$date->examroom];
@@ -225,7 +228,8 @@ foreach ($dates as $date) {
 if ($hasconfirmexamdatescap) {
     foreach ($specialroomdates as $specialroomdate) {
         if (!empty($specialroomdate->blocktimestart) &&
-                !empty($specialroomdate->blockduration) && !empty($specialroomdate->blockid)) {
+                !empty($specialroomdate->blockduration) && !empty($specialroomdate->blockid) &&
+                array_key_exists($specialroomdate->examroom, $roomnames)) {
             $endtime = $specialroomdate->blocktimestart + ($specialroomdate->blockduration * 60);
             $roomname = $roomnames[$specialroomdate->examroom];
             $buttonhtml = \html_writer::start_tag('div', ['class' => 'd-inline']);
@@ -422,7 +426,7 @@ if (!$hasconfirmexamdatescap) {
     echo $OUTPUT->single_button($confirmed, get_string('confirmed_btn', 'block_eledia_adminexamdates'));
 }
 if ($hasconfirmexamdatescap) {
-echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
+    echo $OUTPUT->single_button($url, get_string('newexamdate', 'block_eledia_adminexamdates'));
     echo $OUTPUT->single_button($statistics, get_string('statistics', 'block_eledia_adminexamdates'));
     $urlReport = new moodle_url('/mod/elediachecklist/terminreport.php');
     echo $OUTPUT->single_button($urlReport, get_string('report_button', 'elediachecklist'));

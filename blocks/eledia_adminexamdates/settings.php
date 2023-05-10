@@ -59,10 +59,12 @@ if ($ADMIN->fulltree) {
         }
     }
 
-    $configs[] = new admin_setting_configmultiselect('block_eledia_adminexamdates/departments',
-            new lang_string('departments', 'block_eledia_adminexamdates'),
-            new lang_string('config_departments', 'block_eledia_adminexamdates'),
-            array(), $departmentchoices);
+    if (!empty($departmentchoices)) {
+        $configs[] = new admin_setting_configmultiselect('block_eledia_adminexamdates/departments',
+                new lang_string('departments', 'block_eledia_adminexamdates'),
+                new lang_string('config_departments', 'block_eledia_adminexamdates'),
+                array(), $departmentchoices);
+    }
 
     $configs[] = new admin_setting_configcheckbox('block_eledia_adminexamdates/reloaddepartments',
             new lang_string('reloaddepartments', 'block_eledia_adminexamdates'),

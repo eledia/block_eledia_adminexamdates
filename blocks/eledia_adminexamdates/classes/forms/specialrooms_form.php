@@ -44,6 +44,9 @@ class specialrooms_form extends \moodleform
         $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
         foreach ($rooms as $room) {
             $roomitems = explode('|', $room);
+            if (count($roomitems) != 4) {
+                continue;
+            }
             $roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
             if (empty($roomcapacity)) {
                 $options[$roomitems[0]] = $roomitems[1] . $roomcapacity;

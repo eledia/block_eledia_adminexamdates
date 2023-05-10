@@ -26,6 +26,9 @@ $roomswithcapacity = [];
 $specialroomitems = [];
 foreach ($rooms as $room) {
     $roomitems = explode('|', $room);
+    if (count($roomitems) != 4) {
+        continue;
+    }
     if (!empty($roomitems[2])) {
         array_push($roomswithcapacity, $roomitems[0]);
     } else {
@@ -155,7 +158,7 @@ foreach ($dates as $date) {
     ];
 }
 
-if ($special) {
+if ($special && !empty($specialroomitems)) {
     list($in_sql, $in_params) = $DB->get_in_or_equal($specialroomitems);
 
     $sqlspecial = "SELECT ar.id, ar.blockid,ab.blocktimestart, ab.blockduration, ar.examroom, ar.roomannotationtext,ar.id as roomid,

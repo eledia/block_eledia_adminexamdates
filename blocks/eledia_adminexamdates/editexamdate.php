@@ -50,7 +50,7 @@ $context = context_course::instance($course->id);
 $newexamdate = optional_param('newexamdate', 0, PARAM_INT);
 //$newexamdateyes = optional_param('newexamdate', 0, PARAM_INT);
 $editexamdate = optional_param('editexamdate', 0, PARAM_INT);
-$examtimestart = optional_param('examtime', 0, PARAM_INT);
+$examtimestart = optional_param('examtime', time(), PARAM_INT);
 $returnurl = optional_param('url', '', PARAM_RAW);
 
 $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php');
@@ -74,6 +74,19 @@ if ($editexamdate) {
 $mform = new \block_eledia_adminexamdates\forms\examdate_form(null,
         array('onlynumberstudents' => $onlynumberstudents, 'editexamdate' => $editexamdate, 'url' => $returnurl));
 
+$specialrooms = false;
+$rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
+foreach ($rooms as $room) {
+    $roomitems = explode('|', $room);
+    if (count($roomitems) != 4) {
+        continue;
+    }
+    if (empty($roomitems[2])) {
+        $specialrooms = true;
+        break;
+    }
+};
+
 // Execute the form.
 if ($mform->is_cancelled()) {
     $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php');
@@ -82,15 +95,17 @@ if ($mform->is_cancelled()) {
     }
     redirect($returnurldecoded);
 } else if ($hasconfirmexamdatescap && !empty($newexamdate)) {
-    $urlspecialrooms = new moodle_url('/blocks/eledia_adminexamdates/specialrooms.php',
-            ['timestart' => $examtimestart, 'url' => $returnurl]);
     $message = get_string('chooseroomcategory_msg', 'block_eledia_adminexamdates');
     echo $OUTPUT->header();
     echo $OUTPUT->box_start('generalbox centerpara boxwidthnormal boxaligncenter');
     echo "<p>" . $message . "</p>\n";
     echo $OUTPUT->single_button(new moodle_url($PAGE->url, ['examtime' => $examtimestart, 'url' => $returnurl]),
             get_string('newexamdate', 'block_eledia_adminexamdates'));
-    echo $OUTPUT->single_button($urlspecialrooms, get_string('book_specialrooms', 'block_eledia_adminexamdates'));
+    if($specialrooms) {
+        $urlspecialrooms = new moodle_url('/blocks/eledia_adminexamdates/specialrooms.php',
+                ['timestart' => $examtimestart, 'url' => $returnurl]);
+        echo $OUTPUT->single_button($urlspecialrooms, get_string('book_specialrooms', 'block_eledia_adminexamdates'));
+    }
     echo $OUTPUT->single_button($returnurldecoded, get_string('cancel'));
     //echo $OUTPUT->confirm($message, $continueexamdate, $bookspecialroom);
     echo $OUTPUT->box_end();
@@ -128,7 +143,7 @@ if ($mform->is_cancelled()) {
     $statistics = new moodle_url('/blocks/eledia_adminexamdates/statistics.php', ['url' => rawurlencode($myurl)]);
 
     echo \html_writer::start_tag('div', array('class' => 'container-fluid px-4'));
-    echo \html_writer::start_tag('div', array('class' => 'row'));
+    echo \html_writer::start_tag('div', array('class' => 'row mb-3'));
     echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
     echo $OUTPUT->single_button($urlcalendar, get_string('calendar_btn', 'block_eledia_adminexamdates'));
     if ($hasconfirmexamdatescap) {
@@ -154,7 +169,7 @@ if ($mform->is_cancelled()) {
     echo \html_writer::end_tag('div');
     echo \html_writer::end_tag('div');
     if ($hasconfirmexamdatescap && !$newexamdate && !empty($editexamdate)) {
-        echo \html_writer::start_tag('div', array('class' => 'row mt-3'));
+        echo \html_writer::start_tag('div', array('class' => 'row'));
         echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
         echo \html_writer::start_tag('div', array('class' => 'singlebutton mb-3'));
         echo \html_writer::tag('button', get_string('editexamdate_btn', 'block_eledia_adminexamdates'),
@@ -169,14 +184,14 @@ if ($mform->is_cancelled()) {
         echo \html_writer::end_tag('div');
         echo \html_writer::end_tag('div');
     }
-    echo \html_writer::start_tag('div', array('class' => 'row mt-3'));
+    echo \html_writer::start_tag('div', array('class' => 'row'));
     if ($onlynumberstudents) {
         echo \html_writer::start_tag('div', array('class' => 'col-sm-6'));
     } else {
         echo \html_writer::start_tag('div', array('class' => 'col-xs-12'));
     }
 
-    if ($hasconfirmexamdatescap && $newexamdate) {
+    if ($hasconfirmexamdatescap && $newexamdate && $specialrooms) {
         $urlspecialrooms =
                 new moodle_url('/blocks/eledia_adminexamdates/specialrooms.php', ['timestart' => $examtimestart]);
         echo $OUTPUT->single_button($urlspecialrooms, get_string('book_specialrooms', 'block_eledia_adminexamdates'));
@@ -185,7 +200,7 @@ if ($mform->is_cancelled()) {
     $calendarurl = new \moodle_url('/blocks/eledia_adminexamdates/calendar.php', $param);
     //echo $OUTPUT->single_button($calendarurl, get_string('cancel'), 'post');
 
-    echo \html_writer::start_tag('div', array('class' => 'card-deck'));
+    echo \html_writer::start_tag('div', array('class' => 'card-deck mt-3'));
     echo \html_writer::start_tag('div', array('class' => 'card'));
     echo \html_writer::start_tag('div', array('class' => 'card-body'));
     echo \html_writer::start_tag('p', array('class' => 'card-text'));
@@ -230,7 +245,7 @@ if ($mform->is_cancelled()) {
         echo get_string('confirm_save_examdate_msg', 'block_eledia_adminexamdates',
                 ['name' => "$examdate->examname"]);
         echo \html_writer::end_tag('div');
-        echo $OUTPUT->continue_button(new moodle_url($PAGE->url, ['editexamdate' =>$examdateid]));
+        echo $OUTPUT->continue_button(new moodle_url($PAGE->url, ['editexamdate' => $examdateid]));
         echo $OUTPUT->box_end();
         //redirect(new moodle_url('/blocks/eledia_adminexamdates/editsingleexamdate.php', ['examdateid' => $examdateid]));
     } else {

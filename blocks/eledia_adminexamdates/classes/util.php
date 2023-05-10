@@ -26,8 +26,10 @@
 namespace block_eledia_adminexamdates;
 
 defined('MOODLE_INTERNAL') || die();
+
 use core_course\search\course;
 use stdClass;
+
 global $CFG;
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->dirroot . '/calendar/lib.php');
@@ -368,6 +370,9 @@ class util {
         //$roomcapacitysum = 0;
         foreach ($rooms as $room) {
             $roomitems = explode('|', $room);
+            if (count($roomitems) != 4) {
+                continue;
+            }
             if (!empty($roomitems[2])) {
                 $roomcapacities[$roomitems[0]] = $roomitems[2];
                 //if (in_array($roomitems[0], $examrooms)) {
@@ -491,6 +496,9 @@ class util {
         $specialroomnames = [];
         foreach ($rooms as $room) {
             $roomitems = explode('|', $room);
+            if (count($roomitems) != 4) {
+                continue;
+            }
             if (empty($roomitems[2])) {
                 $specialroomnames[$roomitems[0]] = $roomitems[1];
             }
@@ -544,6 +552,9 @@ class util {
         $roomnames = [];
         foreach ($rooms as $room) {
             $roomitems = explode('|', $room);
+            if (count($roomitems) != 4) {
+                continue;
+            }
             $roomnames[$roomitems[0]] = $roomitems[1];
         };
         $alreadytakenroom = [];
@@ -652,6 +663,9 @@ class util {
         $roomcapacitysum = 0;
         foreach ($rooms as $room) {
             $roomitems = explode('|', $room);
+            if (count($roomitems) != 4) {
+                continue;
+            }
             if (!empty($roomitems[2])) {
                 $roomcapacities[$roomitems[0]] = $roomitems[2];
                 if (in_array($roomitems[0], $examrooms)) {
@@ -1106,6 +1120,9 @@ class util {
         $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
         foreach ($rooms as $room) {
             $roomitems = explode('|', $room);
+            if (count($roomitems) != 4) {
+                continue;
+            }
             if (!empty($roomitems[2])) {
                 array_push($roomswithcapacity, $roomitems[0]);
             };
@@ -1233,7 +1250,7 @@ class util {
         $config = get_config('block_eledia_adminexamdates');
         $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
         $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'blocktimestart');
-        $courseid= (isset($examdate->courseid) && !empty($examdate->courseid)) ? $examdate->courseid : 0;
+        $courseid = (isset($examdate->courseid) && !empty($examdate->courseid)) ? $examdate->courseid : 0;
         // Get the template's course ID using the course idnumber.
         if (!empty($config->examcoursetemplateidnumber) && (!isset($examdate->courseid) || !$examdate->courseid)) {
 
@@ -1274,7 +1291,7 @@ class util {
                 $shortnamenotexist = false;
                 $shortenexamname = shorten_text($examdate->examname, 40, true);
                 $progressbar->update_full(50, $stringcoursecreate);
-                for ($i = 0; $i < 10 && !$shortnamenotexist ; $i++) {
+                for ($i = 0; $i < 10 && !$shortnamenotexist; $i++) {
                     $param = [
                             'wsfunction' => 'core_course_get_courses_by_field',
                             'field' => 'shortname',
@@ -1363,7 +1380,7 @@ class util {
             $messagetext = get_string('examconfirm_email_body', 'block_eledia_adminexamdates',
                     ['name' => $examdate->examname, 'date' => $date, 'course' => $course, 'url' => $link]);
 
-            if(validate_email($contactpersonmail)){
+            if (validate_email($contactpersonmail)) {
                 email_to_user($emailuser, $USER, $subject, $messagetext);
             }
 
@@ -1384,7 +1401,7 @@ class util {
      * @return array
      */
     public
-    static function examcancel($examdateid, $progressbar){
+    static function examcancel($examdateid, $progressbar) {
         global $DB, $USER;
         $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid], '*', MUST_EXIST);
         $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
@@ -1636,7 +1653,7 @@ class util {
     static function get_html_select_month($frommonth, $fromyear, $tomonth, $toyear) {
         $optionsmonths = [];
         for ($i = 1; $i <= 12; $i++) {
-            $m = userdate(mktime(0, 0, 0, $i) , '%B');
+            $m = userdate(mktime(0, 0, 0, $i), '%B');
             $optionsmonths[$i] = $m;
         }
         $optionsyears = [];
@@ -1730,63 +1747,67 @@ class util {
         $itemskvb = explode(',', get_config('elediachecklist', 'erinnerung_kvb_name'));
         $itemsknb = explode(',', get_config('elediachecklist', 'erinnerung_knb_name'));
         $items = implode(',', array_merge($itemskvb, $itemsknb));
-        //  DATE_FORMAT(DATE_ADD(from_unixtime(floor((SELECT examtimestart from {eledia_adminexamdates} exam
-        //        WHERE exam.id = {$examdateid}))), INTERVAL item.duetime DAY),'%d.%m.%Y') as topicdate
-        $sql = "SELECT item.id, 
-       item.emailtext as topic, 
-        item.duetime,
-        CASE WHEN ch.item IS NULL
-            THEN 0
-            ELSE 1 END AS checked
-        FROM {eledia_adminexamdates_itm} item
-        LEFT JOIN {eledia_adminexamdates_chk} ch ON item.id = ch.item AND ch.teacherid = {$examdateid}
-        WHERE  item.id IN ($items)
-        ORDER BY item.id";
-        $examtimestart =
-                floor($DB->get_record('eledia_adminexamdates', ['id' => $examdateid], 'examtimestart', MUST_EXIST)->examtimestart);
-
-        $checklistitems = $DB->get_records_sql($sql);
         $text = '';
-        if (!empty($checklistitems)) {
-            $text .= \html_writer::start_tag('div', array('class' => 'card'));
-            $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
-            $text .= \html_writer::tag('h5',
-                    get_string('checklist_table_title', 'block_eledia_adminexamdates')
-                    . ': ' . $examdatename, array('class' => 'card-title'));
-            $text .= \html_writer::start_tag('div ', array('class' => 'card-text'));
-            $text .= \html_writer::start_tag('table', ['class' => 'table table-striped']);
-            $text .= \html_writer::start_tag('thead');
-            $text .= \html_writer::tag('th', '');
-            $text .= \html_writer::tag('th', get_string('checklist_table_topic', 'block_eledia_adminexamdates'));
-            $text .= \html_writer::tag('th', get_string('checklist_table_topicdate', 'block_eledia_adminexamdates'));
-            $text .= \html_writer::end_tag('thead');
-            $text .= \html_writer::start_tag('tbody');
-            $checksquareicon = \html_writer::tag('i', '',
-                    array('class' => 'icon fa fa-check-square'));
-            $unchecksquareicon = \html_writer::tag('i', '',
-                    array('class' => 'icon fa fa-square-o'));
-            foreach ($checklistitems as $checklistitem) {
-                $text .= \html_writer::start_tag('tr');
-                $text .= \html_writer::start_tag('td');
-                $text .= ($checklistitem->checked) ? $checksquareicon : $unchecksquareicon;
-                $text .= \html_writer::end_tag('td');
+        if (!empty($items)) {
+            //  DATE_FORMAT(DATE_ADD(from_unixtime(floor((SELECT examtimestart from {eledia_adminexamdates} exam
+            //        WHERE exam.id = {$examdateid}))), INTERVAL item.duetime DAY),'%d.%m.%Y') as topicdate
+            $sql = "SELECT item.id, 
+                   item.emailtext as topic, 
+                    item.duetime,
+                    CASE WHEN ch.item IS NULL
+                        THEN 0
+                        ELSE 1 END AS checked
+                    FROM {eledia_adminexamdates_itm} item
+                    LEFT JOIN {eledia_adminexamdates_chk} ch ON item.id = ch.item AND ch.teacherid = {$examdateid}
+                    WHERE  item.id IN ($items)
+                    ORDER BY item.id";
 
-                //$tp = $examtimestart + (60 * 60 * 24 * $checklistitem->duetime);
-                //$date = date('d.m.Y', $tp);
-                $displaytext = str_replace('{Datum}', '', $checklistitem->topic);
+            $checklistitems = $DB->get_records_sql($sql);
 
-                $text .= \html_writer::tag('td', $displaytext);
+            $examtimestart =
+                    floor($DB->get_record('eledia_adminexamdates', ['id' => $examdateid], 'examtimestart',
+                            MUST_EXIST)->examtimestart);
+            if (!empty($checklistitems)) {
+                $text .= \html_writer::start_tag('div', array('class' => 'card'));
+                $text .= \html_writer::start_tag('div', array('class' => 'card-body'));
+                $text .= \html_writer::tag('h5',
+                        get_string('checklist_table_title', 'block_eledia_adminexamdates')
+                        . ': ' . $examdatename, array('class' => 'card-title'));
+                $text .= \html_writer::start_tag('div ', array('class' => 'card-text'));
+                $text .= \html_writer::start_tag('table', ['class' => 'table table-striped']);
+                $text .= \html_writer::start_tag('thead');
+                $text .= \html_writer::tag('th', '');
+                $text .= \html_writer::tag('th', get_string('checklist_table_topic', 'block_eledia_adminexamdates'));
+                $text .= \html_writer::tag('th', get_string('checklist_table_topicdate', 'block_eledia_adminexamdates'));
+                $text .= \html_writer::end_tag('thead');
+                $text .= \html_writer::start_tag('tbody');
+                $checksquareicon = \html_writer::tag('i', '',
+                        array('class' => 'icon fa fa-check-square'));
+                $unchecksquareicon = \html_writer::tag('i', '',
+                        array('class' => 'icon fa fa-square-o'));
+                foreach ($checklistitems as $checklistitem) {
+                    $text .= \html_writer::start_tag('tr');
+                    $text .= \html_writer::start_tag('td');
+                    $text .= ($checklistitem->checked) ? $checksquareicon : $unchecksquareicon;
+                    $text .= \html_writer::end_tag('td');
 
-                $text .= \html_writer::tag('td',
-                        date('d.m.Y', strtotime($checklistitem->duetime . ' day', $examtimestart)),
-                        ['class' => 'text-right']);
-                $text .= \html_writer::end_tag('tr');
+                    //$tp = $examtimestart + (60 * 60 * 24 * $checklistitem->duetime);
+                    //$date = date('d.m.Y', $tp);
+                    $displaytext = str_replace('{Datum}', '', $checklistitem->topic);
+
+                    $text .= \html_writer::tag('td', $displaytext);
+
+                    $text .= \html_writer::tag('td',
+                            date('d.m.Y', strtotime($checklistitem->duetime . ' day', $examtimestart)),
+                            ['class' => 'text-right']);
+                    $text .= \html_writer::end_tag('tr');
+                }
+                $text .= \html_writer::end_tag('tbody');
+                $text .= \html_writer::end_tag('table');
+                $text .= \html_writer::end_tag('div');
+                $text .= \html_writer::end_tag('div');
+                $text .= \html_writer::end_tag('div');
             }
-            $text .= \html_writer::end_tag('tbody');
-            $text .= \html_writer::end_tag('table');
-            $text .= \html_writer::end_tag('div');
-            $text .= \html_writer::end_tag('div');
-            $text .= \html_writer::end_tag('div');
         }
         return $text;
     }

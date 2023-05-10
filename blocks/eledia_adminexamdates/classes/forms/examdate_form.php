@@ -95,6 +95,9 @@ class examdate_form extends \moodleform {
         $defaultrooms = [];
         foreach ($rooms as $room) {
             $roomitems = explode('|', $room);
+            if (count($roomitems) != 4) {
+                continue;
+            }
             $roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
             if (!empty($roomcapacity)) {
                 array_push($defaultrooms, $roomitems[0]);

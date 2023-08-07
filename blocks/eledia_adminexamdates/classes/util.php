@@ -127,6 +127,8 @@ class util {
             } else {
                 $examdateid = $formdata->editexamdate;
                 $dataobject->id = $formdata->editexamdate;
+
+                $dataobject = self::examupdate($dataobject);
                 $DB->update_record('eledia_adminexamdates', $dataobject);
             }
 
@@ -292,7 +294,8 @@ class util {
             $DB->update_record('eledia_adminexamdates_blocks', $dataobject);
 
         }
-        $examtimestart = $DB->get_record('eledia_adminexamdates', ['id' => $formdata->examdateid])->examtimestart;
+        $exam = $DB->get_record('eledia_adminexamdates', ['id' => $formdata->examdateid]);
+        $examtimestart = $exam->examtimestart;
         $blocktimestart =
                 $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $formdata->examdateid], 'blocktimestart');
         $blocktimestart = reset($blocktimestart)->blocktimestart;
@@ -301,6 +304,8 @@ class util {
             $dataobject = new \stdClass();
             $dataobject->id = $formdata->examdateid;
             $dataobject->examtimestart = $blocktimestart;
+            $dataobject->examname = $exam->examname;
+            $dataobject->department =  $exam->department;
             $dataobject->timemodified = time();
             $date = $blocktimestart;
             $lastyear = date('Y', strtotime('-1 year', $date));
@@ -313,6 +318,7 @@ class util {
                 $semester = $year . '2';
             }
             $dataobject->semester = $semester;
+            $dataobject = self::examupdate($dataobject);
             $DB->update_record('eledia_adminexamdates', $dataobject);
         }
 
@@ -1899,7 +1905,137 @@ class util {
         }
         return $text;
     }
+
+    /**
+     * Update exam - Update course for the exam in the e-exam system
+     *
+     * @return array
+     */
+    public
+    static function examupdate($dataobject) {
+        global $DB;
+        //$stringcourseupdate = get_string('progressbar_update_course', 'block_eledia_adminexamdates');
+        $config = get_config('block_eledia_adminexamdates');
+        $examdate = $DB->get_record('eledia_adminexamdates', ['id' => $dataobject->id], '*', MUST_EXIST);
+        //$examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $dataobject->id], 'blocktimestart');
+        $courseid = (isset($examdate->courseid) && !empty($examdate->courseid)) ? $examdate->courseid : 0;
+        // Get the template's course ID using the course idnumber.
+        if (!empty($config->examcoursetemplateidnumber) && !empty($courseid)) {
+
+            //$progressbar->update_full(10, $stringcourseupdate);
+            $param = [
+                    'wsfunction' => 'core_course_get_courses_by_field',
+                    'field' => 'id',
+                    'value' => $courseid
+            ];
+            $examcourseresult = self::get_data_from_api('', $param);
+            $examcourse = $examcourseresult->courses[0];
+
+            $param = [
+                    'wsfunction' => 'core_course_get_courses_by_field',
+                    'field' => 'idnumber',
+                    'value' => $config->examcoursetemplateidnumber
+            ];
+            $results = self::get_data_from_api('', $param);
+
+            // If the template course exists, get the sub-categories by the department categoryid.
+            if (!empty($results->courses[0]->id)) {
+                $templatecourseid = $results->courses[0]->id;
+                $subcategories = self::get_sub_categories('id', $dataobject->department);
+
+                // Generate the string of the semester category.
+                $year = substr($dataobject->semester, 0, 4);
+                if (substr($dataobject->semester, -1) == 1) {
+                    $semesterstr = get_string('summersemester', 'block_eledia_adminexamdates')
+                            . ' ' . $year;
+                } else {
+                    $semesterstr = get_string('wintersemester', 'block_eledia_adminexamdates')
+                            . ' ' . $year . '/' . ($year + 1);
+                }
+
+                // Create the semester category if it is not in the sub-category list.
+                if (empty($subcategories) || !($semestercategoryid = array_search($semesterstr, $subcategories))) {
+                    //$progressbar->update_full(30, $stringcourseupdate);
+                    $param = ['wsfunction' => 'core_course_create_categories'];
+                    $categories = '&categories[0][name]=' . urlencode($semesterstr)
+                            . '&categories[0][parent]=' . $dataobject->department;
+                    $results = self::get_data_from_api($categories, $param);
+                    $semestercategoryid = $results[0]->id;
+                }
+
+                if($examcourse->categoryid != $semestercategoryid){
+                    $param = ['wsfunction' => 'core_course_update_courses'];
+                    $paramcourse = "&courses[0][id]=$courseid&courses[0][categoryid]=$semestercategoryid";
+                    $results = self::get_data_from_api($paramcourse, $param);
+                }
+
+                $oldexamtimestart = date('d.m.Y',$examdate->examtimestart);
+                $newexamtimestart = date('d.m.Y',$dataobject->examtimestart);
+                if($oldexamtimestart != $newexamtimestart) {
+                    $param = [
+                            'wsfunction' => 'core_course_get_contents',
+                            'courseid' => $courseid
+                    ];
+                    $options = '&options[0][name]=excludemodules&options[0][value]=1';
+                    $results = self::get_data_from_api($options, $param);
+                    if (!empty($results)) {
+                        $stringtoreplace = $oldexamtimestart;
+                        foreach ($results as $sectiondata) {
+                            if (strpos($sectiondata->name, $stringtoreplace)) {
+                                $param = [
+                                        'wsfunction' => 'core_update_inplace_editable',
+                                        'component' => 'format_topics',
+                                        'itemtype' => 'sectionname',
+                                        'itemid' => $sectiondata->id,
+                                        'value' => str_replace($stringtoreplace,
+                                                date('d.m.Y', $dataobject->examtimestart),
+                                                $sectiondata->name)
+                                ];
+                                self::get_data_from_api('', $param);
+                                break;
+                            }
+                        }
+                    }
+                    $dataobject->examname = str_replace(date('Ymd',$examdate->examtimestart),
+                            date('Ymd',$dataobject->examtimestart),
+                            $dataobject->examname);
+                }
+                if($examcourse->fullname != $dataobject->examname){
+                    $param = ['wsfunction' => 'core_course_update_courses'];
+                    $paramcourse = "&courses[0][id]=$courseid&courses[0][fullname]=". urlencode($dataobject->examname);
+                    $results = self::get_data_from_api($paramcourse, $param);
+
+                    // If a course with this shortname already exists, then add examtimestart to the string.
+                    $shortnamenotexist = false;
+                    $shortenexamname = shorten_text($dataobject->examname, 40, true);
+                    for ($i = 0; $i < 10 && !$shortnamenotexist; $i++) {
+                        $param = [
+                                'wsfunction' => 'core_course_get_courses_by_field',
+                                'field' => 'shortname',
+                                'value' => $shortenexamname
+                        ];
+                        $results = self::get_data_from_api('', $param);
+                        if (!isset($results->courses[0]->id) || ($results->courses[0]->id == $courseid)) {
+                            $shortnamenotexist = true;
+                        } else if ($i == 0) {
+                            $shortenexamname .= ' ' . date('H.i', $dataobject->examtimestart);
+                        } else {
+                            $shortenexamname .= random_string(3);
+                        }
+                    }
+
+                    if ($shortnamenotexist) {
+                        $param = ['wsfunction' => 'core_course_update_courses'];
+                        $paramcourse = "&courses[0][id]=$courseid&courses[0][shortname]=". urlencode($shortenexamname);
+                        $results = self::get_data_from_api($paramcourse, $param);
+                    }
+                }
+            }
+        }
+        return $dataobject;
+    }
 }
+
 
 
 

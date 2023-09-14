@@ -371,8 +371,9 @@ class util {
         $datesoftheday = $DB->get_records_sql($sql, $params);
 
         $roomcapacities = [];
-        if ($examrooms = $DB->get_records('eledia_adminexamdates_cfg_r', ['specialroom' => 0])) {
+        if ($examrooms = $DB->get_records('eledia_adminexamdates_cfg_r', ['specialroom' => 0], 'roomid')) {
             $roomcapacities = array_column($examrooms, 'roomid', 'capacity');
+            $examrooms = array_column($examrooms, 'roomid');
         }
 
         // Get from all rooms the free time capacities.

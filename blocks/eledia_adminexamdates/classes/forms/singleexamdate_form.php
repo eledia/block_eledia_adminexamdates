@@ -41,19 +41,14 @@ class singleexamdate_form extends \moodleform {
         // $mform->addElement('header', '', get_string('singleexamdate_header', 'block_eledia_adminexamdates'));
 
         $options = [];
-        $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
-
         $roomcapacity = [];
-        foreach ($rooms as $room) {
-            $roomitems = explode('|', $room);
-            if (count($roomitems) != 4) {
-                continue;
+        $examrooms = $DB->get_records('eledia_adminexamdates_cfg_r',null,'specialroom,roomid');
+        foreach ($examrooms as $examroom) {
+            if (!$examroom->specialroom) {
+                array_push($roomcapacity, $examroom->roomid);
             }
-            if (!empty($roomitems[2])) {
-                array_push($roomcapacity, $roomitems[0]);
-            }
-            $options[$roomitems[0]] = $roomitems[1];
-        };
+            $options[$examroom->roomid] = $examroom->name;
+        }
 
         // $blocks =& $this->_customdata['blocks'];
         // print_R( $blocks);exit;

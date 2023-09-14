@@ -11,3 +11,10 @@
 .path-blocks-eledia_adminexamdates #page-content {
     margin-top: 20px;
 }
+#page-blocks-eledia_adminexamdates-manageroomconfig #roomconfig .cell.color {
+    text-align: center;
+    padding: 0.75rem 0;
+}
+#page-blocks-eledia_adminexamdates-manageroomconfig #roomconfig .cell.specialroom {
+    text-align: center;
+}

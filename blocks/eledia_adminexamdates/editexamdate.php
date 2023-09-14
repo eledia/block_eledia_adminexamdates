@@ -74,18 +74,7 @@ if ($editexamdate) {
 $mform = new \block_eledia_adminexamdates\forms\examdate_form(null,
         array('onlynumberstudents' => $onlynumberstudents, 'editexamdate' => $editexamdate, 'url' => $returnurl));
 
-$specialrooms = false;
-$rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
-foreach ($rooms as $room) {
-    $roomitems = explode('|', $room);
-    if (count($roomitems) != 4) {
-        continue;
-    }
-    if (empty($roomitems[2])) {
-        $specialrooms = true;
-        break;
-    }
-};
+$specialrooms = $DB->record_exists('eledia_adminexamdates_cfg_r', ['specialroom' => true]);
 
 // Execute the form.
 if ($mform->is_cancelled()) {
@@ -101,7 +90,7 @@ if ($mform->is_cancelled()) {
     echo "<p>" . $message . "</p>\n";
     echo $OUTPUT->single_button(new moodle_url($PAGE->url, ['examtime' => $examtimestart, 'url' => $returnurl]),
             get_string('newexamdate', 'block_eledia_adminexamdates'));
-    if($specialrooms) {
+    if ($specialrooms) {
         $urlspecialrooms = new moodle_url('/blocks/eledia_adminexamdates/specialrooms.php',
                 ['timestart' => $examtimestart, 'url' => $returnurl]);
         echo $OUTPUT->single_button($urlspecialrooms, get_string('book_specialrooms', 'block_eledia_adminexamdates'));
@@ -239,11 +228,12 @@ if ($mform->is_cancelled()) {
     }
 
     if ($hasconfirmexamdatescap) {
+        $examdatename = $DB->get_record('eledia_adminexamdates', ['id' => $examdateid])->examname;
         echo $OUTPUT->header();
         echo $OUTPUT->box_start('generalbox', 'notice');
         echo \html_writer::start_tag('div', ['class' => 'text-center mb-3']);
         echo get_string('confirm_save_examdate_msg', 'block_eledia_adminexamdates',
-                ['name' => "$examdate->examname"]);
+                ['name' => "$examdatename"]);
         echo \html_writer::end_tag('div');
         echo $OUTPUT->continue_button(new moodle_url($PAGE->url, ['editexamdate' => $examdateid]));
         echo $OUTPUT->box_end();

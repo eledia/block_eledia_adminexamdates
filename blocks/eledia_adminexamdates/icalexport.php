@@ -21,21 +21,18 @@ $ical = new iCalendar;
 $ical->add_property('method', 'PUBLISH');
 $ical->add_property('prodid', '-//Moodle Pty Ltd//NONSGML Moodle Version ' . $CFG->version . '//EN');
 
-$rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
 $roomswithcapacity = [];
 $specialroomitems = [];
-foreach ($rooms as $room) {
-    $roomitems = explode('|', $room);
-    if (count($roomitems) != 4) {
-        continue;
-    }
-    if (!empty($roomitems[2])) {
-        array_push($roomswithcapacity, $roomitems[0]);
+
+$examrooms = $DB->get_records('eledia_adminexamdates_cfg_r',null, 'specialroom,roomid');
+foreach ($examrooms as $examroom){
+    if($examroom->specialroom){
+        array_push($specialroomitems, $examroom->roomid);
     } else {
-        array_push($specialroomitems, $roomitems[0]);
+        array_push($roomswithcapacity, $examroom->roomid);
     }
-    $roomnames[$roomitems[0]] = trim($roomitems[1]);
-};
+    $roomnames[$examroom->roomid] = $examroom->name;
+}
 
 $timestart = strtotime("- $month month", time());
 $timeend = strtotime("+ $month month", time());

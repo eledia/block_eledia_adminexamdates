@@ -91,19 +91,18 @@ class examdate_form extends \moodleform {
         ];
         //$mform->addElement('header', '', get_string('examdate_header', 'block_eledia_adminexamdates'));
         $options = [];
-        $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
+
         $defaultrooms = [];
-        foreach ($rooms as $room) {
-            $roomitems = explode('|', $room);
-            if (count($roomitems) != 4) {
-                continue;
+        $examrooms = $DB->get_records('eledia_adminexamdates_cfg_r',null,'specialroom,roomid');
+
+        foreach ($examrooms as $examroom) {
+            $roomcapacity = !empty($examroom->capacity) ? ' (max. ' . $examroom->capacity . ' TN)' : '';
+            if (!$examroom->specialroom) {
+                array_push($defaultrooms, $examroom->roomid);
             }
-            $roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
-            if (!empty($roomcapacity)) {
-                array_push($defaultrooms, $roomitems[0]);
-            }
-            $options[$roomitems[0]] = $roomitems[1] . $roomcapacity;
-        };
+            $options[$examroom->roomid] = $examroom->name . $roomcapacity;
+        }
+
         $settings = array('multiple' => 'multiple');
         if ($hasconfirmexamdatescap) {
             $mform->addElement('select', 'examrooms',

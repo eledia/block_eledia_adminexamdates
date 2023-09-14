@@ -35,23 +35,17 @@ class specialrooms_form extends \moodleform
 
     public function definition()
     {
-
+    global $DB;
         $hasconfirmexamdatescap = has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance());
 
         $mform =& $this->_form;
 
         $options = [];
-        $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
-        foreach ($rooms as $room) {
-            $roomitems = explode('|', $room);
-            if (count($roomitems) != 4) {
-                continue;
-            }
-            $roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
-            if (empty($roomcapacity)) {
-                $options[$roomitems[0]] = $roomitems[1] . $roomcapacity;
-            }
-        };
+        $examrooms = $DB->get_records('eledia_adminexamdates_cfg_r', ['specialroom' => true], 'roomid');
+        foreach ($examrooms as $examroom) {
+            $options[$examroom->roomid] = $examroom->name . ' (max. ' . $examroom->capacity . ' TN)';
+        }
+
         $settings = array('multiple' => 'multiple');
 
         $mform->addElement('select', 'specialrooms',

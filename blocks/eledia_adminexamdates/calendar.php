@@ -68,29 +68,26 @@ $PAGE->set_pagelayout('course');
 
 $hasconfirmexamdatescap = (has_capability('block/eledia_adminexamdates:confirmexamdates', \context_system::instance())) ? 1 : 0;
 
-$rooms = preg_split('/\r\n|\r|\n/', trim(get_config('block_eledia_adminexamdates', 'examrooms')));
 $roomcategories = [];
 $roomcategorycolors = [];
 $roomswithcapacity = [];
 $specialroomitems = [];
-foreach ($rooms as $room) {
-    $roomitems = explode('|', $room);
-    if (count($roomitems) != 4) {
-        continue;
-    }
-    //$roomcapacity = !empty($roomitems[2]) ? ' (max. ' . $roomitems[2] . ' TN)' : '';
-    if (!empty($roomitems[2])) {
-        array_push($roomswithcapacity, $roomitems[0]);
+
+$examrooms = $DB->get_records('eledia_adminexamdates_cfg_r',null,'specialroom,roomid');
+
+foreach ($examrooms as $examroom) {
+    if (!$examroom->specialroom) {
+        array_push($roomswithcapacity, $examroom->roomid);
     } else {
-        array_push($specialroomitems, $roomitems[0]);
+        array_push($specialroomitems, $examroom->roomid);
     }
-    $roomnames[$roomitems[0]] = trim($roomitems[1]);
-    $roomcolors[trim($roomitems[1])] = $roomitems[3];
+    $roomnames[$examroom->roomid] = $examroom->name;
+    $roomcolors[$examroom->name] = $examroom->color;
     $object = new stdClass();
-    $object->category = trim($roomitems[1]);
-    $object->color = trim($roomitems[3]);
+    $object->category = $examroom->name;
+    $object->color = $examroom->color;
     $roomcategorycolors[] = $object;
-    $roomcategories[] = trim($roomitems[1]);
+    $roomcategories[] = $examroom->name;
 };
 
 $roomscount = $hasconfirmexamdatescap ? count($roomcategories) : count($roomswithcapacity);

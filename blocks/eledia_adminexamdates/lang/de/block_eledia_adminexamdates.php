@@ -50,7 +50,8 @@ $string['cancelexamdate'] = 'Stornieren';
 $string['confirmexamdate'] = 'Bestätigen';
 $string['confirmexamdatemsg'] = 'Wollen Sie die den Prüfungstermin bestätigen für: \'{$a->name}\'?';
 $string['cancelexamdatemsg'] = 'Wollen Sie die den Prüfungstermin stornieren für: \'{$a->name}\'?';
-$string['configure_description'] = 'Hier können Sie die Prüfungstermin-Verwaltung konfigurieren.';
+$string['configure_description'] = 'Hier können Sie die Prüfungstermin-Verwaltung konfigurieren.</br>
+Es muss mindestens ein Prüfungsraum konfiguriert werden: <a class="btn btn-primary m-3" href="/blocks/eledia_adminexamdates/manageroomconfig.php">Prüfungsräume konfigurieren</a>';
 $string['number_students'] ='Erwartete Anzahl der Teilnehmenden';
 $string['department'] ='Fachbereich';
 $string['examiner'] ='Dozent:in/ Prüfer:in';
@@ -58,11 +59,6 @@ $string['examiner_help'] = 'Wählen Sie eine oder mehrere Dozent:innen aus der L
 $string['contactperson'] ='Ansprechpartner:in';
 $string['contactpersonemail'] ='E-Mail des/der Ansprechpartners/Ansprechpartnerin';
 $string['responsibleperson'] ='SCL Verantwortliche:r';
-$string['examrooms_default'] = 'PR1|Prüfungsraum 1|100|#E91E63
-PR2|Prüfungsraum 2|100|#3F51B5
-AB|Administrationsbüro|0|#009688
-ER|Endabnahmeraum|0|#6D4C41';
-$string['config_examrooms'] = 'Jede Zeile konfiguriert einen eigenen Prüfungsraum. In jeder Zeile steht zunächst eine eindeutige Raum-ID (z.B. \'PR1\'), dann der Name des Raumes (z.B. \'Prüfungsraum 1\') sowie die Raumkapazität, also die maximale Teilnehmerzahl (z.B. \'100\') und die angezeigte Raum-Farbe (z.B. \'#3F51B5\'), getrennt durch jeweils einen senkrechten Strich.';
 $string['examrooms'] ='Konfiguration der Prüfungsräume';
 $string['config_responsiblepersons'] = 'Liste der User-IDs der SCL Verantwortlichen, getrennt jeweils durch ein Komma. (Beispiel: \'2,4,5,12\')';
 $string['responsiblepersons'] ='Konfiguration der SCL Verantwortlichen';
@@ -251,6 +247,7 @@ $string['config_instanceofmodelediachecklist'] = 'Auswahl einer Instanz der Akti
 $string['setting_instanceofmodproblemdb'] = 'Aktivität Problemdatenbank';
 $string['config_instanceofmodproblemdb'] = 'Auswahl einer Instanz der Aktivität Datenbank, die als Problemdatenbank verlinkt ist.';
 $string['progressbar_confirmed_course_create'] = 'Bestätigung des Prüfungstermins - Erstellung eines Kurses auf dem Prüfungssystem.';
+$string['progressbar_update_course'] = 'Änderung des Prüfungstermins - Aktualiserung des Kurses auf dem Prüfungssystem.';
 $string['progressbar_confirmed_email'] = 'Bestätigung des Prüfungstermins - Versand E-Mail an den Ansprechpartner und das Prüfungsteam.';
 $string['progressbar_confirmed_finished'] = 'Bestätigung des Prüfungstermins wurde abgeschlossen.';
 $string['progressbar_cancelled_finished'] = 'Stornierung des Prüfungstermins wurde abgeschlossen.';
@@ -263,3 +260,22 @@ Der Wert des "month"-Parameters z.B.: "month=12" steuert den Zeitraum der aktual
 Mit dem optionalen Parameter „&special=0“ werden Termine der Sonderräume nicht exportiert.';
 $string['exam_course_link'] = 'Link zum Klausurkurs';
 $string['exam_booking_link'] = 'Link zum Buchungstool';
+$string['manage_roomconfig'] ='Prüfungsraumkonfiguration verwalten';
+$string['addnewroomconfig'] ='Neuen Prüfungsraum hinzufügen';
+$string['editaroomconfig'] ='Einen Prüfungsraum bearbeiten';
+$string['deleteroomconfigconfirm'] = 'Sind Sie sicher, dass Sie diese Prüfungsraumkonfiguration löschen möchten?';
+$string['roomconfigadded'] = 'Prüfungsraumkonfiguration hinzugefügt';
+$string['roomconfigdeleted'] = 'Prüfungsraumkonfiguration gelöscht';
+$string['roomconfig_roomid'] = 'Raum-ID';
+$string['roomconfig_name'] = 'Name des Prüfungsraums';
+$string['roomconfig_capacity'] = 'Raumkapazität';
+$string['roomconfig_color'] = 'Raumfarbe';
+$string['roomconfig_specialroom'] = 'Spezialraum';
+$string['roomconfig_roomid_help'] = 'Geben Sie eine eingdeutige Raum-ID ein, z.B. \'PR1\' für Prüfungsraum 1.';
+$string['roomconfig_name_help'] = 'Name des Prüfungsraums';
+$string['roomconfig_capacity_help'] = 'Geben Sie die Raumkapazität ein, das ist die maximale Prüfungs-Teilnehmerzahl in diesem Raum, z.B. \'100\'.';
+$string['roomconfig_color_help'] = 'Geben Sie die im Kalender angezeigte Farbe dieses Raumes als RGB-Farbwert ein, z.B. \'#3F51B5\'.';
+$string['roomconfig_specialroom_help'] = 'Handelt es sich um einen Raum ohne Teilnehmer-Kapazität, z.B. \'Administrationsbüro\' oder \'Endabnahmeraum\'?';
+$string['backtoblocksetting'] = 'Zurück zu Prüfungstermin-Verwaltung';
+$string['no_roomconfig'] = 'Bitte mindestens einen Prüfungsraum mit einer Teilnehmer-Kapazität konfigurieren!';
+

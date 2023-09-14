@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/eledia_adminexamdates/db" VERSION="20230506" COMMENT="XMLDB file for Moodle blocks/eledia_adminexamdates"
+<XMLDB PATH="blocks/eledia_adminexamdates/db" VERSION="20230830" COMMENT="XMLDB file for Moodle blocks/eledia_adminexamdates"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -150,6 +150,19 @@
         <FIELD NAME="examid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="checkid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="checkdate" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="eledia_adminexamdates_cfg_r" COMMENT="Exam rooms config table.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="roomid" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Exam room ID"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Exam room name"/>
+        <FIELD NAME="capacity" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Exam room number of student capacity."/>
+        <FIELD NAME="color" TYPE="char" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Exam room display color"/>
+        <FIELD NAME="specialroom" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Special exam room"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

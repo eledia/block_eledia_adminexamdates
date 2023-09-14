@@ -30,11 +30,6 @@ if ($ADMIN->fulltree) {
             'block_eledia_adminexamdates'), get_string('config_apitoken',
             'block_eledia_adminexamdates'), '');
 
-    $configs[] = new admin_setting_configtextarea('examrooms',
-            new lang_string('examrooms', 'block_eledia_adminexamdates'),
-            new lang_string('config_examrooms', 'block_eledia_adminexamdates'),
-            get_string('examrooms_default', 'block_eledia_adminexamdates'), PARAM_RAW, '15', '5');
-
     $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/envcategoryidnumber',
             get_string('setting_envcategoryidnumber', 'block_eledia_adminexamdates'),
             get_string('config_envcategoryidnumber', 'block_eledia_adminexamdates'), 'EXAMENV', PARAM_RAW);
@@ -112,15 +107,15 @@ if ($ADMIN->fulltree) {
             new lang_string('config_examinercohorts', 'block_eledia_adminexamdates'),
             array(), $cohorts);
 
-    $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/bordercolor1',
+    $configs[] = new admin_setting_configcolourpicker('block_eledia_adminexamdates/bordercolor1',
             get_string('setting_bordercolor_unconfirmed_dates',
                     'block_eledia_adminexamdates'), get_string('config_bordercolor_unconfirmed_dates',
-                    'block_eledia_adminexamdates'), '#576874', PARAM_RAW, 8);
+                    'block_eledia_adminexamdates'), '#576874');
 
-    $configs[] = new admin_setting_configtext('block_eledia_adminexamdates/bordercolor2',
+    $configs[] = new admin_setting_configcolourpicker('block_eledia_adminexamdates/bordercolor2',
             get_string('setting_bordercolor_unavailable_dates',
                     'block_eledia_adminexamdates'), get_string('config_bordercolor_unavailable_dates',
-                    'block_eledia_adminexamdates'), '#576874', PARAM_RAW, 8);
+                    'block_eledia_adminexamdates'), '#576874');
 
     $configs[] = new admin_setting_configtextarea('holidays',
             new lang_string('holidays', 'block_eledia_adminexamdates'),
@@ -175,4 +170,17 @@ if ($ADMIN->fulltree) {
         $config->plugin = 'block_eledia_adminexamdates';
         $settings->add($config);
     }
+
+
+    //$url = new \moodle_url('/blocks/eledia_adminexamdates/manageroomconfig.php');
+    //$manageroomconfigpage = new admin_externalpage('manageroomconfig',
+    //        get_string('manageroomconfig', 'block_eledia_adminexamdates'), $url,'moodle/site:viewreports');
+    //
+    //$external = new admin_externalpage('manage_wwlink_users', "Manage wwlink Admins", $CFG->wwwroot . '/block/wwlink/users.php');
+    //$ADMIN->add('modules', $external); // <- Is there something other than 'modules' to put it under blocks?
+
+   // $ADMIN->add('reports', new admin_externalpage('comments', new lang_string('comments'), $CFG->wwwroot.'/comment/', 'moodle/site:viewreports'));
+
+   // $ADMIN->add('blocksetings', $manageroomconfigpage);
+
 }

@@ -370,22 +370,11 @@ class util {
 
         $datesoftheday = $DB->get_records_sql($sql, $params);
 
-        $examrooms = !is_array($formdata->examrooms) ? explode(',', $formdata->examrooms) : $formdata->examrooms;
-        $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
         $roomcapacities = [];
-        //$roomcapacitysum = 0;
-        foreach ($rooms as $room) {
-            $roomitems = explode('|', $room);
-            if (count($roomitems) != 4) {
-                continue;
-            }
-            if (!empty($roomitems[2])) {
-                $roomcapacities[$roomitems[0]] = $roomitems[2];
-                //if (in_array($roomitems[0], $examrooms)) {
-                //    $roomcapacitysum += $roomitems[2];
-                //}
-            }
-        };
+        if ($examrooms = $DB->get_records('eledia_adminexamdates_cfg_r', ['specialroom' => 0])) {
+            $roomcapacities = array_column($examrooms, 'roomid', 'capacity');
+        }
+
         // Get from all rooms the free time capacities.
         // First initialize the last blockend time with day start exam time.
         $roomfreecapacities = [];
@@ -498,17 +487,11 @@ class util {
 
         $datesoftheday = $DB->get_records_sql($sql, $params_part);
 
-        $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
         $specialroomnames = [];
-        foreach ($rooms as $room) {
-            $roomitems = explode('|', $room);
-            if (count($roomitems) != 4) {
-                continue;
-            }
-            if (empty($roomitems[2])) {
-                $specialroomnames[$roomitems[0]] = $roomitems[1];
-            }
-        };
+        if ($examrooms = $DB->get_records('eledia_adminexamdates_cfg_r', ['specialroom' => true], 'roomid')) {
+            $specialroomnames = array_column($examrooms, 'name', 'roomid');
+        }
+
         $alreadytakenroom = [];
         foreach ($specialrooms as $specialroom) {
             foreach ($datesoftheday as $date) {
@@ -554,15 +537,11 @@ class util {
 
         $datesoftheday = $DB->get_records_sql($sql, $params_part);
 
-        $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
         $roomnames = [];
-        foreach ($rooms as $room) {
-            $roomitems = explode('|', $room);
-            if (count($roomitems) != 4) {
-                continue;
-            }
-            $roomnames[$roomitems[0]] = $roomitems[1];
-        };
+        if ($examrooms = $DB->get_records('eledia_adminexamdates_cfg_r', null, 'specialroom,roomid')) {
+            $roomnames = array_column($examrooms, 'name', 'roomid');
+        }
+
         $alreadytakenroom = [];
         foreach ($blockexamrooms as $blockexamroom) {
             foreach ($datesoftheday as $date) {
@@ -621,8 +600,10 @@ class util {
 
         $bookings = self::hasfreetimeslots2($formdata, true);
         if ($bookings) {
-            $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
+            $rooms = [];
+            $examparts = $DB->get_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid], 'blocktimestart');
             if (!empty($examparts)) {
+                $rooms = $DB->get_records_list('eledia_adminexamdates_rooms', 'blockid', array_keys($examparts));
                 $DB->delete_records_list('eledia_adminexamdates_rooms', 'blockid', array_keys($examparts));
                 $DB->delete_records('eledia_adminexamdates_blocks', ['examdateid' => $examdateid]);
             }
@@ -664,21 +645,16 @@ class util {
 
               $datesoftheday = $DB->get_records_sql($sql, $params);*/
         $examrooms = !is_array($formdata->examrooms) ? explode(',', $formdata->examrooms) : $formdata->examrooms;
-        $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
+
         $roomcapacities = [];
         $roomcapacitysum = 0;
-        foreach ($rooms as $room) {
-            $roomitems = explode('|', $room);
-            if (count($roomitems) != 4) {
-                continue;
+        $examrooms = $DB->get_records('eledia_adminexamdates_cfg_r', ['specialroom' => false], 'roomid');
+        foreach ($examrooms as $examroom) {
+            $roomcapacities[$examroom->roomid] = $examroom->capacity;
+            if (in_array($examroom->roomid, $examrooms)) {
+                $roomcapacitysum += $examroom->capacity;
             }
-            if (!empty($roomitems[2])) {
-                $roomcapacities[$roomitems[0]] = $roomitems[2];
-                if (in_array($roomitems[0], $examrooms)) {
-                    $roomcapacitysum += $roomitems[2];
-                }
-            }
-        };
+        }
 
         $breakbetweenblockdates = get_config('block_eledia_adminexamdates', 'breakbetweenblockdates');
         $numberofblocks = ceil($formdata->numberstudents / $roomcapacitysum);
@@ -1123,17 +1099,14 @@ class util {
         $roomoptions = [];
         $roomswithcapacity = [];
 
-        $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
-        foreach ($rooms as $room) {
-            $roomitems = explode('|', $room);
-            if (count($roomitems) != 4) {
-                continue;
+        $examrooms = $DB->get_records('eledia_adminexamdates_cfg_r',null,'specialroom,roomid');
+
+        foreach ($examrooms as $examroom) {
+            if (!$examroom->specialroom) {
+                array_push($roomswithcapacity, $examroom->roomid);
             }
-            if (!empty($roomitems[2])) {
-                array_push($roomswithcapacity, $roomitems[0]);
-            };
-            $roomoptions[$roomitems[0]] = $roomitems[1];
-        };
+            $roomoptions[$examroom->roomid] = $examroom->name;
+        }
 
         list($inexamroomssql, $inexamroomsparams) = $DB->get_in_or_equal($roomswithcapacity, SQL_PARAMS_NAMED);
 

@@ -72,17 +72,16 @@ if ($mform->is_cancelled()) {
     $block = $DB->get_record('eledia_adminexamdates_blocks', ['id' => $cancelspecialrooms]);
     $blockrooms = $DB->get_records('eledia_adminexamdates_rooms', ['blockid' => $cancelspecialrooms]);
     $specialrooms = array_column($blockrooms, 'examroom');
-    $rooms = preg_split('/\r\n|\r|\n/', get_config('block_eledia_adminexamdates', 'examrooms'));
+
     $roomnames = [];
-    foreach ($rooms as $room) {
-        $roomitems = explode('|', $room);
-        if (count($roomitems) != 4) {
-            continue;
-        }
-        if (in_array($roomitems[0], $specialrooms)) {
-            array_push($roomnames, $roomitems[1]);
+    if ($examrooms = $DB->get_records('eledia_adminexamdates_cfg_r', null, 'specialroom,roomid')) {
+        foreach ($examrooms as $examroom) {
+            if (in_array($examroom->roomid, $specialrooms)) {
+                array_push($roomnames, $examroom->roomid);
+            }
         }
     }
+
     $date = date('d.m.Y, H.i', $block->blocktimestart) . ' - ' . date('H.i', $block->blocktimestart + ($block->blockduration * 60)). get_string('hour', 'block_eledia_adminexamdates');
     $message = get_string('cancelspecialrooms_msg', 'block_eledia_adminexamdates',
             ['date' => $date, 'rooms' => implode(', ', $roomnames)]);

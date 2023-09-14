@@ -309,5 +309,52 @@ function xmldb_block_eledia_adminexamdates_upgrade($oldversion) {
         // Eledia_adminexamdates savepoint reached.
         upgrade_block_savepoint(true, 2023050500, 'eledia_adminexamdates');
     }
+
+    if ($oldversion < 2023082900) {
+
+        // Define config rooms table eledia_adminexamdates_cfg_r to be created.
+        $table = new xmldb_table('eledia_adminexamdates_cfg_r');
+
+        // Adding fields to table eledia_adminexamdates_cfg_r.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('roomid', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('capacity', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('color', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('specialroom', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table eledia_adminexamdates_cfg_r.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for eledia_adminexamdates_cfg_r.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Add initial records to config rooms table eledia_adminexamdates_cfg_r.
+        if (($dbman->table_exists($table)) && ($DB->count_records('eledia_adminexamdates_cfg_r') < 1) &&
+                !empty($examrooms = get_config('block_eledia_adminexamdates', 'examrooms'))) {
+
+            $rooms = preg_split('/\r\n|\r|\n/', $examrooms);
+            foreach ($rooms as $room) {
+                $roomitems = explode('|', $room);
+                if (count($roomitems) != 4) {
+                    continue;
+                }
+                $dataobject = new \stdClass();
+                $dataobject->roomid = $roomitems[0];
+                $dataobject->name = $roomitems[1];
+                $dataobject->capacity = (!empty($roomitems[2])) ? $roomitems[2] : null;
+                $dataobject->color = $roomitems[3];
+                $dataobject->specialroom = (empty($roomitems[2])) ? 1 : 0;
+                $DB->insert_record('eledia_adminexamdates_cfg_r', $dataobject);
+            }
+            unset_config('examrooms','block_eledia_adminexamdates');
+        }
+
+        // Eledia_adminexamdates savepoint reached.
+        upgrade_block_savepoint(true, 2023082900, 'eledia_adminexamdates');
+    }
+
     return true;
 }

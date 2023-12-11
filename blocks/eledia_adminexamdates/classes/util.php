@@ -372,7 +372,7 @@ class util {
 
         $roomcapacities = [];
         if ($examrooms = $DB->get_records('eledia_adminexamdates_cfg_r', ['specialroom' => 0], 'roomid')) {
-            $roomcapacities = array_column($examrooms, 'roomid', 'capacity');
+            $roomcapacities = array_column($examrooms,  'capacity','roomid');
             $examrooms = array_column($examrooms, 'roomid');
         }
 

@@ -386,10 +386,10 @@ unixTimestamp: $displaydate
       
       });
       
-    $('#action-menu-toggle-1').on('click', function(e) {
+ $('#user-menu-toggle').on('click', function(e) {
     e.preventDefault();
      e.stopPropagation();
-      $('#action-menu-1-menu').toggleClass('show'); 
+      $('#user-action-menu').toggleClass('show'); 
     
     });
     

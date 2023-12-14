@@ -427,7 +427,7 @@ class util {
                 foreach ($roomfreecapacities[$examroom]->freecapacities as $key => $freecapacity) {
                     $blockfreeend = $freecapacity->blockfreestart + $freecapacity->blockfreeduration;
                     $blockfreeduration = $blockfreeend - $bookdate;
-                    //$blockfreeduration = (($lastkey == $key) && ($blockfreeend==$timeneed)) ? $blockfreeduration  :  $blockfreeduration - ($distancebetweenblockdates * 60);
+                    $blockfreeduration = (($lastkey == $key) && ($blockfreeend==$endexam)) ? $blockfreeduration  :  $blockfreeduration - ($distancebetweenblockdates * 60);
                     if ($freecapacity->blockfreestart <= $bookdate && $bookdate < $blockfreeend &&
                             $blockfreeduration >= $timeneed) {
                         if (!isset($nextfreecapacity->blockfreestart) || (isset($nextfreecapacity->blockfreestart) &&

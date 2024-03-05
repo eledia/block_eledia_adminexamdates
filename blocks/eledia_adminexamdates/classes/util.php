@@ -1901,6 +1901,7 @@ class util {
 
         $courseid = (isset($examdate->courseid) && !empty($examdate->courseid)) ? $examdate->courseid : 0;
         // Get the template's course ID using the course idnumber.
+        $inenvcategory = false;
         if (!empty($courseid)) {
 
             //$progressbar->update_full(10, $stringcourseupdate);
@@ -1911,6 +1912,31 @@ class util {
             ];
             $examcourseresult = self::get_data_from_api('', $param);
             $examcourse = $examcourseresult->courses[0];
+
+
+            // Get Env-Category and Course Category - Check if the Course Category Path starts with Env-Category.
+            if (!empty($examcourse) && !empty($config->envcategoryidnumber)) {
+                $param = [
+                        'wsfunction' => 'core_course_get_categories',
+                        'addsubcategories' => 0,
+                ];
+                $criteria = "&criteria[0][key]=idnumber&criteria[0][value]=$config->envcategoryidnumber";
+                $results = self::get_data_from_api($criteria, $param);
+                $envcategoryid = (isset($results[0]->id)) ? $results[0]->id : null;
+
+                if(!empty($envcategoryid)){
+                    $param = [
+                            'wsfunction' => 'core_course_get_categories',
+                            'addsubcategories' => 0,
+                    ];
+                    $criteria = "&criteria[0][key]=id&criteria[0][value]=$examcourse->categoryid";
+                    $results = self::get_data_from_api($criteria, $param);
+                    if(isset($results[0]->path)){
+                        $catpath = explode('/', $results[0]->path);
+                        $inenvcategory = ($catpath[1] == $envcategoryid) ? true : false;
+                    }
+                }
+            }
 
             $param = [
                     'wsfunction' => 'core_course_get_courses_by_field',
@@ -1944,7 +1970,7 @@ class util {
                     $semestercategoryid = $results[0]->id;
                 }
 
-                if ($examcourse->categoryid != $semestercategoryid) {
+                if ($inenvcategory && ($examcourse->categoryid != $semestercategoryid)) {
                     $param = ['wsfunction' => 'core_course_update_courses'];
                     $paramcourse = "&courses[0][id]=$courseid&courses[0][categoryid]=$semestercategoryid";
                     $results = self::get_data_from_api($paramcourse, $param);
